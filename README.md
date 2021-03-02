@@ -3,6 +3,10 @@ A lightweight high-performance game engine and application framework.
 
 
 ## Features
+__CybObjects__
+* reference-counted objects
+    * optional thread-safety
+* linked lists
 
 
 ## License

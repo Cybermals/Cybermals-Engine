@@ -56,6 +56,13 @@ set(LIBS
 )
 
 if(WIN32)
+    if(MINGW)
+        set(LIBS
+            mingw32
+            ${LIBS}
+        )
+    endif(MINGW)
+    
     target_link_libraries(
         TestCybObjects
         ${LIBS}

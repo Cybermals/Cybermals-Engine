@@ -4,6 +4,11 @@
 /** @file
  * @brief Cybermals Engine - Common Definitions
  */
+ 
+/** @addtogroup CybCommon
+ * @brief Cybermals Engine - Common Definitions
+ * @{
+ */
 
 //Library Exports
 #ifdef _MSC_VER
@@ -23,10 +28,16 @@
 #endif
 
 //Generic Error Codes
-enum
+/** @brief Error codes used by the Cybermals Engine.
+ */
+enum Cyb_ErrorCodes
 {
-    CYB_NO_ERROR,
-    CYB_ERROR
+    CYB_NO_ERROR, /**< No error occurred. */
+    CYB_ERROR     /**< A generic error occurred. */
 };
+
+/**
+ * @}
+ */
 
 #endif

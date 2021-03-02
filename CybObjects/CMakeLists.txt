@@ -52,6 +52,7 @@ endif(UNIX)
 target_sources(
     CybObjects
     PUBLIC
+    src/CybList.c
     src/CybObject.c
     src/CybObjects.c
 )
