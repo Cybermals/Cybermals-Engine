@@ -3,64 +3,74 @@ cmake_minimum_required(VERSION 3.10)
 cmake_policy(SET CMP0076 NEW)
 
 #Project Name
-project(Library)
+project(CybObjects)
 
 #Add library
-add_library(Library SHARED)
+add_library(CybObjects SHARED)
 
 #Add include dirs
 if(WIN32)
     target_include_directories(
-        Library
+        CybObjects
         PUBLIC
         include
+        ../CybCommon
+        ../deps/windows/i386/SDL2/include
     )
 endif(WIN32)
 
 if(UNIX)
     target_include_directories(
-        Library
+        CybObjects
         PUBLIC
         include
+        ../CybCommon
+        ../deps/linux/amd64/SDL2/include
     )
 endif(UNIX)
 
 #Add link dirs
 if(WIN32)
     target_link_directories(
-        Library
+        CybObjects
         PUBLIC
+        ../deps/windows/i386/SDL2/bin
+        ../deps/windows/i386/SDL2/lib
     )
 endif(WIN32)
 
 if(UNIX)
     target_link_directories(
-        Library
+        CybObjects
         PUBLIC
+        ../deps/linux/amd64/SDL2/bin
+        ../deps/linux/amd64/SDL2/lib
     )
 endif(UNIX)
 
 #Add source code
 target_sources(
-    Library
+    CybObjects
     PUBLIC
-    src/main.c
+    src/CybObject.c
+    src/CybObjects.c
 )
 
 #Libraries to link against
 set(LIBS
+    SDL2
 )
 
 if(WIN32)
     target_link_libraries(
-        Library
+        CybObjects
         ${LIBS}
     )
 endif(WIN32)
 
 if(UNIX)
     target_link_libraries(
-        Library
+        CybObjects
         ${LIBS}
     )
 endif(UNIX)
@@ -74,6 +84,7 @@ endif(MSVC10)
 if(WIN32)
     file(
         GLOB DEPS
+        ../deps/windows/i386/SDL2/bin/*
     )
     file(COPY ${DEPS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif(WIN32)
@@ -81,15 +92,18 @@ endif(WIN32)
 if(UNIX)
     file(
         GLOB DEPS
+        ../deps/linux/amd64/SDL2/bin/*.txt
+        ../deps/linux/amd64/SDL2/lib/*.so*
     )
     file(COPY ${DEPS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif(UNIX)
 
 #Copy data files
-file(COPY data DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+# file(COPY data DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 #Install
-install(TARGETS Library DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+install(TARGETS CybObjects DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 install(FILES ${DEPS} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-install(DIRECTORY data DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-install(DIRECTORY include DESTINATION ${CMAKE_INSTALL_PREFIX})
+# install(DIRECTORY data DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+file(GLOB CYBOBJECTS_HEADERS include/*)
+install(FILES ${CYBOBJECTS_HEADERS} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/CybObjects)

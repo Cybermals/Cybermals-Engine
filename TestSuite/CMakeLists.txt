@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.10)
 cmake_policy(SET CMP0076 NEW)
 
 #Project Name
-project(Project)
+project(TestSuite)
 
 #Include sub-projects
-add_subdirectory(SubProject)
+add_subdirectory(TestCybObjects)
