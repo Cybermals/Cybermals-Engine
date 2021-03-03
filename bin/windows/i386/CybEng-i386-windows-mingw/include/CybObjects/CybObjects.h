@@ -8,6 +8,7 @@
 #include "CybCommon.h"
 #include "CybList.h"
 #include "CybObject.h"
+#include "CybVector.h"
 
  
 #ifdef __cplusplus

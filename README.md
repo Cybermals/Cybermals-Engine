@@ -10,6 +10,10 @@ __CybObjects__
     * optional thread-safety
     * supports insert, remove, and get
     * supports arbitrary element size
+* vector collections
+    * optional thread-safety
+    * supports insert, remove, and get
+    * supports arbitrary element size
 
 
 ## License

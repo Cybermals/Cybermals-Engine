@@ -38,6 +38,12 @@ void TestNodeFini(Cyb_ListNode *node)
 }
 
 
+void TestElmFini(void *elm)
+{
+    printf("Vector element at 0x%x freed.\n", elm);
+}
+
+
 int TestCybObject(void)
 {
     //Create an object
@@ -226,6 +232,135 @@ int TestCybList(void)
 }
 
 
+int TestCybVector(void)
+{
+    //Create a vector
+    puts("Creating a vector...");
+    Cyb_Vector *vec = Cyb_CreateVec(sizeof(int), &TestElmFini);
+    
+    if(!vec)
+    {
+        puts("Failed to create a vector.");
+        return 1;
+    }
+    
+    //Insert 3 elements at the beginning
+    puts("Inserting elements at the beginning...");
+    
+    for(int i = 2; i > -1; i--)
+    {
+        int *elm = (int*)Cyb_InsertVecElm(vec, CYB_VEC_START);
+        
+        if(!elm)
+        {
+            puts("Failed to insert a vector element at the beginning.");
+            Cyb_FreeObject((Cyb_Object**)&vec);
+            return 1;
+        }
+        
+        *elm = i;
+    }
+    
+    //Insert 3 elements at the end
+    puts("Inserting elements at the end...");
+    
+    for(int i = 6; i < 9; i++)
+    {
+        int *elm = (int*)Cyb_InsertVecElm(vec, CYB_VEC_END);
+        
+        if(!elm)
+        {
+            puts("Failed to insert a vector element at the end.");
+            Cyb_FreeObject((Cyb_Object**)&vec);
+            return 1;
+        }
+        
+        *elm = i;
+    }
+    
+    //Insert 3 elements in the middle
+    puts("Inserting elements in the middle...");
+    
+    for(int i = 5; i > 2; i--)
+    {
+        int *elm = (int*)Cyb_InsertVecElm(vec, 3);
+        
+        if(!elm)
+        {
+            puts("Failed to insert a vector element in the middle.");
+            Cyb_FreeObject((Cyb_Object**)&vec);
+            return 1;
+        }
+        
+        *elm = i;
+    }
+    
+    //Verify the vector items
+    puts("Verifying vector items...");
+    
+    for(size_t i = 0; i < vec->len; i++)
+    {
+        //Verify the data
+        int *elm = (int*)Cyb_GetVecElm(vec, i);
+        
+        if(!elm || *elm != i)
+        {
+            printf("Vector element %i was %i, however it should have been %i.\n",
+                i, *elm, i);
+        }
+    }
+    
+    //Remove the first, last, and middle items
+    puts("Removing a few vector items...");
+    Cyb_RemoveVecElm(vec, CYB_VEC_START);
+    Cyb_RemoveVecElm(vec, CYB_VEC_END);
+    Cyb_RemoveVecElm(vec, 3);
+    
+    //Verify the vector items again
+    puts("Verifying vector items...");
+    int values[] = {1, 2, 3, 5, 6, 7};
+    
+    for(size_t i = 0; i < vec->len; i++)
+    {
+        //Verify the data
+        int *elm = (int*)Cyb_GetVecElm(vec, i);
+        
+        if(!elm || *elm != values[i])
+        {
+            printf("Vector element %i was %i, however it should have been %i.\n",
+                i, *elm, i);
+        }
+    }
+    
+    //Test bounds-checking
+    puts("Testing bounds-checking (you should see 1 warning and 2 error messages if this succeeds)...");
+    int *elm = (int*)Cyb_InsertVecElm(vec, 2000);
+    
+    if(!vec)
+    {
+        puts("Bounds-checking failed.");
+        Cyb_FreeObject((Cyb_Object**)&vec);
+        return 1;
+    }
+    
+    elm = (int*)Cyb_GetVecElm(vec, 2000);
+    
+    if(elm)
+    {
+        puts("Bounds-checking failed.");
+        Cyb_FreeObject((Cyb_Object**)&vec);
+        return 1;
+    }
+    
+    Cyb_RemoveVecElm(vec, 2000);
+    
+    //Free the vector
+    puts("Freeing vector...");
+    Cyb_FreeObject((Cyb_Object**)&vec);
+    return 0;
+}
+
+
 //Entry Point
 //===========================================================================
 int main(int argc, char **argv)
@@ -238,6 +373,8 @@ int main(int argc, char **argv)
     }
 
     //Run object test
+    puts("\nObject Test\n==========");
+    
     if(TestCybObject())
     {
         puts("CybObjects object test failed.");
@@ -245,12 +382,23 @@ int main(int argc, char **argv)
     }
     
     //Run list test
+    puts("\nList Test\n=========");
+    
     if(TestCybList())
     {
         puts("CybObjects list test failed.");
         return 1;
     }
     
-    puts("CybObjects test succeeded.");
+    //Run vector test
+    puts("\nVector Test\n============");
+    
+    if(TestCybVector())
+    {
+        puts("CybObjects vector test failed.");
+        return 1;
+    }
+    
+    puts("\nCybObjects test succeeded.");
     return 0;
 }

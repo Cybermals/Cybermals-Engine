@@ -25,6 +25,7 @@ enum Cyb_ObjectTypes
 {
     CYB_OBJECT, /**< Generic object. */
     CYB_LIST,   /**< Linked list object. */
+    CYB_VECTOR, /**< Vector object. */
 };
 
 

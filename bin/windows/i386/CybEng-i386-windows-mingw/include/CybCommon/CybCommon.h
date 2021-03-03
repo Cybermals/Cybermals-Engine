@@ -9,15 +9,6 @@
  * @brief Cybermals Engine - Common Definitions
  * @{
  */
- 
-//Version Info
-/** @brief Cybermals Engine version float.
- */
-#define CYB_VERSION        0.0f
-
-/** @brief Cybermals Engine version string.
- */
-#define CYB_VERSION_STRING "0.0.1a"
 
 //Library Exports
 #ifdef _MSC_VER

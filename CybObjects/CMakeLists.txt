@@ -55,6 +55,7 @@ target_sources(
     src/CybList.c
     src/CybObject.c
     src/CybObjects.c
+    src/CybVector.c
 )
 
 #Libraries to link against
@@ -121,5 +122,6 @@ if(UNIX)
     install(DIRECTORY ../deps/linux/amd64/SDL2/include DESTINATION ${CMAKE_INSTALL_PREFIX})
 endif(UNIX)
 
+install(DIRECTORY ../CybCommon DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
 file(GLOB CYBOBJECTS_HEADERS include/*)
 install(FILES ${CYBOBJECTS_HEADERS} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/CybObjects)

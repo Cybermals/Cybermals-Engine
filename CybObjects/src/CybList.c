@@ -15,7 +15,12 @@ void Cyb_FreeList(Cyb_List *list)
     while(node)
     {
         Cyb_ListNode *next = node->next;
-        list->freeNode(node);
+        
+        if(list->freeNode)
+        {
+            list->freeNode(node);
+        }
+        
         SDL_free(node);
         node = next;
     }

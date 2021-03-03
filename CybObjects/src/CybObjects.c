@@ -16,6 +16,18 @@ static int refCnt = 0;
 
 //Functions
 //==================================================================================
+float Cyb_GetVersion(void)
+{
+    return CYB_VERSION;
+}
+
+
+const char *Cyb_GetVersionString(void)
+{
+    return CYB_VERSION_STRING;
+}
+
+
 int Cyb_InitObjects(void)
 {
     //Update ref count
