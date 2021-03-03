@@ -7,6 +7,9 @@ __CybObjects__
 * reference-counted objects
     * optional thread-safety
 * linked lists
+    * optional thread-safety
+    * supports insert, remove, and get
+    * supports arbitrary element size
 
 
 ## License

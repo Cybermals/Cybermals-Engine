@@ -98,6 +98,14 @@ CYBAPI void Cyb_UnlockObject(Cyb_Object *obj);
  */
 CYBAPI Cyb_Object *Cyb_NewObjectRef(Cyb_Object *obj);
 
+/** @brief Threadsafe version of Cyb_NewObjectRef.
+ *
+ * @param obj Pointer to the object.
+ *
+ * @return Pointer to the object.
+ */
+CYBAPI Cyb_Object *Cyb_SafeNewObjectRef(Cyb_Object *obj);
+
 /**
  * @}
  */

@@ -12,7 +12,7 @@
 
 //Library Exports
 #ifdef _MSC_VER
-    #ifdef DLL_EXPORT
+    #ifdef DLL_EXPORTS
         #define CYBAPI __declspec(dllexport)
     #else
         #define CYBAPI __declspec(dllimport)

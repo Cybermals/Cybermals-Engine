@@ -81,6 +81,12 @@ if(MSVC10)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /TP")
 endif(MSVC10)
 
+target_compile_options(
+    CybObjects
+    PUBLIC
+    -DDLL_EXPORTS
+)
+
 #Copy deps
 if(WIN32)
     file(
@@ -106,5 +112,14 @@ endif(UNIX)
 install(TARGETS CybObjects DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 install(FILES ${DEPS} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 # install(DIRECTORY data DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+
+if(WIN32)
+    install(DIRECTORY ../deps/windows/i386/SDL2/include DESTINATION ${CMAKE_INSTALL_PREFIX})
+endif(WIN32)
+
+if(UNIX)
+    install(DIRECTORY ../deps/linux/amd64/SDL2/include DESTINATION ${CMAKE_INSTALL_PREFIX})
+endif(UNIX)
+
 file(GLOB CYBOBJECTS_HEADERS include/*)
 install(FILES ${CYBOBJECTS_HEADERS} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/CybObjects)

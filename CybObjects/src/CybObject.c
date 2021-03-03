@@ -96,3 +96,13 @@ Cyb_Object *Cyb_NewObjectRef(Cyb_Object *obj)
     obj->refCnt++;
     return obj;
 }
+
+
+Cyb_Object *Cyb_SafeNewObjectRef(Cyb_Object *obj)
+{
+    //Lock the object, create a new ref, and unlock the object
+    Cyb_LockObject(obj);
+    Cyb_Object *ref = Cyb_NewObjectRef(obj);
+    Cyb_UnlockObject(obj);
+    return ref;
+}

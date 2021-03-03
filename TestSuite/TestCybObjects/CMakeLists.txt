@@ -13,6 +13,8 @@ if(WIN32)
     target_include_directories(
         TestCybObjects
         PUBLIC
+        ../../deps/windows/i386/SDL2/include
+        ../../CybCommon
         ../../CybObjects/include
     )
 endif(WIN32)
@@ -21,6 +23,8 @@ if(UNIX)
     target_include_directories(
         TestCybObjects
         PUBLIC
+        ../../deps/linux/amd64/SDL2/include
+        ../../CybCommon
         ../../CybObjects/include
     )
 endif(UNIX)
@@ -30,7 +34,8 @@ if(WIN32)
     target_link_directories(
         TestCybObjects
         PUBLIC
-        ../deps/windows/i386/SDL2/lib
+        ../../deps/windows/i386/SDL2/lib
+        ${CMAKE_CURRENT_BINARY_DIR}/../../CybObjects
     )
 endif(WIN32)
 
@@ -38,7 +43,8 @@ if(UNIX)
     target_link_directories(
         TestCybObjects
         PUBLIC
-        ../deps/linux/amd64/SDL2/lib
+        ../../deps/linux/amd64/SDL2/lib
+        ${CMAKE_CURRENT_BINARY_DIR}/../../CybObjects
     )
 endif(UNIX)
 
@@ -52,7 +58,8 @@ target_sources(
 #Libraries to link against
 set(LIBS
     SDL2main
-    CybObjects
+    SDL2
+    libCybObjects #the "lib" prefix ensures a dynamic link
 )
 
 if(WIN32)
