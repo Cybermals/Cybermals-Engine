@@ -51,7 +51,7 @@ endif(UNIX)
 #Add source code
 target_sources(
     CybObjects
-    PUBLIC
+    PRIVATE
     src/CybList.c
     src/CybObject.c
     src/CybObjects.c
