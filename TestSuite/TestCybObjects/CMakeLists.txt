@@ -13,7 +13,6 @@ if(WIN32)
     target_include_directories(
         TestCybObjects
         PUBLIC
-        ../../CybObjects/include
     )
 endif(WIN32)
 
@@ -21,7 +20,6 @@ if(UNIX)
     target_include_directories(
         TestCybObjects
         PUBLIC
-        ../../CybObjects/include
     )
 endif(UNIX)
 
@@ -30,7 +28,6 @@ if(WIN32)
     target_link_directories(
         TestCybObjects
         PUBLIC
-        ../deps/windows/i386/SDL2/lib
     )
 endif(WIN32)
 
@@ -38,14 +35,13 @@ if(UNIX)
     target_link_directories(
         TestCybObjects
         PUBLIC
-        ../deps/linux/amd64/SDL2/lib
     )
 endif(UNIX)
 
 #Add source code
 target_sources(
     TestCybObjects
-    PUBLIC
+    PRIVATE
     src/main.c
 )
 
@@ -56,6 +52,13 @@ set(LIBS
 )
 
 if(WIN32)
+    if(MINGW)
+        set(LIBS
+            mingw32
+            ${LIBS}
+        )
+    endif(MINGW)
+    
     target_link_libraries(
         TestCybObjects
         ${LIBS}

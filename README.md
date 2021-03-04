@@ -3,6 +3,21 @@ A lightweight high-performance game engine and application framework.
 
 
 ## Features
+### CybObjects
+* reference-counted objects
+    * optional thread-safety
+* linked lists
+    * optional thread-safety
+    * supports insert, remove, and get
+    * supports arbitrary element size
+* vector collections
+    * optional thread-safety
+    * supports insert, remove, and get
+    * supports arbitrary element size
+* queues
+    * optional thread-safety
+    * supports enqueue, dequeue, is_full, and is_empty
+    * supports arbitrary element size
 
 
 ## License

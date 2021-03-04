@@ -43,7 +43,7 @@ endif(UNIX)
 #Add source code
 target_sources(
     Library
-    PUBLIC
+    PRIVATE
     src/main.c
 )
 
@@ -69,6 +69,12 @@ endif(UNIX)
 if(MSVC10)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /TP")
 endif(MSVC10)
+
+target_compile_options(
+    Library
+    PUBLIC
+    -DDLL_EXPORTS
+)
 
 #Copy deps
 if(WIN32)

@@ -12,7 +12,7 @@ CybObject - Object API
 Cyb_Object *Cyb_CreateObject(size_t size, CybFreeProc destructor, int type)
 {
     //Allocate a new object
-    Cyb_Object *obj = (Cyb_Object*)malloc(size);
+    Cyb_Object *obj = (Cyb_Object*)SDL_malloc(size);
     
     if(!obj)
     {
@@ -49,11 +49,11 @@ void Cyb_FreeObject(Cyb_Object **obj)
         //Call the destructor, destroy the mutex, and free the object
         if(tmp->free)
         {
-            tmp->free();
+            tmp->free(tmp);
         }
         
         SDL_DestroyMutex(tmp->lock);
-        free(tmp);
+        SDL_free(tmp);
     }
     
     //Set the object to NULL
@@ -98,8 +98,11 @@ Cyb_Object *Cyb_NewObjectRef(Cyb_Object *obj)
 }
 
 
-int Cyb_GetObjectType(Cyb_Object *obj)
+Cyb_Object *Cyb_SafeNewObjectRef(Cyb_Object *obj)
 {
-    //Return the object type
-    return obj->type;
+    //Lock the object, create a new ref, and unlock the object
+    Cyb_LockObject(obj);
+    Cyb_Object *ref = Cyb_NewObjectRef(obj);
+    Cyb_UnlockObject(obj);
+    return ref;
 }
