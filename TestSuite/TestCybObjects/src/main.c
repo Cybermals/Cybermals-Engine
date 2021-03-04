@@ -38,9 +38,15 @@ void TestNodeFini(Cyb_ListNode *node)
 }
 
 
-void TestElmFini(void *elm)
+void TestVecElmFini(void *elm)
 {
     printf("Vector element at 0x%x freed.\n", elm);
+}
+
+
+void TestQueueElmFini(void *elm)
+{
+    printf("Queue element at 0x%x freed.\n", elm);
 }
 
 
@@ -236,7 +242,7 @@ int TestCybVector(void)
 {
     //Create a vector
     puts("Creating a vector...");
-    Cyb_Vector *vec = Cyb_CreateVec(sizeof(int), &TestElmFini);
+    Cyb_Vector *vec = Cyb_CreateVec(sizeof(int), &TestVecElmFini);
     
     if(!vec)
     {
@@ -361,6 +367,48 @@ int TestCybVector(void)
 }
 
 
+int TestCybQueue(void)
+{
+    //Create a queue
+    puts("Creating a queue...");
+    Cyb_Queue *queue = Cyb_CreateQueue(sizeof(int), &TestQueueElmFini, 9);
+    
+    if(!queue)
+    {
+        puts("Failed to create a queue.");
+        return 1;
+    }
+    
+    //Enqueue some integers
+    puts("Enqueuing some integers...");
+    
+    for(int i = 0; i < 9; i++)
+    {
+        Cyb_Enqueue(queue, &i);
+    }
+    
+    //Test queue overflow counter measures
+    puts("Testing queue overflow counter measures (you should see one warning)...");
+    int n = 10;
+    Cyb_Enqueue(queue, &n);
+    
+    //Dequeue some integers
+    for(int i = 0; i < 4; i++)
+    {
+        if(!Cyb_Dequeue(queue, &n) || n != i)
+        {
+            printf("Queue element %i was %i, however it should have been %i.\n",
+                i, n, i);
+        }
+    }
+
+    //Free the queue
+    puts("Freeing the queue...");
+    Cyb_FreeObject((Cyb_Object**)&queue);
+    return 0;
+}
+
+
 //Entry Point
 //===========================================================================
 int main(int argc, char **argv)
@@ -396,6 +444,15 @@ int main(int argc, char **argv)
     if(TestCybVector())
     {
         puts("CybObjects vector test failed.");
+        return 1;
+    }
+    
+    //Run queue test
+    puts("\nQueue Test\n==========");
+    
+    if(TestCybQueue())
+    {
+        puts("CybObjects queue test failed.");
         return 1;
     }
     

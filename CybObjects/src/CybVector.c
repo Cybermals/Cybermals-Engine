@@ -14,7 +14,7 @@ void Cyb_FreeVec(Cyb_Vector *vec)
     //Call element destructor for each element
     if(vec->freeElm)
     {
-        void *elm = vec->data;
+        char *elm = (char*)vec->data;
     
         for(size_t i = 0; i < vec->len; i++)
         {
@@ -82,7 +82,7 @@ void *Cyb_InsertVecElm(Cyb_Vector *vec, size_t i)
     if(i == CYB_VEC_START)
     {
         //Move the entire array over by the size of one element
-        memmove(vec->data + vec->elmSize, vec->data, vec->len * vec->elmSize);
+        memmove((char*)vec->data + vec->elmSize, vec->data, vec->len * vec->elmSize);
         vec->len++;
         return vec->data;
     }
@@ -91,7 +91,7 @@ void *Cyb_InsertVecElm(Cyb_Vector *vec, size_t i)
     {
         //No moving required, just return a pointer to the last element
         vec->len++;
-        return vec->data + vec->elmSize * (vec->len - 1);
+        return (char*)vec->data + vec->elmSize * (vec->len - 1);
     }
     //Insert in the middle?
     else
@@ -108,14 +108,14 @@ void *Cyb_InsertVecElm(Cyb_Vector *vec, size_t i)
             SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "%s", 
                 "[CybObjects] Vector insert index out of bounds. Defaulting to end of vector.");
             vec->len++;
-            return vec->data + vec->elmSize * (vec->len - 1);
+            return (char*)vec->data + vec->elmSize * (vec->len - 1);
         }
         
         //Move the data after the insert position over one element
-        memmove(vec->data + vec->elmSize * (i + 1), vec->data + vec->elmSize * i, 
+        memmove((char*)vec->data + vec->elmSize * (i + 1), (char*)vec->data + vec->elmSize * i, 
             vec->elmSize * (vec->len - i));
         vec->len++;
-        return vec->data + vec->elmSize * i;
+        return (char*)vec->data + vec->elmSize * i;
     }
 }
 
@@ -137,7 +137,7 @@ void Cyb_RemoveVecElm(Cyb_Vector *vec, size_t i)
     {
         //Move the entire array over by the size of one element
         vec->len--;
-        memmove(vec->data, vec->data + vec->elmSize, vec->len * vec->elmSize);
+        memmove(vec->data, (char*)vec->data + vec->elmSize, vec->len * vec->elmSize);
     }
     //Remove from end?
     else if(i == CYB_VEC_END || i == vec->len - 1)
@@ -164,7 +164,7 @@ void Cyb_RemoveVecElm(Cyb_Vector *vec, size_t i)
         
         //Move the data after the remove position over one element
         vec->len--;
-        memmove(vec->data + vec->elmSize * i, vec->data + vec->elmSize * (i + 1), 
+        memmove((char*)vec->data + vec->elmSize * i, (char*)vec->data + vec->elmSize * (i + 1), 
             vec->elmSize * (vec->len - i));
     }
 }
@@ -196,5 +196,5 @@ void *Cyb_GetVecElm(Cyb_Vector *vec, size_t i)
     }
     
     //Return a pointer to the requested element
-    return vec->data + vec->elmSize * i;
+    return (char*)vec->data + vec->elmSize * i;
 }

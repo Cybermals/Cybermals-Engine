@@ -55,6 +55,7 @@ target_sources(
     src/CybList.c
     src/CybObject.c
     src/CybObjects.c
+    src/CybQueue.c
     src/CybVector.c
 )
 
@@ -84,7 +85,7 @@ endif(MSVC10)
 
 target_compile_options(
     CybObjects
-    PUBLIC
+    PRIVATE
     -DDLL_EXPORTS
 )
 

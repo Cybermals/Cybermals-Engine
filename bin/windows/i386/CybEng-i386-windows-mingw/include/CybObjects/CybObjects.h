@@ -8,6 +8,7 @@
 #include "CybCommon.h"
 #include "CybList.h"
 #include "CybObject.h"
+#include "CybQueue.h"
 #include "CybVector.h"
 
  
@@ -22,6 +23,18 @@ extern "C" {
 
 //Functions
 //==================================================================================
+/** @brief Get the Cybermals Engine version.
+ *
+ * @return The version as a float.
+ */
+CYBAPI float Cyb_GetVersion(void);
+
+/** @brief Get the Cybermals Engine version string.
+ *
+ * @return The version as a string.
+ */
+CYBAPI const char *Cyb_GetVersionString(void);
+
 /** @brief Initialize the objects subsystem.
  * 
  * @return CYB_NO_ERROR on success or CYB_ERROR on failure.
