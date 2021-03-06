@@ -132,6 +132,14 @@ void *Cyb_SafeInsertVecElm(Cyb_Vector *vec, size_t i)
 
 void Cyb_RemoveVecElm(Cyb_Vector *vec, size_t i)
 {
+    //Can't remove from an empty vector!
+    if(vec->len == 0)
+    {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", 
+            "[CybObjects] Cannot remove an element from an empty vector!");
+        return;
+    }
+    
     //Remove from beginning?
     if(i == CYB_VEC_START)
     {

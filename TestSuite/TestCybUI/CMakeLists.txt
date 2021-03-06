@@ -3,22 +3,22 @@ cmake_minimum_required(VERSION 3.10)
 cmake_policy(SET CMP0076 NEW)
 
 #Project Name
-project(TestCybObjects)
+project(TestCybUI)
 
 #Add executable
-add_executable(TestCybObjects)
+add_executable(TestCybUI)
 
 #Add include dirs
 # if(WIN32)
     # target_include_directories(
-        # TestCybObjects
+        # TestCybUI
         # PUBLIC
     # )
 # endif(WIN32)
 
 # if(UNIX)
     # target_include_directories(
-        # TestCybObjects
+        # TestCybUI
         # PUBLIC
     # )
 # endif(UNIX)
@@ -26,21 +26,21 @@ add_executable(TestCybObjects)
 #Add link dirs
 # if(WIN32)
     # target_link_directories(
-        # TestCybObjects
+        # TestCybUI
         # PUBLIC
     # )
 # endif(WIN32)
 
 # if(UNIX)
     # target_link_directories(
-        # TestCybObjects
+        # TestCybUI
         # PUBLIC
     # )
 # endif(UNIX)
 
 #Add source code
 target_sources(
-    TestCybObjects
+    TestCybUI
     PRIVATE
     src/main.c
 )
@@ -48,7 +48,7 @@ target_sources(
 #Libraries to link against
 set(LIBS
     SDL2main
-    CybObjects
+    CybUI
 )
 
 if(WIN32)
@@ -60,14 +60,14 @@ if(WIN32)
     endif(MINGW)
     
     target_link_libraries(
-        TestCybObjects
+        TestCybUI
         ${LIBS}
     )
 endif(WIN32)
 
 if(UNIX)
     target_link_libraries(
-        TestCybObjects
+        TestCybUI
         ${LIBS}
     )
 endif(UNIX)
@@ -97,9 +97,9 @@ endif(UNIX)
 # endif(UNIX)
 
 #Copy data files
-# file(COPY data DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY ../data DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 #Install
-install(TARGETS TestCybObjects DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+install(TARGETS TestCybUI DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 # install(FILES ${DEPS} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-# install(DIRECTORY data DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+install(DIRECTORY ../data DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

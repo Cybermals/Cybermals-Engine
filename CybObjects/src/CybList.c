@@ -60,7 +60,7 @@ Cyb_ListNode *Cyb_InsertListElm(Cyb_List *list, size_t i)
     }
     
     //Are we inserting at the beginning?
-    if(i == CYB_LIST_START || i == list->len - 1)
+    if(i == CYB_LIST_START)
     {
         //Replace the first node with the new node and make the first node a child
         //of the second node.
@@ -72,7 +72,7 @@ Cyb_ListNode *Cyb_InsertListElm(Cyb_List *list, size_t i)
         list->len++;
     }
     //Are we inserting at the end?
-    else if(i == CYB_LIST_END)
+    else if(i == CYB_LIST_END || i == list->len - 1)
     {
         //Is the first node the last?
         if(!list->first)
@@ -161,6 +161,14 @@ Cyb_ListNode *Cyb_SafeInsertListElm(Cyb_List *list, size_t i)
 
 void Cyb_RemoveListElm(Cyb_List *list, size_t i)
 {
+    //Can't remove from an empty list!
+    if(list->len == 0)
+    {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", 
+            "[CybObjects] Cannot remove an element from an empty list!");
+        return;
+    }
+    
     //Remove first node?
     if(i == CYB_LIST_START)
     {

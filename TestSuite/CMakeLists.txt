@@ -7,3 +7,4 @@ project(TestSuite)
 
 #Include sub-projects
 add_subdirectory(TestCybObjects)
+add_subdirectory(TestCybUI)
