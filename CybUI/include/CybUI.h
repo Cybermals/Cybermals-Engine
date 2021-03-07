@@ -8,6 +8,7 @@
 #include "CybCommon.h"
 #include "CybGrid.h"
 #include "CybTimer.h"
+#include "CybUIEvents.h"
 #include "CybUILoader.h"
 #include "CybWidgetList.h"
 

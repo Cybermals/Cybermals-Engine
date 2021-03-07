@@ -1,6 +1,8 @@
-<grid rows="2" cols="2">
-    <grid rows="2" cols="2" row="0" col="0"/>
-    <grid rows="2" cols="2" row="0" col="1"/>
-    <grid rows="2" cols="2" row="1" col="0"/>
-    <grid rows="2" cols="2" row="1" col="1"/>
+<grid id="root" rows="4" cols="4">
+    <grid id="child1" rows="2" cols="2" row="1" col="1"/>
+    <grid id="child2" rows="2" cols="2" row="1" col="2"/>
+    <grid id="child3" rows="2" cols="2" row="2" col="1"/>
+    <grid id="child4" rows="2" cols="2" row="2" col="2" rowspan="2" colspan="2">
+        <grid id="child5" rows="8" cols="8" row="1" col="1"/>
+    </grid>
 </grid>

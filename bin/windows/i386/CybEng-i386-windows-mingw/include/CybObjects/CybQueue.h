@@ -86,10 +86,7 @@ CYBAPI int Cyb_SafeDequeue(Cyb_Queue *queue, void *data);
  *
  * @return TRUE if the queue is empty.
  */
-inline int Cyb_IsQueueEmpty(const Cyb_Queue *queue)
-{
-    return queue->len == 0;
-}
+CYBAPI int Cyb_IsQueueEmpty(const Cyb_Queue *queue);
 
 /** @brief Threadsafe version of Cyb_IsQueueEmpty.
  *
@@ -105,10 +102,7 @@ CYBAPI int Cyb_SafeIsQueueEmpty(Cyb_Queue *queue);
  *
  * @return TRUE if the queue is full.
  */
-inline int Cyb_IsQueueFull(const Cyb_Queue *queue)
-{
-    return queue->len == queue->size;
-}
+CYBAPI int Cyb_IsQueueFull(const Cyb_Queue *queue);
 
 /** @brief Threadsafe version of Cyb_IsQueueFull.
  *

@@ -6,6 +6,7 @@ CybUI - Main API
 
 #include "CybObjects.h"
 #include "CybUI.h"
+#include "CybUIEvents.h"
 
 
 //Globals
@@ -51,6 +52,12 @@ int Cyb_InitUI(void)
                 SDL_GetError());
             return CYB_ERROR;
         }
+    }
+    
+    //Register UI events
+    if(Cyb_InitUIEvents())
+    {
+        return CYB_ERROR;
     }
     
     return CYB_NO_ERROR;

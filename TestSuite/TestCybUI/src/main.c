@@ -64,6 +64,23 @@ int main(int argc, char **argv)
     
     if(!root)
     {
+        return 1;
+    }
+    
+    //Test ID lookup
+    puts("Testing ID lookup...");
+    Cyb_Grid *child = Cyb_GetGridByID(root, "child5");
+    
+    if(!child)
+    {
+        puts("ID lookup failed.");
+    }
+    
+    child = Cyb_GetGridByID(root, "trash"); //this one should fail
+    
+    if(child)
+    {
+        puts("ID lookup failed.");
     }
     
     //Main Loop
@@ -74,16 +91,45 @@ int main(int argc, char **argv)
         
         while(SDL_PollEvent(&event))
         {
-            //Process next event
-            switch(event.type)
+            //Quit Event?
+            if(event.type == SDL_QUIT)
             {
-                //Quit Event
-            case SDL_QUIT:
                 return 0;
             }
+            //UI Mouse Motion Event?
+            else if(event.type == CYB_UI_MOUSEMOTION)
+            {
+                Cyb_Grid *grid = (Cyb_Grid*)event.user.data1;
+                printf("Mouse moved over widget '%s' at pos (%i, %i).\n",
+                    grid->id, 0, 0);
+            }
+            //UI Mouse Button Down Event
+            else if(event.type == CYB_UI_MOUSEBUTTONDOWN)
+            {
+                Cyb_Grid *grid = (Cyb_Grid*)event.user.data1;
+                printf("Mouse button %i down over widget '%s' at pos (%i, %i).\n",
+                    event.user.code, grid->id, 0, 0);
+            }
+            //UI Mouse Button Up Event
+            else if(event.type == CYB_UI_MOUSEBUTTONUP)
+            {
+                Cyb_Grid *grid = (Cyb_Grid*)event.user.data1;
+                printf("Mouse button %i up over widget '%s' at pos (%i, %i).\n",
+                    event.user.code, grid->id, 0, 0);
+            }
+            
+            Cyb_HandleUIEvent(root, &event);
         }
         
-        //Limit framerate
+        //Clear window
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+        SDL_RenderClear(renderer);
+        
+        //Update UI
+        Cyb_DrawUI(root, renderer);
+        
+        //Swap buffers and limit framerate
+        SDL_RenderPresent(renderer);
         Cyb_NextFrame(FPS);
     }
     

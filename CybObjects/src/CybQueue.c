@@ -70,7 +70,7 @@ Cyb_Queue *Cyb_CreateQueue(size_t elmSize, CybFreeElmProc destructor,
 void Cyb_Enqueue(Cyb_Queue *queue, const void *data)
 {
     //Verify that the queue isn't full
-    if(queue->len == queue->size)
+    if(Cyb_IsQueueFull(queue))
     {
         SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "%s",
             "[CybObjects] The queue is full!");
@@ -131,6 +131,12 @@ int Cyb_SafeDequeue(Cyb_Queue *queue, void *data)
 }
 
 
+int Cyb_IsQueueEmpty(const Cyb_Queue *queue)
+{
+    return queue->len == 0;
+}
+
+
 int Cyb_SafeIsQueueEmpty(Cyb_Queue *queue)
 {
     //Lock the queue, check if is empty, and unlock it
@@ -138,6 +144,12 @@ int Cyb_SafeIsQueueEmpty(Cyb_Queue *queue)
     int res = Cyb_IsQueueEmpty(queue);
     Cyb_UnlockObject((Cyb_Object*)queue);
     return res;
+}
+
+
+int Cyb_IsQueueFull(const Cyb_Queue *queue)
+{
+    return queue->len == queue->size;
 }
 
 

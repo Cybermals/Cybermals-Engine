@@ -97,13 +97,15 @@ void *Cyb_InsertVecElm(Cyb_Vector *vec, size_t i)
     else
     {
         //Handle negative index
-        if(i < 0)
+        int n = i;
+        
+        if(n < 0)
         {
-            i += vec->len;
+            n += vec->len;
         }
         
         //Do bounds check
-        if(i < 0 || i > vec->len - 1)
+        if(n < 0 || n > vec->len - 1)
         {
             SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "%s", 
                 "[CybObjects] Vector insert index out of bounds. Defaulting to end of vector.");
@@ -112,10 +114,10 @@ void *Cyb_InsertVecElm(Cyb_Vector *vec, size_t i)
         }
         
         //Move the data after the insert position over one element
-        memmove((char*)vec->data + vec->elmSize * (i + 1), (char*)vec->data + vec->elmSize * i, 
-            vec->elmSize * (vec->len - i));
+        memmove((char*)vec->data + vec->elmSize * (n + 1), 
+            (char*)vec->data + vec->elmSize * n, vec->elmSize * (vec->len - n));
         vec->len++;
-        return (char*)vec->data + vec->elmSize * i;
+        return (char*)vec->data + vec->elmSize * n;
     }
 }
 
@@ -157,13 +159,15 @@ void Cyb_RemoveVecElm(Cyb_Vector *vec, size_t i)
     else
     {
         //Handle negative index
-        if(i < 0)
+        int n = i;
+        
+        if(n < 0)
         {
-            i += vec->len;
+            n += vec->len;
         }
         
         //Do bounds check
-        if(i < 0 || i > vec->len - 1)
+        if(n < 0 || n > vec->len - 1)
         {
             SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", 
                 "[CybObjects] Vector remove index out of bounds.");
@@ -172,8 +176,9 @@ void Cyb_RemoveVecElm(Cyb_Vector *vec, size_t i)
         
         //Move the data after the remove position over one element
         vec->len--;
-        memmove((char*)vec->data + vec->elmSize * i, (char*)vec->data + vec->elmSize * (i + 1), 
-            vec->elmSize * (vec->len - i));
+        memmove((char*)vec->data + vec->elmSize * n, 
+            (char*)vec->data + vec->elmSize * (n + 1), 
+            vec->elmSize * (vec->len - n));
     }
 }
 
@@ -190,13 +195,15 @@ void Cyb_SafeRemoveVecElm(Cyb_Vector *vec, size_t i)
 void *Cyb_GetVecElm(Cyb_Vector *vec, size_t i)
 {
     //Handle negative index
-    if(i < 0)
+    int n = i;
+    
+    if(n < 0)
     {
-        i += vec->len;
+        n += vec->len;
     }
         
     //Do bounds check
-    if(i < 0 || i > vec->len - 1)
+    if(n < 0 || n > vec->len - 1)
     {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", 
             "[CybObjects] Vector index out of bounds.");
@@ -204,5 +211,5 @@ void *Cyb_GetVecElm(Cyb_Vector *vec, size_t i)
     }
     
     //Return a pointer to the requested element
-    return (char*)vec->data + vec->elmSize * i;
+    return (char*)vec->data + vec->elmSize * n;
 }

@@ -51,6 +51,7 @@ target_sources(
     src/CybGrid.c
     src/CybTimer.c
     src/CybUI.c
+    src/CybUIEvents.c
     src/CybUILoader.c
     src/CybWidgetList.c
 )

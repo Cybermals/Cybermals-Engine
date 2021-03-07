@@ -114,13 +114,15 @@ Cyb_ListNode *Cyb_InsertListElm(Cyb_List *list, size_t i)
     else
     {
         //Negative values are relative to the end of the list
-        if(i < 0)
+        int n = i;
+        
+        if(n < 0)
         {
-            i = list->len + i;
+            n += list->len;
         }
         
         //Ensure that the index is within the list
-        if(i < 0 || i > list->len - 2)
+        if(n < 0 || n > list->len - 2)
         {
             SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", 
                 "[CybObjects] List insert index out of bounds.");
@@ -132,7 +134,7 @@ Cyb_ListNode *Cyb_InsertListElm(Cyb_List *list, size_t i)
         Cyb_ListNode *before = list->first;
         Cyb_ListNode *after = before->next;
         
-        for(size_t pos = 0; pos < i - 1; pos++)
+        for(size_t pos = 0; pos < n - 1; pos++)
         {
             before = after;
             after = before->next;
@@ -195,7 +197,15 @@ void Cyb_RemoveListElm(Cyb_List *list, size_t i)
         }
         
         //Remove the node from its parent and free it
-        parent->next = NULL;
+        if(parent)
+        {
+            parent->next = NULL;
+        }
+        else
+        {
+            list->first = NULL;
+        }
+        
         list->freeNode(node);
         SDL_free(node);
         
@@ -206,13 +216,15 @@ void Cyb_RemoveListElm(Cyb_List *list, size_t i)
     else
     {
         //Negative values are relative to the end of the list
-        if(i < 0)
+        int n = i;
+        
+        if(n < 0)
         {
-            i = list->len + i;
+            n += list->len;
         }
         
         //Ensure that the index is within the list
-        if(i < 0 || i > list->len - 2)
+        if(n < 0 || n > list->len - 2)
         {
             SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", 
                 "[CybObjects] List remove index out of bounds.");
@@ -223,7 +235,7 @@ void Cyb_RemoveListElm(Cyb_List *list, size_t i)
         Cyb_ListNode *parent = list->first;
         Cyb_ListNode *node = parent->next;
         
-        for(size_t pos = 0; pos < i - 1; pos++)
+        for(size_t pos = 0; pos < n - 1; pos++)
         {
             parent = node;
             node = parent->next;
@@ -252,13 +264,15 @@ void Cyb_SafeRemoveListElm(Cyb_List *list, size_t i)
 Cyb_ListNode *Cyb_GetListElm(const Cyb_List *list, size_t i)
 {
     //Negative values are relative to the end of the list
-    if(i < 0)
+    int n = i;
+    
+    if(n < 0)
     {
-        i = list->len + i;
+        n += list->len;
     }
         
     //Ensure that the index is within the list
-    if(i < 0 || i > list->len - 1)
+    if(n < 0 || n > list->len - 1)
     {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", 
             "[CybObjects] List index out of bounds.");
@@ -268,7 +282,7 @@ Cyb_ListNode *Cyb_GetListElm(const Cyb_List *list, size_t i)
     //Get the requested node
     Cyb_ListNode *node = list->first;
     
-    for(size_t pos = 0; pos < i; pos++)
+    for(size_t pos = 0; pos < n; pos++)
     {
         node = node->next;
     }
