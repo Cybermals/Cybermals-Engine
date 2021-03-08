@@ -3,6 +3,8 @@ CybUI - Main API
 */
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 
 #include "CybObjects.h"
 #include "CybUI.h"
@@ -24,40 +26,73 @@ int Cyb_InitUI(void)
         //Initialize CybObjects
         if(Cyb_InitObjects())
         {
+            refCnt = 0;
             return CYB_ERROR;
         }
         
-        //Initialize SDL video subsystem
+        //Initialize UI loader
+        if(Cyb_InitUILoader())
+        {
+            refCnt = 0;
+            return CYB_ERROR;
+        }
+        
+        //Register UI events
+        if(Cyb_InitUIEvents())
+        {
+            refCnt = 0;
+            return CYB_ERROR;
+        }
+        
+        //Initialize SDL2 video subsystem
         SDL_Log("%s", "[CybUI] Initializing...");
         
         if(SDL_InitSubSystem(SDL_INIT_VIDEO) == -1)
         {
             SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "[CybUI] %s",
                 SDL_GetError());
+            refCnt = 0;
             return CYB_ERROR;
         }
         
         atexit(&Cyb_FiniUI);
         
+        //Initialize SDL2 event subsystem
         if(SDL_InitSubSystem(SDL_INIT_EVENTS) == -1)
         {
             SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "[CybUI] %s",
                 SDL_GetError());
+            refCnt = 0;
             return CYB_ERROR;
         }
         
+        //Initialize SDL2 timer subsystem
         if(SDL_InitSubSystem(SDL_INIT_TIMER) == -1)
+        {
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "[CybUI] %s",
+                SDL_GetError());
+            refCnt = 0;
+            return CYB_ERROR;
+        }
+        
+        //Initialize SDL2_image
+        int flags = IMG_INIT_PNG | IMG_INIT_JPG;
+        
+        if(IMG_Init(flags) != flags)
+        {
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "[CybUI] %s",
+                SDL_GetError());
+            refCnt = 0;
+            return CYB_ERROR;
+        }
+        
+        //Initialize SDL2_ttf
+        if(TTF_Init() == -1)
         {
             SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "[CybUI] %s",
                 SDL_GetError());
             return CYB_ERROR;
         }
-    }
-    
-    //Register UI events
-    if(Cyb_InitUIEvents())
-    {
-        return CYB_ERROR;
     }
     
     return CYB_NO_ERROR;

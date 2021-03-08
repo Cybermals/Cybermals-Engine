@@ -14,6 +14,9 @@ if(WIN32)
         CybUI
         PUBLIC
         include
+        ../deps/windows/i386/SDL2/include/SDL2
+        ../deps/windows/i386/SDL2_image/include
+        ../deps/windows/i386/SDL2_ttf/include
         ../deps/windows/i386/libexpat/include
     )
 endif(WIN32)
@@ -23,6 +26,9 @@ if(UNIX)
         CybUI
         PUBLIC
         include
+        ../deps/linux/amd64/SDL2/include/SDL2
+        ../deps/linux/amd64/SDL2_image/include
+        ../deps/linux/amd64/SDL2_ttf/include
         ../deps/linux/amd64/libexpat/include
     )
 endif(UNIX)
@@ -32,6 +38,10 @@ if(WIN32)
     target_link_directories(
         CybUI
         PUBLIC
+        ../deps/windows/i386/SDL2_image/bin
+        ../deps/windows/i386/SDL2_image/lib
+        ../deps/windows/i386/SDL2_ttf/bin
+        ../deps/windows/i386/SDL2_ttf/lib
         ../deps/windows/i386/libexpat/bin
     )
 endif(WIN32)
@@ -40,6 +50,10 @@ if(UNIX)
     target_link_directories(
         CybUI
         PUBLIC
+        ../deps/linux/amd64/SDL2_image/bin
+        ../deps/linux/amd64/SDL2_image/lib
+        ../deps/linux/amd64/SDL2_ttf/bin
+        ../deps/linux/amd64/SDL2_ttf/lib
         ../deps/linux/amd64/libexpat/bin
     )
 endif(UNIX)
@@ -49,6 +63,7 @@ target_sources(
     CybUI
     PRIVATE
     src/CybGrid.c
+    src/CybLabel.c
     src/CybTimer.c
     src/CybUI.c
     src/CybUIEvents.c
@@ -58,6 +73,8 @@ target_sources(
 
 #Libraries to link against
 set(LIBS
+    SDL2_image
+    SDL2_ttf
     expat
     CybObjects
 )
@@ -91,6 +108,10 @@ target_compile_options(
 if(WIN32)
     file(
         GLOB DEPS
+        ../deps/windows/i386/SDL2/lib/*.a
+        ../deps/windows/i386/SDL2/lib/*.lib
+        ../deps/windows/i386/SDL2_image/bin/*
+        ../deps/windows/i386/SDL2_ttf/bin/*
         ../deps/windows/i386/libexpat/bin/*.dll
         ../deps/windows/i386/libexpat/bin/COPYING-libexpat
     )
@@ -100,6 +121,11 @@ endif(WIN32)
 if(UNIX)
     file(
         GLOB DEPS
+        ../deps/linux/amd64/SDL2/lib/*.a
+        ../deps/linux/amd64/SDL2_image/bin/*.txt
+        ../deps/linux/amd64/SDL2_image/lib/*.so*
+        ../deps/linux/amd64/SDL2_ttf/bin/*.txt
+        ../deps/linux/amd64/SDL2_ttf/lib/*.so*
         ../deps/linux/amd64/libexpat/bin/*.so*
         ../deps/linux/amd64/libexpat/bin/COPYING-libexpat
     )
@@ -113,5 +139,14 @@ endif(UNIX)
 install(TARGETS CybUI DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 install(FILES ${DEPS} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 # install(DIRECTORY data DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+
+if(WIN32)
+    install(DIRECTORY ../deps/windows/i386/SDL2_ttf/include DESTINATION ${CMAKE_INSTALL_PREFIX})
+endif(WIN32)
+
+if(UNIX)
+    install(DIRECTORY ../deps/linux/amd64/SDL2_ttf/include DESTINATION ${CMAKE_INSTALL_PREFIX})
+endif(UNIX)
+
 file(GLOB CYBUI_HEADERS include/*)
 install(FILES ${CYBUI_HEADERS} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/CybUI)

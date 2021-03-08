@@ -22,6 +22,12 @@ void Cyb_FreeGridProc(Cyb_Grid *grid)
         SDL_free(grid->id);
     }
     
+    //Free the widget-specific text
+    if(grid->text)
+    {
+        SDL_free(grid->text);
+    }
+    
     //Free private data
     if(grid->data)
     {
@@ -63,7 +69,9 @@ void Cyb_DrawGridProc(Cyb_Grid *grid, SDL_Renderer *renderer)
 
 
 void Cyb_HandleGridEventProc(Cyb_Grid *grid, const SDL_Event *event)
-{}
+{
+    //nothing here for now
+}
 
 
 Cyb_Grid *Cyb_CreateGrid(void)
@@ -91,6 +99,9 @@ Cyb_Grid *Cyb_CreateGrid(void)
     grid->visible = TRUE;
     grid->id = NULL;
     grid->bg = NULL;
+    memset(&grid->fg, 255, sizeof(grid->fg));
+    grid->font = NULL;
+    grid->text = NULL;
     grid->data = NULL;
     
     if(!grid->children)
@@ -145,6 +156,27 @@ void Cyb_SetGridID(Cyb_Grid *grid, const char *id)
     }
     
     strcpy(grid->id, id);
+}
+
+
+void Cyb_SetGridText(Cyb_Grid *grid, const char *text)
+{
+    //Free previous widget text if there already is some
+    if(grid->text)
+    {
+        SDL_free(grid->text);
+    }
+    
+    //Store a copy of the new text
+    grid->text = (char*)SDL_malloc(strlen(text) + 1);
+    
+    if(!grid->text)
+    {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", "[CybUI] Out of Memory");
+        return;
+    }
+    
+    strcpy(grid->text, text);
 }
 
 

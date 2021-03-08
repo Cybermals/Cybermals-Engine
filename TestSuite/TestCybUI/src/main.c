@@ -60,7 +60,7 @@ int main(int argc, char **argv)
     
     //Init UI
     SDL_Log("%s", "Loading UI...");
-    Cyb_Grid *root = Cyb_LoadUI("data/UI/UI.xml");
+    Cyb_Grid *root = Cyb_LoadUI(renderer, "data/UI/UI.xml");
     
     if(!root)
     {
