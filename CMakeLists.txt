@@ -8,8 +8,13 @@ project(Cybermals-Engine)
 #Include sub-projects
 add_subdirectory(CybObjects) #required
 
-set(BuildTestSuite ON CACHE BOOL "Build the test suite.")
+set(Build_CybUI ON CACHE BOOL "Build the UI subsystem.")
+set(Build_TestSuite ON CACHE BOOL "Build the test suite.")
 
-if(BuildTestSuite)
+if(Build_CybUI)
+    add_subdirectory(CybUI)
+endif(Build_CybUI)
+
+if(Build_TestSuite)
     add_subdirectory(TestSuite)
-endif(BuildTestSuite)
+endif(Build_TestSuite)

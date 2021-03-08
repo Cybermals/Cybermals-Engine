@@ -41,9 +41,15 @@ Cyb_Object *Cyb_CreateObject(size_t size, CybFreeProc destructor, int type)
 
 void Cyb_FreeObject(Cyb_Object **obj)
 {
-    //Update the ref count
+    //Don't free a NULL object
     Cyb_Object *tmp = *obj;
     
+    if(!tmp)
+    {
+        return;
+    }
+    
+    //Update the ref count
     if(--tmp->refCnt == 0)
     {
         //Call the destructor, destroy the mutex, and free the object

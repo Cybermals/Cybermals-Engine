@@ -18,6 +18,24 @@ A lightweight high-performance game engine and application framework.
     * optional thread-safety
     * supports enqueue, dequeue, is_full, and is_empty
     * supports arbitrary element size
+    
+### CybUI
+* grid-based widgets
+    * grid
+    * label
+    * supports creation of custom widgets
+* UI event subsystem
+    * translates normal SDL2 events into UI events as needed 
+    (ex. SDL_MOUSEMOTION -> CYB_UI_MOUSEMOTION)
+    * translated events indicate what widget received the event
+* cached resource management
+    * textures
+    * fonts
+* XML UI definition files
+    * build simple to complex user interfaces with a single self-contained UI
+    definition file
+    * UI definitions can also be stored as strings within your app or loaded from
+    any source supported by the SDL_RWops structure
 
 
 ## License
