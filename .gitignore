@@ -56,3 +56,6 @@ notes/*
 
 # Documentation
 docs/*
+
+# Test install dir
+bin/*

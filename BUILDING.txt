@@ -1,0 +1,59 @@
+Windows
+=======
+1. install MinGW-w64 or Visual Studio
+2. install CMake
+3. download or clone this repo
+4. download the dependencies:
+    * SDL2
+    * SDL2_image
+    * SDL2_mixer
+    * SDL2_ttf
+    * SDL2_net
+    * libexpat
+    * sqlite3
+5. build the dependencies and install them into "deps/{platform}/{arch}/{dep}" where
+{platform} is the OS name (ex. windows), {arch} is the architecture (ex. i386), and
+{dep} is the dependency name (ex. SDL2)
+6. start CMake and set the source dir to the folder containing this file and set the
+build dir to a folder where you want to build this project 
+(ex. Cybermals-Engine-mingw)
+7. click "Configure"
+8. choose "MinGW Makefiles" if you are using MinGW-w64 or the version of 
+Visual Studio you have installed
+8. adjust the build options as you see fit; be sure to set the install prefix to
+the folder where you want to install the project
+9. click "Configure" again
+10. click "Generate"
+11. if you are using MinGW-w64 open a command prompt, navigate to the build dir,
+and run "mingw32-make install"
+12. if you are using Visual Studio, simply open the solution file in the build dir
+and build it
+
+
+Linux
+=====
+1. install GCC via your package manager (ex. "sudo apt-get install build-essential")
+2. install CMake via your package manager (ex. "sudo apt-get install cmake")
+3. download or clone this repo
+4. download the dependencies:
+    * SDL2
+    * SDL2_image
+    * SDL2_mixer
+    * SDL2_ttf
+    * SDL2_net
+    * libexpat
+    * sqlite3
+5. build the dependencies and install them into "deps/{platform}/{arch}/{dep}" where
+{platform} is the OS name (ex. linux), {arch} is the architecture (ex. amd64), and
+{dep} is the dependency name (ex. SDL2)
+6. open a terminal to the folder where you cloned this repo
+7. run "cmake -S Cybermals-Engine -B Cybermals-Engine-build -DCMAKE_INSTALL_PREFIX={install_prefix} -DCMAKE_BUILD_TYPE=Release"
+where {install_prefix} is the folder where you want to install the project 
+(ex. $HOME/Cybermals-Engine)
+8. run "cmake --build Cybermals-Engine-build"
+9. run "cmake --install Cybermals-Engine-build"
+
+
+Android
+=======
+TODO
