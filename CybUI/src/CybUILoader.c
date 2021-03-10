@@ -8,6 +8,7 @@ CybUI - UI Loader API
 #include <SDL2/SDL_image.h>
 #include <expat.h>
 
+#include "CybButton.h"
 #include "CybLabel.h"
 #include "CybObjects.h"
 #include "CybUILoader.h"
@@ -46,6 +47,7 @@ static Cyb_List *texCache = NULL;
 static Cyb_List *fontCache = NULL;
 
 static char tmpBuf[1024];
+static char tmpBuf2[1024];
 
 
 //Functions
@@ -97,6 +99,17 @@ void *Cyb_StartUIElement(Cyb_List *stack, const XML_Char *name,
     {
         //Create new label
         grid = Cyb_CreateLabel();
+        
+        if(!grid)
+        {
+            return NULL;
+        }
+    }
+    //Button widget?
+    else if(strcmp(name, "button") == 0)
+    {
+        //Create new button
+        grid = Cyb_CreateButton();
         
         if(!grid)
         {
@@ -168,6 +181,11 @@ void *Cyb_StartUIElement(Cyb_List *stack, const XML_Char *name,
             grid->fg.b = b;
             grid->fg.a = a;
         }
+        //Visible attrib?
+        else if(strcmp(attrib[0], "visible") == 0)
+        {
+            grid->visible = (strcmp(attrib[1], "true") == 0);
+        }
         //Font attrib?
         else if(strcmp(attrib[0], "font") == 0)
         {
@@ -179,6 +197,27 @@ void *Cyb_StartUIElement(Cyb_List *stack, const XML_Char *name,
         else if(strcmp(attrib[0], "text") == 0)
         {
             Cyb_SetGridText(grid, attrib[1]);
+        }
+        //Button textures attrib?
+        else if(strcmp(attrib[0], "btntex") == 0)
+        {
+            sscanf(attrib[1], "%s %s", tmpBuf, tmpBuf2);
+            Cyb_SetButtonTextures(grid, Cyb_LoadUITexture(cachedRenderer, tmpBuf),
+                Cyb_LoadUITexture(cachedRenderer, tmpBuf2));
+        }
+        //Button mode attrib?
+        else if(strcmp(attrib[0], "btnmode") == 0)
+        {
+            //Push mode?
+            if(strcmp(attrib[1], "push") == 0)
+            {
+                Cyb_SetButtonMode(grid, CYB_BUTTONMODE_PUSH);
+            }
+            //Toggle mode?
+            else if(strcmp(attrib[1], "toggle") == 0)
+            {
+                Cyb_SetButtonMode(grid, CYB_BUTTONMODE_TOGGLE);
+            }
         }
         //Unknown attrib?
         else
@@ -216,8 +255,11 @@ void *Cyb_StartUIElement(Cyb_List *stack, const XML_Char *name,
     if(stack->len == 1)
     {
         root = ((Cyb_WidgetNode*)Cyb_GetListElm(stack, CYB_LIST_START))->widget;
+        root = (Cyb_Grid*)Cyb_NewObjectRef((Cyb_Object*)root);
     }
-
+    
+    //Free the widget we created
+    Cyb_FreeObject((Cyb_Object**)&grid);
     return NULL;
 }
 
@@ -225,7 +267,8 @@ void *Cyb_StartUIElement(Cyb_List *stack, const XML_Char *name,
 void *Cyb_EndUIElement(Cyb_List *stack, const XML_Char *name)
 {
     //Pop the stack if the tag is a known tag
-    if(strcmp(name, "grid") == 0 || strcmp(name, "label") == 0)
+    if(strcmp(name, "grid") == 0 || strcmp(name, "label") == 0 ||
+        strcmp(name, "button") == 0)
     {
         Cyb_RemoveListElm(stack, CYB_LIST_END);
     }
@@ -290,23 +333,46 @@ SDL_Texture *Cyb_LoadUITextureRW(SDL_Renderer *renderer, SDL_RWops *file,
         }
     }
     
-    //Load image
-    SDL_Surface *image = IMG_Load_RW(file, doClose);
+    //If the ID is "none", create a special 1x1 transparent texture
+    SDL_Texture *tex;
     
-    if(!image)
+    if(strcmp(id, "none") == 0)
     {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, 
-            "[CybUI] Failed to load texture '%s'", id);
-        return NULL;
+        tex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32,
+            SDL_TEXTUREACCESS_STATIC, 1, 1);
+            
+        if(!tex)
+        {
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "[CybUI] %s",
+                SDL_GetError());
+            return NULL;
+        }
+        
+        SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND);
     }
-    
-    //Create texture from image
-    SDL_Texture *tex = SDL_CreateTextureFromSurface(renderer, image);
-    
-    if(!tex)
+    else
     {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "[CybUI] %s", SDL_GetError());
-        return NULL;
+        //Load image
+        SDL_Surface *image = IMG_Load_RW(file, doClose);
+    
+        if(!image)
+        {
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, 
+                "[CybUI] Failed to load texture '%s'", id);
+            return NULL;
+        }
+    
+        //Create texture from image
+        tex = SDL_CreateTextureFromSurface(renderer, image);
+    
+        if(!tex)
+        {
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "[CybUI] %s", 
+                SDL_GetError());
+            return NULL;
+        }
+        
+        SDL_FreeSurface(image);
     }
     
     //Cache the texture and return it

@@ -62,6 +62,7 @@ endif(UNIX)
 target_sources(
     CybUI
     PRIVATE
+    src/CybButton.c
     src/CybGrid.c
     src/CybLabel.c
     src/CybTimer.c

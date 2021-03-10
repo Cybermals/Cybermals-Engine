@@ -69,7 +69,7 @@ int main(int argc, char **argv)
     
     //Test ID lookup
     puts("Testing ID lookup...");
-    Cyb_Grid *child = Cyb_GetGridByID(root, "child5");
+    Cyb_Grid *child = Cyb_GetGridByID(root, "child");
     
     if(!child)
     {

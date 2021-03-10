@@ -5,6 +5,7 @@
  * @brief CybUI - Main API
  */
  
+#include "CybButton.h"
 #include "CybCommon.h"
 #include "CybGrid.h"
 #include "CybTimer.h"

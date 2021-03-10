@@ -23,6 +23,8 @@ A lightweight high-performance game engine and application framework.
 * grid-based widgets
     * grid
     * label
+    * button
+        * supports both push and toggle modes
     * supports creation of custom widgets
 * UI event subsystem
     * translates normal SDL2 events into UI events as needed 

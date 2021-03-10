@@ -207,6 +207,12 @@ Cyb_Grid *Cyb_GetGridByID(Cyb_Grid *grid, const char *id)
 
 void Cyb_DrawUI(Cyb_Grid *grid, SDL_Renderer *renderer)
 {
+    //Skip this widget and its children if it is not visible
+    if(!grid->visible)
+    {
+        return;
+    }
+    
     //Save current viewport
     SDL_Rect viewport;
     SDL_RenderGetViewport(renderer, &viewport);
@@ -236,7 +242,7 @@ void Cyb_DrawUI(Cyb_Grid *grid, SDL_Renderer *renderer)
     }
     
     //Call the draw procedure
-    if(grid->draw && grid->visible)
+    if(grid->draw)
     {
         grid->draw(grid, renderer);
     }
@@ -255,6 +261,12 @@ void Cyb_DrawUI(Cyb_Grid *grid, SDL_Renderer *renderer)
 
 void Cyb_HandleUIEvent(Cyb_Grid *grid, const SDL_Event *event)
 {
+    //Skip this widget and its children if it is not visible
+    if(!grid->visible)
+    {
+        return;
+    }
+    
     //Process events that should be handled by all widgets
     SDL_Point mousePos;
     SDL_Event uiEvent;

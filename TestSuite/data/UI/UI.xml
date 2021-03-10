@@ -1,12 +1,10 @@
 <grid id="root" rows="4" cols="4" bg="data/textures/root.png">
-    <grid id="child1" rows="2" cols="2" row="1" col="1" bg="data/textures/child.png"/>
-    <grid id="child2" rows="2" cols="2" row="1" col="2" bg="data/textures/child.png"/>
-    <grid id="child3" rows="2" cols="2" row="2" col="1" bg="data/textures/child.png"/>
-    <grid id="child4" rows="2" cols="2" row="2" col="2" rowspan="2" colspan="2"
-        bg="data/textures/child.png">
-        <grid id="child5" rows="8" cols="8" row="1" col="1" 
-            bg="data/textures/grandchild.png"/>
-    </grid>
     <label row="0" col="0" font="data/fonts/Oxanium-Regular.ttf 20pt" fg="0 0 0" 
-        text="Hello!"/>
+        bg="none" text="Hello!"/>
+    <grid id="child" row="3" col="1" colspan="2" rows="3" bg="none">
+        <button id="button1" row="1" col="0" 
+            font="data/fonts/Oxanium-Regular.ttf 20pt" fg="255 255 255" 
+            btntex="data/UI/themes/basic/button-up.png data/UI/themes/basic/button-down.png" 
+            text="Press Me!"/>
+    </grid>
 </grid>
