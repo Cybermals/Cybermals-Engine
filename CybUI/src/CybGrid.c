@@ -9,6 +9,11 @@ CybUI - Grid API
 #include "CybWidgetList.h"
 
 
+//Globals
+//=================================================================================
+static Cyb_Grid *activeGrid = NULL;
+
+
 //Functions
 //=================================================================================
 void Cyb_FreeGridProc(Cyb_Grid *grid)
@@ -281,6 +286,7 @@ void Cyb_HandleUIEvent(Cyb_Grid *grid, const SDL_Event *event)
         
         if(SDL_PointInRect(&mousePos, &grid->viewport))
         {
+            //Send UI mouse motion event
             uiEvent.user.type = CYB_UI_MOUSEMOTION;
             uiEvent.user.timestamp = SDL_GetTicks();
             uiEvent.user.windowID = event->motion.windowID;
@@ -302,6 +308,7 @@ void Cyb_HandleUIEvent(Cyb_Grid *grid, const SDL_Event *event)
         
         if(SDL_PointInRect(&mousePos, &grid->viewport))
         {
+            //Send UI mouse button down event
             uiEvent.user.type = CYB_UI_MOUSEBUTTONDOWN;
             uiEvent.user.timestamp = SDL_GetTicks();
             uiEvent.user.windowID = event->button.windowID;
@@ -310,6 +317,14 @@ void Cyb_HandleUIEvent(Cyb_Grid *grid, const SDL_Event *event)
             uiEvent.user.data2 = NULL;                //unused for now
             
             SDL_PushEvent(&uiEvent);
+            
+            //Deactivate the previous active grid and activate this one
+            if(activeGrid)
+            {
+                Cyb_FreeObject((Cyb_Object**)&activeGrid);
+            }
+            
+            activeGrid = (Cyb_Grid*)Cyb_NewObjectRef((Cyb_Object*)grid);
         }
     
         break;
@@ -323,6 +338,7 @@ void Cyb_HandleUIEvent(Cyb_Grid *grid, const SDL_Event *event)
         
         if(SDL_PointInRect(&mousePos, &grid->viewport))
         {
+            //Send UI mouse button up event
             uiEvent.user.type = CYB_UI_MOUSEBUTTONUP;
             uiEvent.user.timestamp = SDL_GetTicks();
             uiEvent.user.windowID = event->button.windowID;
@@ -349,4 +365,10 @@ void Cyb_HandleUIEvent(Cyb_Grid *grid, const SDL_Event *event)
     {
         Cyb_HandleUIEvent(child->widget, event);
     }
+}
+
+
+Cyb_Grid *Cyb_GetActiveGrid(void)
+{
+    return activeGrid;
 }

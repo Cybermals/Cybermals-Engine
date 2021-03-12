@@ -11,6 +11,7 @@ CybUI - UI Loader API
 #include "CybButton.h"
 #include "CybLabel.h"
 #include "CybObjects.h"
+#include "CybTextBox.h"
 #include "CybUILoader.h"
 #include "CybWidgetList.h"
 
@@ -110,6 +111,17 @@ void *Cyb_StartUIElement(Cyb_List *stack, const XML_Char *name,
     {
         //Create new button
         grid = Cyb_CreateButton();
+        
+        if(!grid)
+        {
+            return NULL;
+        }
+    }
+    //TextBox widget?
+    else if(strcmp(name, "textbox") == 0)
+    {
+        //Create new text box
+        grid = Cyb_CreateTextBox();
         
         if(!grid)
         {
@@ -219,6 +231,15 @@ void *Cyb_StartUIElement(Cyb_List *stack, const XML_Char *name,
                 Cyb_SetButtonMode(grid, CYB_BUTTONMODE_TOGGLE);
             }
         }
+        //TextBox multiline attrib?
+        else if(strcmp(attrib[0], "multiline") == 0)
+        {
+            //Multiline?
+            if(strcmp(attrib[1], "true") == 0)
+            {
+                Cyb_SetTextBoxMode(grid, CYB_TEXTBOX_MULTILINE);
+            }
+        }
         //Unknown attrib?
         else
         {
@@ -268,7 +289,7 @@ void *Cyb_EndUIElement(Cyb_List *stack, const XML_Char *name)
 {
     //Pop the stack if the tag is a known tag
     if(strcmp(name, "grid") == 0 || strcmp(name, "label") == 0 ||
-        strcmp(name, "button") == 0)
+        strcmp(name, "button") == 0 || strcmp(name, "textbox") == 0)
     {
         Cyb_RemoveListElm(stack, CYB_LIST_END);
     }

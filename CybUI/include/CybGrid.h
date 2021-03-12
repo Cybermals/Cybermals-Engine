@@ -136,6 +136,12 @@ CYBAPI void Cyb_DrawUI(Cyb_Grid *grid, SDL_Renderer *renderer);
  */
 CYBAPI void Cyb_HandleUIEvent(Cyb_Grid *grid, const SDL_Event *event);
 
+/** @brief Get the active grid.
+ *
+ * @return Pointer to the active grid.
+ */
+CYBAPI Cyb_Grid *Cyb_GetActiveGrid(void);
+
 /**
  * @}
  */

@@ -154,7 +154,7 @@ void Cyb_SetButtonMode(Cyb_Grid *button, int mode)
     if(button->base.type != CYB_BUTTON)
     {
         SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "%s", 
-            "[CybUI] The widget passed to 'Cyb_SetButtonTextures' was not a button widget!");
+            "[CybUI] The widget passed to 'Cyb_SetButtonMode' was not a button widget!");
         return;
     }
     
@@ -170,7 +170,7 @@ int Cyb_GetButtonState(Cyb_Grid *button)
     if(button->base.type != CYB_BUTTON)
     {
         SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "%s", 
-            "[CybUI] The widget passed to 'Cyb_SetButtonTextures' was not a button widget!");
+            "[CybUI] The widget passed to 'Cyb_GetButtonState' was not a button widget!");
         return FALSE;
     }
     

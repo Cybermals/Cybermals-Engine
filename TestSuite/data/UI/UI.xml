@@ -1,6 +1,8 @@
 <grid id="root" rows="4" cols="4" bg="data/textures/root.png">
     <label row="0" col="0" font="data/fonts/Oxanium-Regular.ttf 20pt" fg="0 0 0" 
         bg="none" text="Hello!"/>
+    <textbox id="textbox1" row="1" col="1" rowspan="2" colspan="2" 
+        font="data/fonts/Oxanium-Regular.ttf 20pt" fg="0 0 0"/>
     <grid id="child" row="3" col="1" colspan="2" rows="3" bg="none">
         <button id="button1" row="1" col="0" 
             font="data/fonts/Oxanium-Regular.ttf 20pt" fg="255 255 255" 
