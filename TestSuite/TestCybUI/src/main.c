@@ -83,6 +83,17 @@ int main(int argc, char **argv)
         puts("ID lookup failed.");
     }
     
+    //Add some text to the text box
+    Cyb_Grid *textBox = Cyb_GetGridByID(root, "textbox1");
+    
+    if(!textBox)
+    {
+        puts("Failed to set textbox contents.");
+        return 1;
+    }
+    
+    Cyb_InsertText(textBox, 0, 0, "Hello World!\nThis is a text box!\n:D");
+    
     //Main Loop
     while(TRUE)
     {

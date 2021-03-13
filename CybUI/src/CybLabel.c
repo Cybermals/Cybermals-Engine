@@ -18,7 +18,7 @@ void Cyb_RenderText(SDL_Renderer *renderer, TTF_Font *font,
         return;
     }
     
-    if(!text)
+    if(!text || strlen(text) == 0)
     {
         return;
     }

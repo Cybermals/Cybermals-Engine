@@ -2,8 +2,11 @@
 CybUI - TextBox API
 */
 
-#include "CybObject.h"
+#include <SDL2/SDL_ttf.h>
+
+#include "CybLabel.h"
 #include "CybList.h"
+#include "CybObject.h"
 #include "CybTextBox.h"
 #include "CybVector.h"
 
@@ -48,6 +51,33 @@ void Cyb_DrawTextBoxProc(Cyb_Grid *textBox, SDL_Renderer *renderer)
 {
     //Call the base draw procedure
     Cyb_DrawGridProc(textBox, renderer);
+    
+    //Draw each line of text starting with the first visible line
+    Cyb_TextBoxData *data = (Cyb_TextBoxData*)textBox->data;
+    SDL_Point pos;
+    pos.x = -data->scrollPos.x;
+    pos.y = 0;
+    int lineInc = TTF_FontLineSkip(textBox->font);
+    
+    for(Cyb_LineNode *node = (Cyb_LineNode*)data->lines->first; node;
+        node = (Cyb_LineNode*)node->base.next)
+    {
+        //Is this line out of bounds?
+        if(pos.y < 0 || pos.y > textBox->viewport.h)
+        {
+            continue;
+        }
+        
+        //Draw the line of text
+        Cyb_RenderText(renderer, textBox->font, &pos, textBox->fg, node->line->data,
+            0);
+            
+        //Draw caret?
+        //<=============== caret drawing code        
+        
+        //Increment Y coordinate
+        pos.y += lineInc;
+    }
 }
 
 
@@ -151,7 +181,7 @@ void Cyb_InsertLine(Cyb_Grid *textBox, int line)
     //Only supported in multiline mode!
     Cyb_TextBoxData *data = (Cyb_TextBoxData*)textBox->data;
     
-    if(!(data->mode & CYB_TEXTBOX_MULTILINE))
+    if(!(data->mode & CYB_TEXTBOX_MULTILINE) && data->lines->len != 0)
     {
         SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "%s", 
             "[CybUI] Can only insert lines in multiline mode!");
@@ -174,6 +204,17 @@ void Cyb_InsertLine(Cyb_Grid *textBox, int line)
         Cyb_RemoveListElm(data->lines, line);
         return;
     }
+    
+    //NULL-terminate the new line
+    char *c = Cyb_InsertVecElm(node->line, CYB_VEC_END);
+    
+    if(!c)
+    {
+        Cyb_RemoveLine(textBox, line);
+        return;
+    }
+    
+    *c = 0;
 }
 
 
@@ -230,10 +271,32 @@ void Cyb_InsertText(Cyb_Grid *textBox, int line, int col, const char *text)
     }
     
     //Insert the text
+    int curLine = line;
+    int curCol = col;
+    
     for(const char *pos = text; *pos; pos++)
     {
+        //Handle newline chars
+        if(*pos == '\n')
+        {
+            Cyb_InsertLine(textBox, ++curLine);
+            node = (Cyb_LineNode*)Cyb_GetListElm(data->lines, curLine);
+            
+            if(!node)
+            {
+                return;
+            }
+        
+            curCol = 0;
+            continue;
+        }
+        else if(*pos == '\r')
+        {
+            continue;
+        }
+        
         //Insert next char
-        char *c = (char*)Cyb_InsertVecElm(node->line, col);
+        char *c = (char*)Cyb_InsertVecElm(node->line, curCol++);
         
         if(!c)
         {

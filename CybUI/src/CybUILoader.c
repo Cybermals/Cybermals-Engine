@@ -233,7 +233,7 @@ void *Cyb_StartUIElement(Cyb_List *stack, const XML_Char *name,
         }
         //TextBox multiline attrib?
         else if(strcmp(attrib[0], "multiline") == 0)
-        {
+        {   
             //Multiline?
             if(strcmp(attrib[1], "true") == 0)
             {
