@@ -372,3 +372,11 @@ Cyb_Grid *Cyb_GetActiveGrid(void)
 {
     return activeGrid;
 }
+
+
+void Cyb_GlobalToLocal(Cyb_Grid *grid, const SDL_Point *in,
+    SDL_Point *out)
+{
+    out->x = in->x - grid->viewport.x;
+    out->y = in->y - grid->viewport.y;
+}
