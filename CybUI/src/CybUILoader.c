@@ -237,7 +237,16 @@ void *Cyb_StartUIElement(Cyb_List *stack, const XML_Char *name,
             //Multiline?
             if(strcmp(attrib[1], "true") == 0)
             {
-                Cyb_SetTextBoxMode(grid, CYB_TEXTBOX_MULTILINE);
+                Cyb_ToggleTextBoxMode(grid, CYB_TEXTBOX_MULTILINE);
+            }
+        }
+        //TextBox readonly attrib?
+        else if(strcmp(attrib[0], "readonly") == 0)
+        {
+            //Read-only?
+            if(strcmp(attrib[1], "true") == 0)
+            {
+                Cyb_ToggleTextBoxMode(grid, CYB_TEXTBOX_READONLY);
             }
         }
         //Unknown attrib?
@@ -479,7 +488,7 @@ Cyb_Grid *Cyb_LoadUIFromRW(SDL_Renderer *renderer, SDL_RWops *file, int doClose)
         return NULL;
     }
     
-    //Keep a globabl reference to the renderer we will be using
+    //Keep a global reference to the renderer we will be using
     cachedRenderer = renderer;
     
     //Create a stack to hold the widgets as we build the widget tree
@@ -487,6 +496,12 @@ Cyb_Grid *Cyb_LoadUIFromRW(SDL_Renderer *renderer, SDL_RWops *file, int doClose)
         
     if(!stack)
     {
+        //Close the file?
+        if(doClose)
+        {
+            SDL_RWclose(file);
+        }
+        
         return NULL;
     }
     

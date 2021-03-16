@@ -34,6 +34,11 @@ typedef struct
 } Cyb_TextBoxData;
 
 
+//Globals
+//=================================================================================
+static char lineBuf[1024];
+
+
 //Functions
 //=================================================================================
 void Cyb_FreeLineNode(Cyb_LineNode *node)
@@ -180,6 +185,7 @@ void Cyb_HandleTextBoxEventProc(Cyb_Grid *textBox, const SDL_Event *event)
         }
     
         int x = 0;
+        int xprev = x;
         
         for(int i = 0; i < node->line->len; i++)
         {
@@ -191,11 +197,13 @@ void Cyb_HandleTextBoxEventProc(Cyb_Grid *textBox, const SDL_Event *event)
             }
             else if(x >= localPos.x + data->scrollPos.x)
             {
-                Cyb_SetCaretPos(textBox, line, i - 1);
+                Cyb_SetCaretPos(textBox, line, 
+                    (x - (localPos.x + data->scrollPos.x) < (localPos.x + data->scrollPos.x) - xprev ? i : i - 1));
                 return;
             }
             
             //Update X coordinate
+            xprev = x;
             int advance;
             
             if(TTF_GlyphMetrics(textBox->font, ((char*)node->line->data)[i], NULL, 
@@ -221,8 +229,8 @@ void Cyb_HandleTextBoxEventProc(Cyb_Grid *textBox, const SDL_Event *event)
         //Key Down Event
     case SDL_KEYDOWN:
     {
-        //Ignore this unless the widget has focus
-        if(Cyb_GetActiveGrid() != textBox)
+        //Ignore this unless the widget has focus and it isn't read-only
+        if(Cyb_GetActiveGrid() != textBox || data->mode & CYB_TEXTBOX_READONLY)
         {
             return;
         }
@@ -343,7 +351,22 @@ void Cyb_HandleTextBoxEventProc(Cyb_Grid *textBox, const SDL_Event *event)
             //Is the caret in the middle?
             else
             {
-                //<================ need to split the current line into 2 lines
+                //Get a pointer to the text to move to the next line and insert
+                //the new line
+                int start = node->caretPos;
+                char *tmp = &((char*)node->line->data)[start];
+                Cyb_InsertLine(textBox, ++data->activeLine);
+                node = (Cyb_LineNode*)Cyb_GetListElm(data->lines, data->activeLine);
+                
+                if(!node)
+                {
+                    return;
+                }
+                
+                //Insert the text after the caret into the new line and remove it
+                //from the original line
+                Cyb_InsertText(textBox, data->activeLine, CYB_VEC_START, tmp);
+                Cyb_RemoveText(textBox, data->activeLine - 1, start, strlen(tmp));
             }
             
             break;
@@ -357,7 +380,7 @@ void Cyb_HandleTextBoxEventProc(Cyb_Grid *textBox, const SDL_Event *event)
     case SDL_TEXTINPUT:
     {
         //Ignore this unless the widget has focus
-        if(Cyb_GetActiveGrid() != textBox)
+        if(Cyb_GetActiveGrid() != textBox || data->mode & CYB_TEXTBOX_READONLY)
         {
             return;
         }
@@ -420,7 +443,7 @@ Cyb_Grid *Cyb_CreateTextBox(void)
         return NULL;
     }
     
-    Cyb_InsertLine(textBox, 0);
+    Cyb_InsertLine(textBox, CYB_LIST_START);
     return textBox;
 }
 
@@ -430,6 +453,14 @@ void Cyb_SetTextBoxMode(Cyb_Grid *textBox, int mode)
     //Set the new text box mode
     Cyb_TextBoxData *data = (Cyb_TextBoxData*)textBox->data;
     data->mode = mode;
+}
+
+
+void Cyb_ToggleTextBoxMode(Cyb_Grid *textBox, int mode)
+{
+    //Toggle the text box mode
+    Cyb_TextBoxData *data = (Cyb_TextBoxData*)textBox->data;
+    data->mode ^= mode;
 }
 
 
@@ -566,7 +597,7 @@ void Cyb_InsertText(Cyb_Grid *textBox, int line, int col, const char *text)
     }
     
     //Insert the text
-    int curLine = line;
+    int curLine = (line < 0 ? line + data->lines->len : line);
     int curCol = (col < 0 ? col + node->line->len : col);
     
     for(const char *pos = text; *pos; pos++)
@@ -632,5 +663,116 @@ void Cyb_RemoveText(Cyb_Grid *textBox, int line, int col, int count)
     if(node->caretPos > node->line->len - 1)
     {
         node->caretPos = node->line->len - 1;
+    }
+}
+
+
+void Cyb_ClearText(Cyb_Grid *textBox)
+{
+    //Ensure that the widget is a text box
+    if(textBox->base.type != CYB_TEXTBOX)
+    {
+        SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "%s",
+            "[CybUI] The widget passed to 'Cyb_ClearText' was not a text box!");
+        return;
+    }
+    
+    //Remove all lines
+    Cyb_TextBoxData *data = (Cyb_TextBoxData*)textBox->data;
+    
+    while(data->lines->len)
+    {
+        Cyb_RemoveListElm(data->lines, CYB_LIST_END);
+    }
+    
+    //Add a single new line
+    Cyb_InsertLine(textBox, CYB_LIST_START);
+}
+
+
+void Cyb_LoadTextRW(Cyb_Grid *textBox, SDL_RWops *file, int doClose)
+{
+    //Ensure that the widget is a text box
+    if(textBox->base.type != CYB_TEXTBOX)
+    {
+        SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "%s",
+            "[CybUI] The widget passed to 'Cyb_LoadText' was not a text box!");
+            
+        //Close the file?
+        if(doClose)
+        {
+            SDL_RWclose(file);
+        }
+        
+        return;
+    }
+    
+    //Ignore this if the file is NULL
+    if(!file)
+    {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "[CybUI] %s", SDL_GetError());
+        return;
+    }
+    
+    //Clear the text boxoad the contents of the file
+    Cyb_ClearText(textBox);
+    
+    //Load the file
+    while(SDL_RWread(file, lineBuf, sizeof(char), sizeof(lineBuf)) == 
+        sizeof(lineBuf))
+    {
+        Cyb_InsertText(textBox, CYB_LIST_END, CYB_VEC_END, lineBuf);
+    }
+    
+    Cyb_InsertText(textBox, CYB_LIST_END, CYB_VEC_END, lineBuf);
+    
+    //Close the file?
+    if(doClose)
+    {
+        SDL_RWclose(file);
+    }
+}
+
+
+void Cyb_SaveTextRW(Cyb_Grid *textBox, SDL_RWops *file, int doClose)
+{
+    //Ensure that the widget is a text box
+    if(textBox->base.type != CYB_TEXTBOX)
+    {
+        SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "%s",
+            "[CybUI] The widget passed to 'Cyb_SaveText' was not a text box!");
+            
+        //Close the file?
+        if(doClose)
+        {
+            SDL_RWclose(file);
+        }
+        
+        return;
+    }
+    
+    //Ignore this if the file is NULL
+    if(!file)
+    {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "[CybUI] %s", SDL_GetError());
+        return;
+    }
+    
+    //Save to the file
+    Cyb_TextBoxData *data = (Cyb_TextBoxData*)textBox->data;
+    char lf = '\n';
+    
+    for(Cyb_LineNode *node = (Cyb_LineNode*)data->lines->first; node;
+        node = (Cyb_LineNode*)node->base.next)
+    {
+        SDL_RWwrite(file, (const char*)node->line->data, sizeof(char), 
+            node->line->len - 1);
+        SDL_RWwrite(file, &lf, sizeof(char), 1);
+    }
+    
+    //Close the file?
+    if(doClose)
+    {
+        SDL_RWclose(file);
     }
 }

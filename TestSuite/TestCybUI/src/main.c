@@ -92,7 +92,7 @@ int main(int argc, char **argv)
         return 1;
     }
     
-    Cyb_InsertText(textBox, 0, 0, "Hello World!\nThis is a text box!\n:D");
+    Cyb_LoadText(textBox, "data/UI/UI.xml");
     
     //Main Loop
     while(TRUE)
@@ -120,6 +120,12 @@ int main(int argc, char **argv)
                 Cyb_Grid *grid = (Cyb_Grid*)event.user.data1;
                 printf("Mouse button %i down over widget '%s' at pos (%i, %i).\n",
                     event.user.code, grid->id, 0, 0);
+                    
+                //Save text?
+                if(strcmp(grid->id, "button1") == 0)
+                {
+                    Cyb_SaveText(textBox, "data/UI/UI2.xml");
+                }
             }
             //UI Mouse Button Up Event
             else if(event.type == CYB_UI_MOUSEBUTTONUP)
