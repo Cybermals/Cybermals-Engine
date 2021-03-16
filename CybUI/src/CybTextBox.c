@@ -80,7 +80,7 @@ void Cyb_DrawTextBoxProc(Cyb_Grid *textBox, SDL_Renderer *renderer)
             0);
             
         //Draw caret?
-        if(textBox == Cyb_GetActiveGrid() && data->caretVisible && 
+        if(Cyb_GetActiveGrid() == textBox && data->caretVisible && 
             line == data->activeLine)
         {
             //Calculate caret X coordinate
@@ -105,16 +105,16 @@ void Cyb_DrawTextBoxProc(Cyb_Grid *textBox, SDL_Renderer *renderer)
                 pos.y + TTF_FontHeight(textBox->font));
         }
         
-        //Update caret state
-        if(data->caretTmr-- == 0)
-        {
-            data->caretVisible = !data->caretVisible;
-            data->caretTmr = 60;
-        }
-        
         //Increment Y coordinate and line
         pos.y += lineInc;
         line++;
+    }
+    
+    //Update caret state
+    if(data->caretTmr-- == 0)
+    {
+        data->caretVisible = !data->caretVisible;
+        data->caretTmr = 30;
     }
 }
 
@@ -155,8 +155,10 @@ void Cyb_HandleTextBoxEventProc(Cyb_Grid *textBox, const SDL_Event *event)
         //Mouse Button Down Event
     case SDL_MOUSEBUTTONDOWN:
     {
-        //Turn on scrolling
+        //Turn on scrolling and text input mode
         data->isScrolling = TRUE;
+        SDL_SetTextInputRect(&textBox->viewport);
+        SDL_StartTextInput();
         
         //Convert mouse pos to local coords
         SDL_Point mousePos;
@@ -204,7 +206,7 @@ void Cyb_HandleTextBoxEventProc(Cyb_Grid *textBox, const SDL_Event *event)
         }
         
         //Move caret to end of line
-        Cyb_SetCaretPos(textBox, line, node->line->len);
+        Cyb_SetCaretPos(textBox, line, node->line->len - 1);
         break;
     }
     
@@ -219,38 +221,159 @@ void Cyb_HandleTextBoxEventProc(Cyb_Grid *textBox, const SDL_Event *event)
         //Key Down Event
     case SDL_KEYDOWN:
     {
+        //Ignore this unless the widget has focus
+        if(Cyb_GetActiveGrid() != textBox)
+        {
+            return;
+        }
+        
         //Handle special keys
         switch(event->key.keysym.sym)
         {
             //Backspace
         case SDLK_BACKSPACE:
         {
+            //Get the active line
             Cyb_LineNode *node = (Cyb_LineNode*)Cyb_GetListElm(data->lines,
                 data->activeLine);
                 
-            if(!node || node->caretPos == 0)
+            if(!node)
             {
                 return;
             }
             
-            Cyb_RemoveText(textBox, data->activeLine, --node->caretPos, 1);
+            //Is the caret at the beginning?
+            if(node->caretPos == 0)
+            {
+                //Ignore this if the active line is the first
+                if(data->activeLine == 0)
+                {
+                    return;
+                }
+                
+                //Add the active line to the end of the previous line and remove the
+                //active line
+                int lineLen = node->line->len - 1;
+                Cyb_InsertText(textBox, data->activeLine - 1, CYB_VEC_END, 
+                    (char*)node->line->data);
+                Cyb_RemoveLine(textBox, data->activeLine);
+            
+                node = (Cyb_LineNode*)Cyb_GetListElm(data->lines, 
+                    --data->activeLine);
+                
+                if(!node)
+                {
+                    return;
+                }
+                
+                node->caretPos = node->line->len - lineLen - 1;
+            }
+            //Is the caret elsewhere?
+            else
+            {
+                Cyb_RemoveText(textBox, data->activeLine, --node->caretPos, 1);
+                
+                if(node->caretPos < 0)
+                {
+                    node->caretPos = 0;
+                }
+            }
+            
+            break;
         }
         
             //Delete
         case SDLK_DELETE:
         {
+            //Get the active line
             Cyb_LineNode *node = (Cyb_LineNode*)Cyb_GetListElm(data->lines,
                 data->activeLine);
                 
-            if(!node || node->caretPos == node->line->len - 1)
+            if(!node)
             {
                 return;
             }
             
-            Cyb_RemoveText(textBox, data->activeLine, node->caretPos, 1);
+            //Is the caret at the end?
+            if(node->caretPos == node->line->len - 1)
+            {
+                //Ignore this if the active line is the last line
+                if(data->activeLine > data->lines->len - 2)
+                {
+                    return;
+                }
+                
+                //Add the next line to the end of this line and remove the next
+                //line
+                Cyb_InsertText(textBox, data->activeLine, CYB_VEC_END,
+                    (char*)((Cyb_LineNode*)node->base.next)->line->data);
+                Cyb_RemoveLine(textBox, data->activeLine + 1);
+            }
+            //Is the caret elsewhere?
+            else
+            {
+                Cyb_RemoveText(textBox, data->activeLine, node->caretPos, 1);
+            }
+            
+            break;
+        }
+        
+            //Return
+        case SDLK_RETURN:
+        {
+            //Get the active line
+            Cyb_LineNode *node = (Cyb_LineNode*)Cyb_GetListElm(data->lines,
+                data->activeLine);
+                
+            if(!node)
+            {
+                return;
+            }
+            
+            //Is the caret at the beginning?
+            if(node->caretPos == 0)
+            {
+                Cyb_InsertLine(textBox, data->activeLine++);
+            }
+            //Is the caret at the end?
+            else if(node->caretPos == node->line->len - 1)
+            {
+                Cyb_InsertLine(textBox, ++data->activeLine);
+            }
+            //Is the caret in the middle?
+            else
+            {
+                //<================ need to split the current line into 2 lines
+            }
+            
+            break;
         }
         }
         
+        break;
+    }
+    
+        //Text Input Event
+    case SDL_TEXTINPUT:
+    {
+        //Ignore this unless the widget has focus
+        if(Cyb_GetActiveGrid() != textBox)
+        {
+            return;
+        }
+        
+        //Get the active line
+        Cyb_LineNode *node = (Cyb_LineNode*)Cyb_GetListElm(data->lines,
+            data->activeLine);
+                
+        if(!node)
+        {
+            return;
+        }
+        
+        //Insert what was typed
+        Cyb_InsertText(textBox, data->activeLine, node->caretPos++, 
+            event->text.text);
         break;
     }
     }
@@ -282,7 +405,7 @@ Cyb_Grid *Cyb_CreateTextBox(void)
     
     Cyb_TextBoxData *data = (Cyb_TextBoxData*)textBox->data;
     data->mode = 0;
-    data->caretTmr = 60;
+    data->caretTmr = 30;
     data->caretVisible = TRUE;
     data->scrollPos.x = 0;
     data->scrollPos.y = 0;
@@ -444,7 +567,7 @@ void Cyb_InsertText(Cyb_Grid *textBox, int line, int col, const char *text)
     
     //Insert the text
     int curLine = line;
-    int curCol = col;
+    int curCol = (col < 0 ? col + node->line->len : col);
     
     for(const char *pos = text; *pos; pos++)
     {
