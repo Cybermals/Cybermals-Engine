@@ -45,6 +45,11 @@ A lightweight high-performance game engine and application framework.
     definition file
     * UI definitions can also be stored as strings within your app or loaded from
     any source supported by the SDL_RWops structure
+    
+    
+## Supported Platforms
+* Windows
+* Android
 
 
 ## License

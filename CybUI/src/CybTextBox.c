@@ -160,15 +160,22 @@ void Cyb_HandleTextBoxEventProc(Cyb_Grid *textBox, const SDL_Event *event)
         //Mouse Button Down Event
     case SDL_MOUSEBUTTONDOWN:
     {
+        //Ignore this if the mouse was outside the widget
+        SDL_Point mousePos;
+        mousePos.x = event->button.x;
+        mousePos.y = event->button.y;
+        
+        if(!SDL_PointInRect(&mousePos, &textBox->viewport))
+        {
+            return;
+        }
+        
         //Turn on scrolling and text input mode
         data->isScrolling = TRUE;
         SDL_SetTextInputRect(&textBox->viewport);
         SDL_StartTextInput();
         
         //Convert mouse pos to local coords
-        SDL_Point mousePos;
-        mousePos.x = event->button.x;
-        mousePos.y = event->button.y;
         SDL_Point localPos;
         Cyb_GlobalToLocal(textBox, &mousePos, &localPos);
         
@@ -379,7 +386,7 @@ void Cyb_HandleTextBoxEventProc(Cyb_Grid *textBox, const SDL_Event *event)
         //Text Input Event
     case SDL_TEXTINPUT:
     {
-        //Ignore this unless the widget has focus
+        //Ignore this unless the widget has focus and is not read-only
         if(Cyb_GetActiveGrid() != textBox || data->mode & CYB_TEXTBOX_READONLY)
         {
             return;

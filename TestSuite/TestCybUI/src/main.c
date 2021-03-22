@@ -122,9 +122,16 @@ int main(int argc, char **argv)
                     event.user.code, grid->id, 0, 0);
                     
                 //Save text?
-                if(strcmp(grid->id, "button1") == 0)
+                if(grid->id && strcmp(grid->id, "button1") == 0)
                 {
+                    #ifdef __ANDROID__
+                    char buf[256];
+                    SDL_snprintf(buf, sizeof(buf), "%s/%s",
+                        SDL_AndroidGetExternalStoragePath(), "UI2.xml");
+                    Cyb_SaveText(textBox, buf);
+                    #else
                     Cyb_SaveText(textBox, "data/UI/UI2.xml");
+                    #endif
                 }
             }
             //UI Mouse Button Up Event
