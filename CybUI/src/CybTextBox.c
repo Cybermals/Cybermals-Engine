@@ -48,7 +48,7 @@ void Cyb_FreeLineNode(Cyb_LineNode *node)
 }
 
 
-void Cyb_FreeListBoxData(Cyb_TextBoxData *obj)
+void Cyb_FreeTextBoxData(Cyb_TextBoxData *obj)
 {
     //Free the lines list
     Cyb_FreeObject((Cyb_Object**)&obj->lines);
@@ -425,7 +425,7 @@ Cyb_Grid *Cyb_CreateTextBox(void)
     textBox->draw = &Cyb_DrawTextBoxProc;
     textBox->handleEvent = &Cyb_HandleTextBoxEventProc;
     textBox->data = Cyb_CreateObject(sizeof(Cyb_TextBoxData),
-        (CybFreeProc)&Cyb_FreeListBoxData, CYB_TEXTBOX);
+        (CybFreeProc)&Cyb_FreeTextBoxData, CYB_TEXTBOX);
         
     if(!textBox->data)
     {
@@ -457,6 +457,14 @@ Cyb_Grid *Cyb_CreateTextBox(void)
 
 void Cyb_SetTextBoxMode(Cyb_Grid *textBox, int mode)
 {
+    //Ensure that the widget is a text box
+    if(textBox->base.type != CYB_TEXTBOX)
+    {
+        SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "%s",
+            "[CybUI] The widget passed to 'Cyb_SetTextBoxMode' was not a text box!");
+        return;
+    }
+    
     //Set the new text box mode
     Cyb_TextBoxData *data = (Cyb_TextBoxData*)textBox->data;
     data->mode = mode;
@@ -465,14 +473,30 @@ void Cyb_SetTextBoxMode(Cyb_Grid *textBox, int mode)
 
 void Cyb_ToggleTextBoxMode(Cyb_Grid *textBox, int mode)
 {
+    //Ensure that the widget is a text box
+    if(textBox->base.type != CYB_TEXTBOX)
+    {
+        SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "%s",
+            "[CybUI] The widget passed to 'Cyb_ToggleTextBoxMode' was not a text box!");
+        return;
+    }
+    
     //Toggle the text box mode
     Cyb_TextBoxData *data = (Cyb_TextBoxData*)textBox->data;
     data->mode ^= mode;
 }
 
 
-void Cyb_SetScrollPos(Cyb_Grid *textBox, int x, int y)
+void Cyb_SetTextBoxScrollPos(Cyb_Grid *textBox, int x, int y)
 {
+    //Ensure that the widget is a text box
+    if(textBox->base.type != CYB_TEXTBOX)
+    {
+        SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "%s",
+            "[CybUI] The widget passed to 'Cyb_SetTextBoxScrollPos' was not a text box!");
+        return;
+    }
+    
     //Set the current scroll pos
     Cyb_TextBoxData *data = (Cyb_TextBoxData*)textBox->data;
     data->scrollPos.x = x;
@@ -482,6 +506,14 @@ void Cyb_SetScrollPos(Cyb_Grid *textBox, int x, int y)
 
 void Cyb_SetCaretPos(Cyb_Grid *textBox, int line, int col)
 {
+    //Ensure that the widget is a text box
+    if(textBox->base.type != CYB_TEXTBOX)
+    {
+        SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "%s",
+            "[CybUI] The widget passed to 'Cyb_SetCaretPos' was not a text box!");
+        return;
+    }
+    
     //Set the current line
     Cyb_TextBoxData *data = (Cyb_TextBoxData*)textBox->data;
     Cyb_LineNode *node = (Cyb_LineNode*)Cyb_GetListElm(data->lines, line);
@@ -581,6 +613,29 @@ void Cyb_RemoveLine(Cyb_Grid *textBox, int line)
             data->activeLine = data->lines->len - 1;
         }
     }
+}
+
+
+const char *Cyb_GetLine(Cyb_Grid *textBox, int line)
+{
+    //Ensure that the widget is a text box
+    if(textBox->base.type != CYB_TEXTBOX)
+    {
+        SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "%s",
+            "[CybUI] The widget passed to 'Cyb_GetLine' was not a text box!");
+        return NULL;
+    }
+    
+    //Get the requested line
+    Cyb_TextBoxData *data = (Cyb_TextBoxData*)textBox->data;
+    Cyb_LineNode *node = (Cyb_LineNode*)Cyb_GetListElm(data->lines, line);
+    
+    if(!node)
+    {
+        return NULL;
+    }
+    
+    return node->line->data;
 }
 
 

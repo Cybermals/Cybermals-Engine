@@ -94,6 +94,22 @@ int main(int argc, char **argv)
     
     Cyb_LoadText(textBox, "data/UI/UI.xml");
     
+    //Add some items to the list box
+    Cyb_Grid *listBox = Cyb_GetGridByID(root, "listbox1");
+    
+    if(!listBox)
+    {
+        puts("Failed to set list box contents.");
+        return 1;
+    }
+    
+    Cyb_InsertItem(listBox, CYB_LIST_START, "cat", NULL);
+    Cyb_InsertItem(listBox, CYB_LIST_END, "cheetah", NULL);
+    Cyb_InsertItem(listBox, 1, "dog", NULL);
+    Cyb_InsertItem(listBox, CYB_LIST_END, "rat", NULL);
+    Cyb_InsertItem(listBox, CYB_LIST_END, "fox", NULL);
+    Cyb_InsertItem(listBox, CYB_LIST_END, "horse", NULL);
+    
     //Main Loop
     while(TRUE)
     {

@@ -24,19 +24,20 @@ extern "C" {
 enum Cyb_ObjectTypes
 {
     //Base objects
-    CYB_OBJECT,   /**< Generic object. */
-    CYB_LIST,     /**< Linked list object. */
-    CYB_VECTOR,   /**< Vector object. */
-    CYB_QUEUE,    /**< Queue object. */
+    CYB_OBJECT,      /**< Generic object. */
+    CYB_LIST,        /**< Linked list object. */
+    CYB_VECTOR,      /**< Vector object. */
+    CYB_QUEUE,       /**< Queue object. */
     
     //UI objects
-    CYB_GRID,     /**< Grid object. */
-    CYB_LABEL,    /**< Label object. */
-    CYB_BUTTON,   /**< Button object. */
-    CYB_TEXTBOX,  /**< Textbox object. */
-    CYB_LISTBOX,  /**< Listbox object. */
-    CYB_TREEVIEW, /**< Treeview object. */
-    CYB_SLIDER    /**< Slider object. */
+    CYB_GRID,        /**< Grid object. */
+    CYB_LABEL,       /**< Label object. */
+    CYB_BUTTON,      /**< Button object. */
+    CYB_TEXTBOX,     /**< Textbox object. */
+    CYB_LISTBOX,     /**< Listbox object. */
+    CYB_SLIDER,      /**< Slider object. */
+    CYB_PROGRESSBAR, /**< Progress bar object. */
+    CYB_TREEVIEW     /**< Treeview object. */
 };
 
 

@@ -89,7 +89,7 @@ CYBAPI void Cyb_ToggleTextBoxMode(Cyb_Grid *textBox, int mode);
  * @param x The new X coordinate.
  * @param y The new Y coordinate.
  */
-CYBAPI void Cyb_SetScrollPos(Cyb_Grid *textBox, int x, int y);
+CYBAPI void Cyb_SetTextBoxScrollPos(Cyb_Grid *textBox, int x, int y);
 
 /** @brief Set the caret position of a text box.
  *
@@ -112,6 +112,15 @@ CYBAPI void Cyb_InsertLine(Cyb_Grid *textBox, int line);
  * @param line The index of the line to remove.
  */
 CYBAPI void Cyb_RemoveLine(Cyb_Grid *textBox, int line);
+
+/** @brief Get a line from a text box.
+ *
+ * @param textBox Pointer to the text box.
+ * @param line The index of the line to fetch.
+ *
+ * @return Pointer to the text in the requested line.
+ */
+CYBAPI const char *Cyb_GetLine(Cyb_Grid *textBox, int line);
 
 /** @brief Insert text into a text box.
  *

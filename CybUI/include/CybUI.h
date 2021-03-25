@@ -8,6 +8,8 @@
 #include "CybButton.h"
 #include "CybCommon.h"
 #include "CybGrid.h"
+#include "CybLabel.h"
+#include "CybListBox.h"
 #include "CybTextBox.h"
 #include "CybTimer.h"
 #include "CybUIEvents.h"
