@@ -14,6 +14,8 @@ LOCAL_SRC_FILES := \
     src/CybButton.c \
     src/CybGrid.c \
     src/CybLabel.c \
+    src/CybListBox.c \
+    src/CybProgressBar.c \
     src/CybTextBox.c \
     src/CybTimer.c \
     src/CybUI.c \
