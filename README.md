@@ -32,6 +32,8 @@ A lightweight high-performance game engine and application framework.
         * supports insertion and removal of both text and entire lines
         * does not currently support selection of blocks of text
         * does not currently support cut/copy/paste
+    * listbox
+        * supports both single and multi-select modes
     * supports creation of custom widgets
 * UI event subsystem
     * translates normal SDL2 events into UI events as needed 

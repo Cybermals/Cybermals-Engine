@@ -261,6 +261,14 @@ void *Cyb_StartUIElement(Cyb_List *stack, const XML_Char *name,
                 Cyb_ToggleTextBoxMode(grid, CYB_TEXTBOX_READONLY);
             }
         }
+        else if(strcmp(attrib[0], "multiselect") == 0)
+        {
+            //Multi-select?
+            if(strcmp(attrib[1], "true") == 0)
+            {
+                Cyb_ToggleListBoxMode(grid, CYB_LISTBOX_MULTISELECT);
+            }
+        }
         //Unknown attrib?
         else
         {

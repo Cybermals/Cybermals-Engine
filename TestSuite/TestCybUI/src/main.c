@@ -136,6 +136,13 @@ int main(int argc, char **argv)
                 Cyb_Grid *grid = (Cyb_Grid*)event.user.data1;
                 printf("Mouse button %i down over widget '%s' at pos (%i, %i).\n",
                     event.user.code, grid->id, 0, 0);
+            }
+            //UI Mouse Button Up Event
+            else if(event.type == CYB_UI_MOUSEBUTTONUP)
+            {
+                Cyb_Grid *grid = (Cyb_Grid*)event.user.data1;
+                printf("Mouse button %i up over widget '%s' at pos (%i, %i).\n",
+                    event.user.code, grid->id, 0, 0);
                     
                 //Save text?
                 if(grid->id && strcmp(grid->id, "button1") == 0)
@@ -149,13 +156,6 @@ int main(int argc, char **argv)
                     Cyb_SaveText(textBox, "data/UI/UI2.xml");
                     #endif
                 }
-            }
-            //UI Mouse Button Up Event
-            else if(event.type == CYB_UI_MOUSEBUTTONUP)
-            {
-                Cyb_Grid *grid = (Cyb_Grid*)event.user.data1;
-                printf("Mouse button %i up over widget '%s' at pos (%i, %i).\n",
-                    event.user.code, grid->id, 0, 0);
             }
             
             Cyb_HandleUIEvent(root, &event);

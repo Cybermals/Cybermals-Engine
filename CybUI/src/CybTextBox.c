@@ -72,7 +72,7 @@ void Cyb_DrawTextBoxProc(Cyb_Grid *textBox, SDL_Renderer *renderer)
         node = (Cyb_LineNode*)node->base.next)
     {
         //Is this line out of bounds?
-        if(pos.y < 0 || pos.y > textBox->viewport.h)
+        if(pos.y + lineInc < 0 || pos.y > textBox->viewport.h)
         {
             //Increment Y coordinate and line
             pos.y += lineInc;

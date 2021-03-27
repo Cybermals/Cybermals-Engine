@@ -59,15 +59,25 @@ void Cyb_DrawListBoxProc(Cyb_Grid *listBox, SDL_Renderer *renderer)
         item; item = (Cyb_ListBoxItem*)item->base.next)
     {
         //Skip this line if it is out of bounds
-        if(pos.y < 0 || pos.y > listBox->viewport.h)
+        if(pos.y + lineInc < 0 || pos.y > listBox->viewport.h)
         {
             line++;
             pos.y += lineInc;
             continue;
         }
         
-        //Render the background of the list item
-        //<================ need to render highlighted BG for selected items
+        //Render the background of the list item if it is selected
+        if(item->isSelected)
+        {
+            SDL_SetRenderDrawColor(renderer, listBox->fg.r, listBox->fg.g, 
+                listBox->fg.b, listBox->fg.a);
+            SDL_Rect rect;
+            rect.x = 0;
+            rect.y = pos.y;
+            rect.w = listBox->viewport.w;
+            rect.h = lineInc;
+            SDL_RenderDrawRect(renderer, &rect);
+        }
         
         //Render the name of the list item
         Cyb_RenderText(renderer, listBox->font, &pos, listBox->fg, item->name,
@@ -128,7 +138,26 @@ void Cyb_HandleListBoxEventProc(Cyb_Grid *listBox, const SDL_Event *event)
         data->isScrolling = TRUE;
         
         //Update current selection
-        //<================= selection update code here
+        if(!(data->mode & CYB_LISTBOX_MULTISELECT))
+        {
+            //Clear all previous selections
+            for(Cyb_ListBoxItem *item = (Cyb_ListBoxItem*)data->items->first;
+                item; item = (Cyb_ListBoxItem*)item->base.next)
+            {
+                item->isSelected = FALSE;
+            }
+        }
+    
+        SDL_Point localPos;
+        Cyb_GlobalToLocal(listBox, &mousePos, &localPos);
+        int i = (localPos.y + data->scrollPos.y) / TTF_FontLineSkip(listBox->font);
+        Cyb_ListBoxItem *item = (Cyb_ListBoxItem*)Cyb_GetListElm(data->items, i);
+        
+        if(item)
+        {
+            item->isSelected = !item->isSelected;
+        }
+    
         break;
     }
     
