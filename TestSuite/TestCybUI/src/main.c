@@ -26,6 +26,7 @@ CybUI - Test Program
 #endif
 
 #define FPS              60
+#define PROGRESS_INC     (1.0f / FPS)
 
 
 //Globals
@@ -69,7 +70,7 @@ int main(int argc, char **argv)
     
     //Test ID lookup
     puts("Testing ID lookup...");
-    Cyb_Grid *child = Cyb_GetGridByID(root, "child5");
+    Cyb_Grid *child = Cyb_GetGridByID(root, "child");
     
     if(!child)
     {
@@ -81,6 +82,43 @@ int main(int argc, char **argv)
     if(child)
     {
         puts("ID lookup failed.");
+    }
+    
+    //Add some text to the text box
+    Cyb_Grid *textBox = Cyb_GetGridByID(root, "textbox1");
+    
+    if(!textBox)
+    {
+        puts("Failed to set textbox contents.");
+        return 1;
+    }
+    
+    Cyb_LoadText(textBox, "data/UI/UI.xml");
+    
+    //Add some items to the list box
+    Cyb_Grid *listBox = Cyb_GetGridByID(root, "listbox1");
+    
+    if(!listBox)
+    {
+        puts("Failed to set list box contents.");
+        return 1;
+    }
+    
+    Cyb_InsertItem(listBox, CYB_LIST_START, "cat", NULL);
+    Cyb_InsertItem(listBox, CYB_LIST_END, "cheetah", NULL);
+    Cyb_InsertItem(listBox, 1, "dog", NULL);
+    Cyb_InsertItem(listBox, CYB_LIST_END, "rat", NULL);
+    Cyb_InsertItem(listBox, CYB_LIST_END, "fox", NULL);
+    Cyb_InsertItem(listBox, CYB_LIST_END, "horse", NULL);
+    
+    //Get progress bar
+    float progress = 0.0f;
+    Cyb_Grid *progBar = Cyb_GetGridByID(root, "progress1");
+    
+    if(!progBar)
+    {
+        puts("Failed to get progress bar.");
+        return 1;
     }
     
     //Main Loop
@@ -116,6 +154,19 @@ int main(int argc, char **argv)
                 Cyb_Grid *grid = (Cyb_Grid*)event.user.data1;
                 printf("Mouse button %i up over widget '%s' at pos (%i, %i).\n",
                     event.user.code, grid->id, 0, 0);
+                    
+                //Save text?
+                if(grid->id && strcmp(grid->id, "button1") == 0)
+                {
+                    #ifdef __ANDROID__
+                    char buf[256];
+                    SDL_snprintf(buf, sizeof(buf), "%s/%s",
+                        SDL_AndroidGetExternalStoragePath(), "UI2.xml");
+                    Cyb_SaveText(textBox, buf);
+                    #else
+                    Cyb_SaveText(textBox, "data/UI/UI2.xml");
+                    #endif
+                }
             }
             
             Cyb_HandleUIEvent(root, &event);
@@ -126,6 +177,14 @@ int main(int argc, char **argv)
         SDL_RenderClear(renderer);
         
         //Update UI
+        Cyb_SetProgressValue(progBar, progress);
+        progress += PROGRESS_INC;
+        
+        if(progress > 11.0f)
+        {
+            progress = 0.0f;
+        }
+        
         Cyb_DrawUI(root, renderer);
         
         //Swap buffers and limit framerate

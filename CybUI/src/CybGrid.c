@@ -9,6 +9,11 @@ CybUI - Grid API
 #include "CybWidgetList.h"
 
 
+//Globals
+//=================================================================================
+static Cyb_Grid *activeGrid = NULL;
+
+
 //Functions
 //=================================================================================
 void Cyb_FreeGridProc(Cyb_Grid *grid)
@@ -185,7 +190,7 @@ Cyb_Grid *Cyb_GetGridByID(Cyb_Grid *grid, const char *id)
     //Does the ID match this grid?
     if(grid->id && strcmp(grid->id, id) == 0)
     {
-        return grid;
+        return (Cyb_Grid*)Cyb_NewObjectRef((Cyb_Object*)grid);
     }
     
     //If not, recurse down and check the child widgets
@@ -207,6 +212,12 @@ Cyb_Grid *Cyb_GetGridByID(Cyb_Grid *grid, const char *id)
 
 void Cyb_DrawUI(Cyb_Grid *grid, SDL_Renderer *renderer)
 {
+    //Skip this widget and its children if it is not visible
+    if(!grid->visible)
+    {
+        return;
+    }
+    
     //Save current viewport
     SDL_Rect viewport;
     SDL_RenderGetViewport(renderer, &viewport);
@@ -236,7 +247,7 @@ void Cyb_DrawUI(Cyb_Grid *grid, SDL_Renderer *renderer)
     }
     
     //Call the draw procedure
-    if(grid->draw && grid->visible)
+    if(grid->draw)
     {
         grid->draw(grid, renderer);
     }
@@ -255,6 +266,12 @@ void Cyb_DrawUI(Cyb_Grid *grid, SDL_Renderer *renderer)
 
 void Cyb_HandleUIEvent(Cyb_Grid *grid, const SDL_Event *event)
 {
+    //Skip this widget and its children if it is not visible
+    if(!grid->visible)
+    {
+        return;
+    }
+    
     //Process events that should be handled by all widgets
     SDL_Point mousePos;
     SDL_Event uiEvent;
@@ -269,6 +286,7 @@ void Cyb_HandleUIEvent(Cyb_Grid *grid, const SDL_Event *event)
         
         if(SDL_PointInRect(&mousePos, &grid->viewport))
         {
+            //Send UI mouse motion event
             uiEvent.user.type = CYB_UI_MOUSEMOTION;
             uiEvent.user.timestamp = SDL_GetTicks();
             uiEvent.user.windowID = event->motion.windowID;
@@ -290,6 +308,7 @@ void Cyb_HandleUIEvent(Cyb_Grid *grid, const SDL_Event *event)
         
         if(SDL_PointInRect(&mousePos, &grid->viewport))
         {
+            //Send UI mouse button down event
             uiEvent.user.type = CYB_UI_MOUSEBUTTONDOWN;
             uiEvent.user.timestamp = SDL_GetTicks();
             uiEvent.user.windowID = event->button.windowID;
@@ -298,6 +317,14 @@ void Cyb_HandleUIEvent(Cyb_Grid *grid, const SDL_Event *event)
             uiEvent.user.data2 = NULL;                //unused for now
             
             SDL_PushEvent(&uiEvent);
+            
+            //Deactivate the previous active grid and activate this one
+            if(activeGrid)
+            {
+                Cyb_FreeObject((Cyb_Object**)&activeGrid);
+            }
+            
+            activeGrid = (Cyb_Grid*)Cyb_NewObjectRef((Cyb_Object*)grid);
         }
     
         break;
@@ -311,6 +338,7 @@ void Cyb_HandleUIEvent(Cyb_Grid *grid, const SDL_Event *event)
         
         if(SDL_PointInRect(&mousePos, &grid->viewport))
         {
+            //Send UI mouse button up event
             uiEvent.user.type = CYB_UI_MOUSEBUTTONUP;
             uiEvent.user.timestamp = SDL_GetTicks();
             uiEvent.user.windowID = event->button.windowID;
@@ -337,4 +365,18 @@ void Cyb_HandleUIEvent(Cyb_Grid *grid, const SDL_Event *event)
     {
         Cyb_HandleUIEvent(child->widget, event);
     }
+}
+
+
+Cyb_Grid *Cyb_GetActiveGrid(void)
+{
+    return activeGrid;
+}
+
+
+void Cyb_GlobalToLocal(Cyb_Grid *grid, const SDL_Point *in,
+    SDL_Point *out)
+{
+    out->x = in->x - grid->viewport.x;
+    out->y = in->y - grid->viewport.y;
 }

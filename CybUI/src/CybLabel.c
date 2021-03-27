@@ -18,7 +18,7 @@ void Cyb_RenderText(SDL_Renderer *renderer, TTF_Font *font,
         return;
     }
     
-    if(!text)
+    if(!text || strlen(text) == 0)
     {
         return;
     }
@@ -76,16 +76,16 @@ void Cyb_RenderText(SDL_Renderer *renderer, TTF_Font *font,
 }
 
 
-void Cyb_DrawLabelProc(Cyb_Grid *grid, SDL_Renderer *renderer)
+void Cyb_DrawLabelProc(Cyb_Grid *button, SDL_Renderer *renderer)
 {
     //Call base draw procedure
-    Cyb_DrawGridProc(grid, renderer);
+    Cyb_DrawGridProc(button, renderer);
     
     //Draw label text centered
     SDL_Point pos;
-    pos.x = grid->viewport.w / 2;
-    pos.y = grid->viewport.h / 2;
-    Cyb_RenderText(renderer, grid->font, &pos, grid->fg, grid->text,
+    pos.x = button->viewport.w / 2;
+    pos.y = button->viewport.h / 2;
+    Cyb_RenderText(renderer, button->font, &pos, button->fg, button->text,
         CYB_TEXT_HALIGN_CENTER | CYB_TEXT_VALIGN_CENTER);
 }
 
@@ -101,6 +101,7 @@ Cyb_Grid *Cyb_CreateLabel(void)
     }
     
     //Initialize the label
+    label->base.type = CYB_LABEL;
     label->draw = &Cyb_DrawLabelProc;
     return label;
 }

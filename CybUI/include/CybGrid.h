@@ -136,6 +136,21 @@ CYBAPI void Cyb_DrawUI(Cyb_Grid *grid, SDL_Renderer *renderer);
  */
 CYBAPI void Cyb_HandleUIEvent(Cyb_Grid *grid, const SDL_Event *event);
 
+/** @brief Get the active grid.
+ *
+ * @return Pointer to the active grid.
+ */
+CYBAPI Cyb_Grid *Cyb_GetActiveGrid(void);
+
+/** @brief Convert from global to local coordinates.
+ *
+ * @param grid Pointer to the grid.
+ * @param in Pointer to the point to convert.
+ * @param out Pointer to the point to write the result into.
+ */
+CYBAPI void Cyb_GlobalToLocal(Cyb_Grid *grid, const SDL_Point *in,
+    SDL_Point *out);
+
 /**
  * @}
  */

@@ -51,10 +51,10 @@ CYBAPI void Cyb_RenderText(SDL_Renderer *renderer, TTF_Font *font,
     
 /** @brief Label drawing procedure.
  *
- * @param grid Pointer to the label widget.
+ * @param label Pointer to the label widget.
  * @param renderer Pointer to the renderer.
  */
-CYBAPI void Cyb_DrawLabelProc(Cyb_Grid *grid, SDL_Renderer *renderer);
+CYBAPI void Cyb_DrawLabelProc(Cyb_Grid *label, SDL_Renderer *renderer);
 
 /** @brief Create a new label.
  *

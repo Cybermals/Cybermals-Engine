@@ -23,6 +23,19 @@ A lightweight high-performance game engine and application framework.
 * grid-based widgets
     * grid
     * label
+    * button
+        * supports both push and toggle modes
+    * text box
+        * supports both multi-line and read-only modes
+        * supports variable-width fonts
+        * supports caret placement via clicking
+        * supports insertion and removal of both text and entire lines
+        * does not currently support selection of blocks of text
+        * does not currently support cut/copy/paste
+    * list box
+        * supports both single and multi-select modes
+    * progress bar
+        * supports max and current values
     * supports creation of custom widgets
 * UI event subsystem
     * translates normal SDL2 events into UI events as needed 
@@ -36,6 +49,11 @@ A lightweight high-performance game engine and application framework.
     definition file
     * UI definitions can also be stored as strings within your app or loaded from
     any source supported by the SDL_RWops structure
+    
+    
+## Supported Platforms
+* Windows
+* Android
 
 
 ## License

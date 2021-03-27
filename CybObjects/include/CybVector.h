@@ -22,8 +22,8 @@ extern "C" {
  */
 enum Cyb_VecIndex
 {
-    CYB_VEC_START, /**< First vector element index. */
-    CYB_VEC_END    /**< Last vector element index. */
+    CYB_VEC_START = 0, /**< First vector element index. */
+    CYB_VEC_END = -1   /**< Last vector element index. */
 };
 
 

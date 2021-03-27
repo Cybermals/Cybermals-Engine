@@ -72,7 +72,7 @@ Cyb_ListNode *Cyb_InsertListElm(Cyb_List *list, size_t i)
         list->len++;
     }
     //Are we inserting at the end?
-    else if(i == CYB_LIST_END || i == list->len - 1)
+    else if(i == CYB_LIST_END || i == list->len)
     {
         //Is the first node the last?
         if(!list->first)
@@ -122,7 +122,7 @@ Cyb_ListNode *Cyb_InsertListElm(Cyb_List *list, size_t i)
         }
         
         //Ensure that the index is within the list
-        if(n < 0 || n > list->len - 2)
+        if(n < 0 || n > list->len - 1)
         {
             SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", 
                 "[CybObjects] List insert index out of bounds.");

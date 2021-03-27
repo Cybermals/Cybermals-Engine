@@ -87,7 +87,7 @@ void *Cyb_InsertVecElm(Cyb_Vector *vec, size_t i)
         return vec->data;
     }
     //Insert at end?
-    else if(i == CYB_VEC_END || i == vec->len - 1)
+    else if(i == CYB_VEC_END || i == vec->len)
     {
         //No moving required, just return a pointer to the last element
         vec->len++;
