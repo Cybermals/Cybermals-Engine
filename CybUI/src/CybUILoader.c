@@ -12,6 +12,7 @@ CybUI - UI Loader API
 #include "CybLabel.h"
 #include "CybListBox.h"
 #include "CybObjects.h"
+#include "CybProgressBar.h"
 #include "CybTextBox.h"
 #include "CybUILoader.h"
 #include "CybWidgetList.h"
@@ -140,6 +141,17 @@ void *Cyb_StartUIElement(Cyb_List *stack, const XML_Char *name,
             return NULL;
         }
     }
+    //Progress bar widget?
+    else if(strcmp(name, "progressbar") == 0)
+    {
+        //Create new progress bar
+        grid = Cyb_CreateProgressBar();
+        
+        if(!grid)
+        {
+            return NULL;
+        }
+    }
     //Unknown tag?
     else
     {
@@ -261,6 +273,7 @@ void *Cyb_StartUIElement(Cyb_List *stack, const XML_Char *name,
                 Cyb_ToggleTextBoxMode(grid, CYB_TEXTBOX_READONLY);
             }
         }
+        //ListBox multiselect attrib?
         else if(strcmp(attrib[0], "multiselect") == 0)
         {
             //Multi-select?
@@ -268,6 +281,30 @@ void *Cyb_StartUIElement(Cyb_List *stack, const XML_Char *name,
             {
                 Cyb_ToggleListBoxMode(grid, CYB_LISTBOX_MULTISELECT);
             }
+        }
+        //ProgressBar textures attrib?
+        else if(strcmp(attrib[0], "bartex") == 0)
+        {
+            sscanf(attrib[1], "%s %s", tmpBuf, tmpBuf2);
+            Cyb_SetProgressTextures(grid, 
+                Cyb_LoadUITexture(cachedRenderer, tmpBuf),
+                Cyb_LoadUITexture(cachedRenderer, tmpBuf2));
+        }
+        //ProgressBar max value attrib?
+        else if(strcmp(attrib[0], "max") == 0)
+        {
+            //Set max value
+            int max;
+            sscanf(attrib[1], "%i", &max);
+            Cyb_SetMaxProgressValue(grid, max);
+        }
+        //ProgressBar value attrib?
+        else if(strcmp(attrib[0], "value") == 0)
+        {
+            //Set value
+            int value;
+            sscanf(attrib[1], "%i", &value);
+            Cyb_SetProgressValue(grid, value);
         }
         //Unknown attrib?
         else
@@ -319,7 +356,7 @@ void *Cyb_EndUIElement(Cyb_List *stack, const XML_Char *name)
     //Pop the stack if the tag is a known tag
     if(strcmp(name, "grid") == 0 || strcmp(name, "label") == 0 ||
         strcmp(name, "button") == 0 || strcmp(name, "textbox") == 0 ||
-        strcmp(name, "listbox") == 0)
+        strcmp(name, "listbox") == 0 || strcmp(name, "progressbar") == 0)
     {
         Cyb_RemoveListElm(stack, CYB_LIST_END);
     }

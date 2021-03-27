@@ -10,6 +10,7 @@
 #include "CybGrid.h"
 #include "CybLabel.h"
 #include "CybListBox.h"
+#include "CybProgressBar.h"
 #include "CybTextBox.h"
 #include "CybTimer.h"
 #include "CybUIEvents.h"

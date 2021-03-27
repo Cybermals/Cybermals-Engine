@@ -26,6 +26,7 @@ CybUI - Test Program
 #endif
 
 #define FPS              60
+#define PROGRESS_INC     (1.0f / FPS)
 
 
 //Globals
@@ -110,6 +111,16 @@ int main(int argc, char **argv)
     Cyb_InsertItem(listBox, CYB_LIST_END, "fox", NULL);
     Cyb_InsertItem(listBox, CYB_LIST_END, "horse", NULL);
     
+    //Get progress bar
+    float progress = 0.0f;
+    Cyb_Grid *progBar = Cyb_GetGridByID(root, "progress1");
+    
+    if(!progBar)
+    {
+        puts("Failed to get progress bar.");
+        return 1;
+    }
+    
     //Main Loop
     while(TRUE)
     {
@@ -166,6 +177,14 @@ int main(int argc, char **argv)
         SDL_RenderClear(renderer);
         
         //Update UI
+        Cyb_SetProgressValue(progBar, progress);
+        progress += PROGRESS_INC;
+        
+        if(progress > 11.0f)
+        {
+            progress = 0.0f;
+        }
+        
         Cyb_DrawUI(root, renderer);
         
         //Swap buffers and limit framerate

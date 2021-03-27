@@ -190,7 +190,7 @@ Cyb_Grid *Cyb_GetGridByID(Cyb_Grid *grid, const char *id)
     //Does the ID match this grid?
     if(grid->id && strcmp(grid->id, id) == 0)
     {
-        return grid;
+        return (Cyb_Grid*)Cyb_NewObjectRef((Cyb_Object*)grid);
     }
     
     //If not, recurse down and check the child widgets

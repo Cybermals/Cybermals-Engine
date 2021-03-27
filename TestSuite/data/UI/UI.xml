@@ -7,6 +7,11 @@
     <listbox id="listbox1" row="0" col="3" rowspan="2" 
         font="data/fonts/Oxanium-Regular.ttf 20pt" fg="255 255 255" 
         bg="data/UI/themes/basic/listbox.png" multiselect="true"/>
+    <grid row="2" col="1" colspan="2" rows="3" bg="none">
+        <progressbar  id="progress1" row="1" col="0"
+            bartex="data/UI/themes/basic/progress-fg.png data/UI/themes/basic/progress-bg.png"
+            max="10" value="0"/>
+    </grid>
     <grid id="child" row="3" col="1" colspan="2" rows="3" bg="none">
         <button id="button1" row="1" col="0" 
             font="data/fonts/Oxanium-Regular.ttf 20pt" fg="255 255 255" 
