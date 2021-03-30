@@ -20,6 +20,7 @@ A lightweight high-performance game engine and application framework.
     * supports arbitrary element size
     
 ### CybUI
+* depends on CybObjects
 * grid-based widgets
     * grid
     * label
@@ -49,6 +50,15 @@ A lightweight high-performance game engine and application framework.
     definition file
     * UI definitions can also be stored as strings within your app or loaded from
     any source supported by the SDL_RWops structure
+    
+    
+## CybMath
+* 2D, 3D, and 4D vectors
+    * supports addition, subtraction, multiplication, and division
+* 4 x 4 matrices
+    * supports identity, translation, rotation, scaling, and projection matrix
+    generation
+    * supports multiplication
     
     
 ## Supported Platforms
