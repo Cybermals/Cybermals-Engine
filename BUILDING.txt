@@ -1,3 +1,10 @@
+Notes
+=====
+* There is a deps.zip file in the project root that contains a prebuilt version of all
+the dependencies required by the Cybermals Engine. You can unzip it directly into
+the project root and skip steps 4 and 5 of the build process to save time.
+
+
 Windows
 =======
 1. install MinGW-w64 or Visual Studio

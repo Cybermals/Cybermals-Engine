@@ -9,7 +9,7 @@ CybObject - Object API
 
 //Functions
 //==================================================================================
-Cyb_Object *Cyb_CreateObject(size_t size, CybFreeProc destructor, int type)
+Cyb_Object *Cyb_CreateObject(size_t size, Cyb_FreeProc destructor, int type)
 {
     //Allocate a new object
     Cyb_Object *obj = (Cyb_Object*)SDL_malloc(size);

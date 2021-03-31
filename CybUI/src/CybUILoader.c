@@ -372,7 +372,7 @@ int Cyb_InitUILoader(void)
     {
         //Initialize texture cache
         texCache = Cyb_CreateList(sizeof(Cyb_TexCacheNode), 
-            (CybFreeNodeProc)&Cyb_FreeTexCacheNode);
+            (Cyb_FreeNodeProc)&Cyb_FreeTexCacheNode);
             
         if(!texCache)
         {
@@ -382,7 +382,7 @@ int Cyb_InitUILoader(void)
         
         //Initialize font cache
         fontCache = Cyb_CreateList(sizeof(Cyb_FontCacheNode),
-            (CybFreeNodeProc)Cyb_FreeFontCacheNode);
+            (Cyb_FreeNodeProc)Cyb_FreeFontCacheNode);
             
         if(!fontCache)
         {

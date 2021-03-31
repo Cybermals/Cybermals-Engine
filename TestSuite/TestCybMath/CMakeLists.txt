@@ -3,71 +3,70 @@ cmake_minimum_required(VERSION 3.10)
 cmake_policy(SET CMP0076 NEW)
 
 #Project Name
-project(CybMath)
+project(TestCybMath)
 
-#Add library
-add_library(CybMath SHARED)
+#Add executable
+add_executable(TestCybMath)
 
 #Add include dirs
 if(WIN32)
     target_include_directories(
-        CybMath
+        TestCybMath
         PUBLIC
         include
-        ../CybCommon
+        ../../CybCommon
+        ../../CybMath/include
     )
 endif(WIN32)
 
 if(UNIX)
     target_include_directories(
-        CybMath
+        TestCybMath
         PUBLIC
         include
-        ../CybCommon
+        ../../CybCommon
+        ../../CybMath/include
     )
 endif(UNIX)
 
 #Add link dirs
 if(WIN32)
     target_link_directories(
-        CybMath
+        TestCybMath
         PUBLIC
     )
 endif(WIN32)
 
 if(UNIX)
     target_link_directories(
-        CybMath
+        TestCybMath
         PUBLIC
     )
 endif(UNIX)
 
 #Add source code
 target_sources(
-    CybMath
+    TestCybMath
     PRIVATE
-    src/CybBox.c
-    src/CybMatrix.c
-    src/CybSphere.c
-    src/CybVector.c
+    src/main.c
 )
 
 #Libraries to link against
 set(LIBS
+    CybMath
 )
 
 if(WIN32)
     target_link_libraries(
-        CybMath
+        TestCybMath
         ${LIBS}
     )
 endif(WIN32)
 
 if(UNIX)
     target_link_libraries(
-        CybMath
+        TestCybMath
         ${LIBS}
-        m
     )
 endif(UNIX)
 
@@ -76,11 +75,9 @@ if(MSVC10)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /TP")
 endif(MSVC10)
 
-target_compile_options(
-    CybMath
-    PUBLIC
-    -DDLL_EXPORTS
-)
+if(UNIX)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath=.")
+endif(UNIX)
 
 #Copy deps
 if(WIN32)
@@ -101,7 +98,6 @@ endif(UNIX)
 # file(COPY data DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 #Install
-install(TARGETS CybMath DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+install(TARGETS TestCybMath DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 # install(FILES ${DEPS} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 # install(DIRECTORY data DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-install(DIRECTORY include DESTINATION ${CMAKE_INSTALL_PREFIX})

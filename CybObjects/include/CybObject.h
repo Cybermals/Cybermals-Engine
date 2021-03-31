@@ -49,7 +49,7 @@ typedef struct Cyb_Object Cyb_Object;
  *
  * @param obj Pointer to the object to free.
  */
-typedef void (*CybFreeProc)(Cyb_Object *obj);
+typedef void (*Cyb_FreeProc)(Cyb_Object *obj);
 
 
 //Structures
@@ -58,10 +58,10 @@ typedef void (*CybFreeProc)(Cyb_Object *obj);
  */
 struct Cyb_Object
 {
-    CybFreeProc free; /**< The function to call before freeing the object. (read-only) */
-    int refCnt;       /**< The object reference count. (read-only) */
-    SDL_mutex *lock;  /**< The object mutex. (read-only) */
-    int type;         /**< The object type. (read-only) */
+    Cyb_FreeProc free; /**< The function to call before freeing the object. (read-only) */
+    int refCnt;        /**< The object reference count. (read-only) */
+    SDL_mutex *lock;   /**< The object mutex. (read-only) */
+    int type;          /**< The object type. (read-only) */
 };
 
 
@@ -75,7 +75,7 @@ struct Cyb_Object
  *
  * @return Pointer to the new object or NULL.
  */
-CYBAPI Cyb_Object *Cyb_CreateObject(size_t size, CybFreeProc destructor, int type);
+CYBAPI Cyb_Object *Cyb_CreateObject(size_t size, Cyb_FreeProc destructor, int type);
 
 /** @brief Free a reference to an object.
  *

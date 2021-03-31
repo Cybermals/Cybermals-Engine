@@ -33,7 +33,7 @@ enum Cyb_VecIndex
  *
  * @param elm Pointer to the element to free.
  */
-typedef void (*CybFreeElmProc)(void *elm);
+typedef void (*Cyb_FreeElmProc)(void *elm);
 
 
 //Structures
@@ -42,12 +42,12 @@ typedef void (*CybFreeElmProc)(void *elm);
  */
 typedef struct
 {
-    Cyb_Object base;        /**< Base object. (read-only) */
-    size_t elmSize;         /**< Size of each element. (read-only) */
-    CybFreeElmProc freeElm; /**< Element destructor. (read-only) */
-    void *data;             /**< Pointer to the internal array. (read-only) */
-    size_t size;            /**< Maximum vector length in elements. (read-only) */
-    size_t len;             /**< Current vector length. (read-only) */
+    Cyb_Object base;         /**< Base object. (read-only) */
+    size_t elmSize;          /**< Size of each element. (read-only) */
+    Cyb_FreeElmProc freeElm; /**< Element destructor. (read-only) */
+    void *data;              /**< Pointer to the internal array. (read-only) */
+    size_t size;             /**< Maximum vector length in elements. (read-only) */
+    size_t len;              /**< Current vector length. (read-only) */
 } Cyb_Vector;
 
 
@@ -60,7 +60,7 @@ typedef struct
  *
  * @return Pointer to the vector.
  */
-CYBAPI Cyb_Vector *Cyb_CreateVec(size_t elmSize, CybFreeElmProc destructor);
+CYBAPI Cyb_Vector *Cyb_CreateVec(size_t elmSize, Cyb_FreeElmProc destructor);
 
 /** @brief Insert a new element into the given vector.
  *

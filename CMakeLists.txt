@@ -8,8 +8,13 @@ project(Cybermals-Engine)
 #Include sub-projects
 add_subdirectory(CybObjects) #required
 
+set(Build_CybMath ON CACHE BOOL "Build the 3D math library.")
 set(Build_CybUI ON CACHE BOOL "Build the UI subsystem.")
 set(Build_TestSuite ON CACHE BOOL "Build the test suite.")
+
+if(Build_CybMath)
+    add_subdirectory(CybMath)
+endif(Build_CybMath)
 
 if(Build_CybUI)
     add_subdirectory(CybUI)
