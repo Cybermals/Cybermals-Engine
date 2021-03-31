@@ -4,8 +4,8 @@
 /** @file
  * @brief CybMath - Main API
  */
- 
-#include "CybCommon.h"
+
+#include "CybBox.h"
 #include "CybMatrix.h"
 #include "CybVector.h"
 

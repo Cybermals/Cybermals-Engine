@@ -46,6 +46,7 @@ endif(UNIX)
 target_sources(
     CybMath
     PRIVATE
+    src/CybBox.c
     src/CybMatrix.c
     src/CybVector.c
 )

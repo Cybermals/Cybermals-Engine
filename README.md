@@ -59,6 +59,11 @@ A lightweight high-performance game engine and application framework.
     * supports identity, translation, rotation, scaling, and projection matrix
     generation
     * supports multiplication
+* axis-aligned bounding boxes
+    * supports collision detection with points and other boxes
+    * supports generation of a box from geometry data
+    * supports generation of geometry data from a box
+    * supports rotation
     
     
 ## Supported Platforms
