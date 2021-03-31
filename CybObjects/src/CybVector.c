@@ -28,11 +28,11 @@ void Cyb_FreeVec(Cyb_Vector *vec)
 }
 
 
-Cyb_Vector *Cyb_CreateVec(size_t elmSize, CybFreeElmProc destructor)
+Cyb_Vector *Cyb_CreateVec(size_t elmSize, Cyb_FreeElmProc destructor)
 {
     //Allocate new vector
     Cyb_Vector *vec = (Cyb_Vector*)Cyb_CreateObject(sizeof(Cyb_Vector),
-        (CybFreeProc)&Cyb_FreeVec, CYB_VECTOR);
+        (Cyb_FreeProc)&Cyb_FreeVec, CYB_VECTOR);
         
     if(!vec)
     {

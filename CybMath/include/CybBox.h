@@ -49,6 +49,8 @@ CYBAPI void Cyb_BoxFromGeometry(Cyb_Box *box, void *verts, int stride, int count
  *
  * @param a Pointer to the point.
  * @param b Pointer to the box.
+ *
+ * @return TRUE if the point is inside the box.
  */
 CYBAPI int Cyb_PointInBox(const Cyb_Vec3 *a, const Cyb_Box *b);
 
@@ -59,7 +61,7 @@ CYBAPI int Cyb_PointInBox(const Cyb_Vec3 *a, const Cyb_Box *b);
  *
  * @return TRUE if the boxes are intersecting.
  */
-CYBAPI int Cyb_HasIntersection(const Cyb_Box *a, const Cyb_Box *b);
+CYBAPI int Cyb_BoxHitBox(const Cyb_Box *a, const Cyb_Box *b);
 
 /** @brief Generate geometry data for a given box.
  *

@@ -273,27 +273,46 @@ int TestCybMatrices(void)
 
 int TestCybBoxes(void)
 {
-    //Test collision detection
-    puts("Testing collision detection...");
-    Cyb_Box a = {{0, 0, 0}, {10, 10, 10}};
-    Cyb_Box b = {{5, 5, 5}, {2, 2, 2}};
-    Cyb_Box c = {{-5, -5, -5}, {2, 2, 2}};
-    Cyb_Vec3 p = {0, 0, 0};
-    
-    if(!Cyb_HasIntersection(&a, &b) || Cyb_HasIntersection(&b, &c) ||
-        !Cyb_HasIntersection(&a, &c) || !Cyb_PointInBox(&p, &a) ||
-        Cyb_PointInBox(&p, &b))
     {
-        puts("failed");
-        return 1;
+        //Test box collision detection
+        puts("Testing box collision detection...");
+        Cyb_Box a = {{0, 0, 0}, {10, 10, 10}};
+        Cyb_Box b = {{5, 5, 5}, {2, 2, 2}};
+        Cyb_Box c = {{-5, -5, -5}, {2, 2, 2}};
+        Cyb_Vec3 p = {0, 0, 0};
+    
+        if(!Cyb_BoxHitBox(&a, &b) || Cyb_BoxHitBox(&b, &c) ||
+            !Cyb_BoxHitBox(&a, &c) || !Cyb_PointInBox(&p, &a) ||
+            Cyb_PointInBox(&p, &b))
+        {
+            puts("failed");
+            return 1;
+        }
+    
+        //Test bounding box rotation
+        puts("Testing bounding box rotation...");
+        Cyb_Box d;
+        Cyb_RotateBox(&d, &a, 0, 0, 45);
+        printf("center = (%f, %f, %f)\nsize = (%f, %f, %f)\n", d.center.x, 
+            d.center.y, d.center.z, d.size.x, d.size.y, d.size.z);
     }
     
-    //Test bounding box rotation
-    puts("Testing bounding box rotation...");
-    Cyb_Box d;
-    Cyb_RotateBox(&d, &a, 0, 0, 45);
-    printf("center = (%f, %f, %f)\nsize = (%f, %f, %f)\n", d.center.x, d.center.y,
-        d.center.z, d.size.x, d.size.y, d.size.z);
+    {
+        //Test sphere collision detection
+        puts("Testing sphere collision detection...");
+        Cyb_Sphere a = {{0, 0, 0}, 10};
+        Cyb_Sphere b = {{5, 5, 5}, 2};
+        Cyb_Sphere c = {{-5, -5, -5}, 2};
+        Cyb_Vec3 p = {0, 0, 0};
+        
+        if(!Cyb_SphereHitSphere(&a, &b) || Cyb_SphereHitSphere(&b, &c) ||
+            !Cyb_SphereHitSphere(&a, &c) || Cyb_PointInSphere(&p, &b))
+        {
+            puts("failed");
+            return 1;
+        }
+    }
+    
     return 0;
 }
 

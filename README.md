@@ -64,6 +64,8 @@ A lightweight high-performance game engine and application framework.
     * supports generation of a box from geometry data
     * supports generation of geometry data from a box
     * supports rotation
+* sphere bounding volumes
+    * supports collision detection with points and other spheres
     
     
 ## Supported Platforms

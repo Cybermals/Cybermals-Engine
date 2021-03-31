@@ -27,11 +27,11 @@ void Cyb_FreeList(Cyb_List *list)
 }
 
 
-Cyb_List *Cyb_CreateList(size_t nodeSize, CybFreeNodeProc nodeDestructor)
+Cyb_List *Cyb_CreateList(size_t nodeSize, Cyb_FreeNodeProc nodeDestructor)
 {
     //Allocate new list
     Cyb_List *list = (Cyb_List*)Cyb_CreateObject(sizeof(Cyb_List), 
-        (CybFreeProc)&Cyb_FreeList, CYB_LIST);
+        (Cyb_FreeProc)&Cyb_FreeList, CYB_LIST);
         
     if(!list)
     {

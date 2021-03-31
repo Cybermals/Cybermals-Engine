@@ -55,7 +55,7 @@ int Cyb_PointInBox(const Cyb_Vec3 *a, const Cyb_Box *b)
 }
 
 
-int Cyb_HasIntersection(const Cyb_Box *a, const Cyb_Box *b)
+int Cyb_BoxHitBox(const Cyb_Box *a, const Cyb_Box *b)
 {
     return (fabs(b->center.x - a->center.x) < (a->size.x + b->size.x) / 2.0f &&
         fabs(b->center.y - a->center.y) < (a->size.y + b->size.y) / 2.0f &&

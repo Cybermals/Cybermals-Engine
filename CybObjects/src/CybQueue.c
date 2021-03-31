@@ -34,12 +34,12 @@ void Cyb_FreeQueue(Cyb_Queue *queue)
 }
 
 
-Cyb_Queue *Cyb_CreateQueue(size_t elmSize, CybFreeElmProc destructor,
+Cyb_Queue *Cyb_CreateQueue(size_t elmSize, Cyb_FreeElmProc destructor,
     size_t size)
 {
     //Allocate a new queue
     Cyb_Queue *queue = (Cyb_Queue*)Cyb_CreateObject(sizeof(Cyb_Queue),
-        (CybFreeProc)&Cyb_FreeQueue, CYB_QUEUE);
+        (Cyb_FreeProc)&Cyb_FreeQueue, CYB_QUEUE);
         
     if(!queue)
     {

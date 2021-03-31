@@ -187,7 +187,7 @@ Cyb_Grid *Cyb_CreateListBox(void)
     listBox->draw = &Cyb_DrawListBoxProc;
     listBox->handleEvent = &Cyb_HandleListBoxEventProc;
     listBox->data = Cyb_CreateObject(sizeof(Cyb_ListBoxData),
-        (CybFreeProc)&Cyb_FreeListBoxData, CYB_LISTBOX);
+        (Cyb_FreeProc)&Cyb_FreeListBoxData, CYB_LISTBOX);
         
     if(!listBox->data)
     {
@@ -201,7 +201,7 @@ Cyb_Grid *Cyb_CreateListBox(void)
     data->scrollPos.y = 0;
     data->isScrolling = FALSE;
     data->items = Cyb_CreateList(sizeof(Cyb_ListBoxItem),
-        (CybFreeNodeProc)&Cyb_FreeListBoxItem);
+        (Cyb_FreeNodeProc)&Cyb_FreeListBoxItem);
         
     if(!data->items)
     {

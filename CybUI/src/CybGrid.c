@@ -83,7 +83,7 @@ Cyb_Grid *Cyb_CreateGrid(void)
 {
     //Create a new grid
     Cyb_Grid *grid = (Cyb_Grid*)Cyb_CreateObject(sizeof(Cyb_Grid),
-        (CybFreeProc)&Cyb_FreeGridProc, CYB_GRID);
+        (Cyb_FreeProc)&Cyb_FreeGridProc, CYB_GRID);
         
     if(!grid)
     {

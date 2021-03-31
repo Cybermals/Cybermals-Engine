@@ -425,7 +425,7 @@ Cyb_Grid *Cyb_CreateTextBox(void)
     textBox->draw = &Cyb_DrawTextBoxProc;
     textBox->handleEvent = &Cyb_HandleTextBoxEventProc;
     textBox->data = Cyb_CreateObject(sizeof(Cyb_TextBoxData),
-        (CybFreeProc)&Cyb_FreeTextBoxData, CYB_TEXTBOX);
+        (Cyb_FreeProc)&Cyb_FreeTextBoxData, CYB_TEXTBOX);
         
     if(!textBox->data)
     {
@@ -442,7 +442,7 @@ Cyb_Grid *Cyb_CreateTextBox(void)
     data->isScrolling = FALSE;
     data->activeLine = 0;
     data->lines = Cyb_CreateList(sizeof(Cyb_LineNode),
-        (CybFreeNodeProc)&Cyb_FreeLineNode);
+        (Cyb_FreeNodeProc)&Cyb_FreeLineNode);
         
     if(!data->lines)
     {

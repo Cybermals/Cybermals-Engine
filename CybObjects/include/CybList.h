@@ -38,7 +38,7 @@ typedef struct Cyb_ListNode Cyb_ListNode;
  *
  * @param node Pointer to the node to free.
  */
-typedef void (*CybFreeNodeProc)(Cyb_ListNode *node);
+typedef void (*Cyb_FreeNodeProc)(Cyb_ListNode *node);
 
 
 //Structures
@@ -55,11 +55,11 @@ struct Cyb_ListNode
  */
 typedef struct
 {
-    Cyb_Object base;          /**< Base object. (read-only) */
-    size_t nodeSize;          /**< Size of each list node. (read-only) */
-    CybFreeNodeProc freeNode; /**< List node destructor. (read-only) */
-    Cyb_ListNode *first;      /**< Pointer to the first list node. (read-only) */
-    size_t len;               /**< Current length of the list. (read-only) */
+    Cyb_Object base;           /**< Base object. (read-only) */
+    size_t nodeSize;           /**< Size of each list node. (read-only) */
+    Cyb_FreeNodeProc freeNode; /**< List node destructor. (read-only) */
+    Cyb_ListNode *first;       /**< Pointer to the first list node. (read-only) */
+    size_t len;                /**< Current length of the list. (read-only) */
 } Cyb_List;
 
 
@@ -72,7 +72,7 @@ typedef struct
  *
  * @return Pointer to the new list or NULL.
  */
-CYBAPI Cyb_List *Cyb_CreateList(size_t nodeSize, CybFreeNodeProc nodeDestructor);
+CYBAPI Cyb_List *Cyb_CreateList(size_t nodeSize, Cyb_FreeNodeProc nodeDestructor);
 
 /** @brief Insert a new element into the given list.
  *

@@ -24,14 +24,14 @@ extern "C" {
  */
 typedef struct
 {
-    Cyb_Object base;        /**< Base object. (read-only) */
-    size_t elmSize;         /**< Element size. (read-only) */
-    CybFreeElmProc freeElm; /**< Element destructor. (read-only) */
-    void *buf;              /**< Queue ring buffer. (read-only) */
-    size_t head;            /**< Queue head pos. (read-only) */
-    size_t tail;            /**< Queue tail pos. (read-only) */
-    size_t len;             /**< Queue length. (read-only) */
-    size_t size;            /**< Maximum queue size. (read-only) */
+    Cyb_Object base;         /**< Base object. (read-only) */
+    size_t elmSize;          /**< Element size. (read-only) */
+    Cyb_FreeElmProc freeElm; /**< Element destructor. (read-only) */
+    void *buf;               /**< Queue ring buffer. (read-only) */
+    size_t head;             /**< Queue head pos. (read-only) */
+    size_t tail;             /**< Queue tail pos. (read-only) */
+    size_t len;              /**< Queue length. (read-only) */
+    size_t size;             /**< Maximum queue size. (read-only) */
 } Cyb_Queue;
 
 
@@ -45,7 +45,7 @@ typedef struct
  *
  * @return Pointer to the queue.
  */
-CYBAPI Cyb_Queue *Cyb_CreateQueue(size_t elmSize, CybFreeElmProc destructor,
+CYBAPI Cyb_Queue *Cyb_CreateQueue(size_t elmSize, Cyb_FreeElmProc destructor,
     size_t size);
     
 /** @brief Put data into the given queue.
