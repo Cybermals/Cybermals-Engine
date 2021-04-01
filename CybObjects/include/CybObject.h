@@ -35,7 +35,10 @@ enum Cyb_ObjectTypes
     CYB_BUTTON,      /**< Button object. */
     CYB_TEXTBOX,     /**< Textbox object. */
     CYB_LISTBOX,     /**< Listbox object. */
-    CYB_PROGRESSBAR  /**< Progress bar object. */
+    CYB_PROGRESSBAR, /**< Progress bar object. */
+    
+    //Renderer objects
+    CYB_RENDERER     /**< Renderer object. */
 };
 
 

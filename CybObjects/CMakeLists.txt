@@ -94,6 +94,8 @@ if(WIN32)
     file(
         GLOB DEPS
         ../deps/windows/i386/SDL2/bin/*
+        ../deps/windows/i386/SDL2/lib/*.a
+        ../deps/windows/i386/SDL2/lib/*.lib
     )
     file(COPY ${DEPS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif(WIN32)
