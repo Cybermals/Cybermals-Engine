@@ -57,6 +57,7 @@ target_sources(
     CybRender
     PRIVATE
     src/CybRenderer.c
+    src/CybShader.c
 )
 
 #Libraries to link against

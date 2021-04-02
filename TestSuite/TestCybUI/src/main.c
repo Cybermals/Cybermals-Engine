@@ -33,11 +33,37 @@ CybUI - Test Program
 //===========================================================================
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
+Cyb_Grid *root = NULL;
+Cyb_Grid *textBox = NULL;
+Cyb_Grid *progBar = NULL;
+float progress = 0.0f;
 
 
-//Entry Point
+//Functions
 //===========================================================================
-int main(int argc, char **argv)
+void Quit(void)
+{
+    //Free root widget
+    if(root)
+    {
+        Cyb_FreeObject((Cyb_Object**)&root);
+    }
+    
+    //Free renderer
+    if(renderer)
+    {
+        SDL_DestroyRenderer(renderer);
+    }
+    
+    //Destroy window
+    if(window)
+    {
+        SDL_DestroyWindow(window);
+    }
+}
+
+
+int Init(void)
 {
     //Init CybUI
     if(Cyb_InitUI())
@@ -58,10 +84,11 @@ int main(int argc, char **argv)
     
     SDL_SetWindowTitle(window, APP_TITLE);
     SDL_SetWindowPosition(window, WINDOW_X, WINDOW_Y);
+    atexit(&Quit);
     
     //Init UI
     SDL_Log("%s", "Loading UI...");
-    Cyb_Grid *root = Cyb_LoadUI(renderer, "data/UI/UI.xml");
+    root = Cyb_LoadUI(renderer, "data/UI/UI.xml");
     
     if(!root)
     {
@@ -85,7 +112,7 @@ int main(int argc, char **argv)
     }
     
     //Add some text to the text box
-    Cyb_Grid *textBox = Cyb_GetGridByID(root, "textbox1");
+    textBox = Cyb_GetGridByID(root, "textbox1");
     
     if(!textBox)
     {
@@ -112,12 +139,25 @@ int main(int argc, char **argv)
     Cyb_InsertItem(listBox, CYB_LIST_END, "horse", NULL);
     
     //Get progress bar
-    float progress = 0.0f;
-    Cyb_Grid *progBar = Cyb_GetGridByID(root, "progress1");
+    progBar = Cyb_GetGridByID(root, "progress1");
     
     if(!progBar)
     {
         puts("Failed to get progress bar.");
+        return 1;
+    }
+    
+    return 0;
+}
+
+
+//Entry Point
+//===========================================================================
+int main(int argc, char **argv)
+{
+    //Initialize
+    if(Init())
+    {
         return 1;
     }
     

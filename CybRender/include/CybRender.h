@@ -6,5 +6,6 @@
  */
  
 #include "CybRenderer.h"
+#include "CybShader.h"
 
 #endif

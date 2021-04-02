@@ -67,6 +67,10 @@ A lightweight high-performance game engine and application framework.
 * sphere bounding volumes
     * supports collision detection with points and other spheres
     
+## CybRender
+* manages one or more OpenGL 3.3 contexts
+* uses resource caching to prevent repeated loading of the same resource
+    
     
 ## Supported Platforms
 * Windows

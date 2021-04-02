@@ -38,7 +38,8 @@ enum Cyb_ObjectTypes
     CYB_PROGRESSBAR, /**< Progress bar object. */
     
     //Renderer objects
-    CYB_RENDERER     /**< Renderer object. */
+    CYB_RENDERER,    /**< Renderer object. */
+    CYB_SHADER
 };
 
 

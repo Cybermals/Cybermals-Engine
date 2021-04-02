@@ -15,6 +15,7 @@ struct Cyb_Renderer
     Cyb_Object base;
     SDL_Window *window;
     SDL_GLContext glCtx;
+    Cyb_GLExtAPI glExtAPI;
 };
 
 
@@ -32,11 +33,62 @@ static void Cyb_FreeRenderer(Cyb_Renderer *renderer)
     {
         SDL_GL_DeleteContext(renderer->glCtx);
     }
+    
+    //Finalize CybObjects
+    Cyb_FiniObjects();
+}
+
+
+static int Cyb_InitGLExtAPI(Cyb_GLExtAPI *glExtAPI)
+{
+    //Import shader functions
+    glExtAPI->CreateShader = SDL_GL_GetProcAddress("glCreateShader");
+    glExtAPI->DeleteShader = SDL_GL_GetProcAddress("glDeleteShader");
+    glExtAPI->ShaderSource = SDL_GL_GetProcAddress("glShaderSource");
+    glExtAPI->CompileShader = SDL_GL_GetProcAddress("glCompileShader");
+    glExtAPI->GetShaderiv = SDL_GL_GetProcAddress("glGetShaderiv");
+    glExtAPI->GetShaderInfoLog = SDL_GL_GetProcAddress("glGetShaderInfoLog");
+    
+    //Import program functions
+    glExtAPI->CreateProgram = SDL_GL_GetProcAddress("glCreateProgram");
+    glExtAPI->DeleteProgram = SDL_GL_GetProcAddress("glDeleteProgram");
+    glExtAPI->AttachShader = SDL_GL_GetProcAddress("glAttachShader");
+    glExtAPI->LinkProgram = SDL_GL_GetProcAddress("glLinkProgram");
+    glExtAPI->GetProgramiv = SDL_GL_GetProcAddress("glGetProgramiv");
+    glExtAPI->GetProgramInfoLog = SDL_GL_GetProcAddress("glGetProgramInfoLog");
+    glExtAPI->ValidateProgram = SDL_GL_GetProcAddress("glValidateProgram");
+    glExtAPI->UseProgram = SDL_GL_GetProcAddress("glUseProgram");
+    
+    //Verify that all functions were imported
+    if(!glExtAPI->CreateShader ||
+        !glExtAPI->DeleteShader ||
+        !glExtAPI->ShaderSource ||
+        !glExtAPI->CompileShader ||
+        !glExtAPI->GetShaderiv ||
+        !glExtAPI->GetShaderInfoLog ||
+        !glExtAPI->CreateProgram ||
+        !glExtAPI->DeleteProgram ||
+        !glExtAPI->AttachShader ||
+        !glExtAPI->LinkProgram ||
+        !glExtAPI->GetProgramiv ||
+        !glExtAPI->GetProgramInfoLog ||
+        !glExtAPI->ValidateProgram)
+    {
+        return CYB_ERROR;
+    }
+    
+    return CYB_NO_ERROR;
 }
 
 
 Cyb_Renderer *Cyb_CreateRenderer(SDL_Window *window)
 {
+    //Initialize CybObjects
+    if(Cyb_InitObjects())
+    {
+        return NULL;
+    }
+    
     //Allocate new renderer
     Cyb_Renderer *renderer = (Cyb_Renderer*)Cyb_CreateObject(sizeof(Cyb_Renderer),
         (Cyb_FreeProc)&Cyb_FreeRenderer, CYB_RENDERER);
@@ -66,38 +118,49 @@ Cyb_Renderer *Cyb_CreateRenderer(SDL_Window *window)
     }
     
     SDL_GL_MakeCurrent(renderer->window, renderer->glCtx);
+    
+    if(Cyb_InitGLExtAPI(&renderer->glExtAPI))
+    {
+        Cyb_FreeObject((Cyb_Object**)&renderer);
+        return NULL;
+    }
+
     return renderer;
+}
+
+
+void Cyb_SelectRenderer(Cyb_Renderer *renderer)
+{
+    //Ensure that this renderer is current
+    if(current != renderer)
+    {
+        //Make the renderer current
+        SDL_GL_MakeCurrent(renderer->window, renderer->glCtx);
+        current = renderer;
+    }
 }
 
 
 void Cyb_SetRenderBGColor(Cyb_Renderer *renderer, float r, float g, float b,
     float a)
 {
-    //Ensure that this renderer is current
-    if(current != renderer)
-    {
-        //Make the renderer current
-        SDL_GL_MakeCurrent(renderer->window, renderer->glCtx);
-        current = renderer;
-    }
-    
     //Set the clear color
+    Cyb_SelectRenderer(renderer);
     glClearColor(r, g, b, a);
 }
 
 
 void Cyb_RenderClear(Cyb_Renderer *renderer)
 {
-    //Ensure that this renderer is current
-    if(current != renderer)
-    {
-        //Make the renderer current
-        SDL_GL_MakeCurrent(renderer->window, renderer->glCtx);
-        current = renderer;
-    }
-    
     //Clear the color and depth buffers
+    Cyb_SelectRenderer(renderer);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+
+Cyb_GLExtAPI *Cyb_GetGLExtAPI(Cyb_Renderer *renderer)
+{
+    return &renderer->glExtAPI;
 }
 
 

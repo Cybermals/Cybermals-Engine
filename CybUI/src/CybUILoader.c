@@ -62,6 +62,9 @@ void Cyb_FreeTexCacheNode(Cyb_TexCacheNode *node)
     {
         SDL_free(node->id);
     }
+    
+    //Note: We cannot free the cached texture because freeing the renderer frees
+    //all its associated resources
 }
 
 

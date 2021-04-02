@@ -35,12 +35,54 @@ CybRender - Test Program
 SDL_Window *window = NULL;
 SDL_Surface *uiOverlay = NULL;
 SDL_Renderer *uiRenderer = NULL;
+Cyb_Grid *root = NULL;
 Cyb_Renderer *renderer = NULL;
+Cyb_Shader *rainbowShader = NULL;
 
 
-//Entry Point
+//Functions
 //===========================================================================
-int main(int argc, char **argv)
+void Quit(void)
+{
+    //Free shaders
+    if(rainbowShader)
+    {
+        Cyb_FreeObject((Cyb_Object**)&rainbowShader);
+    }
+    
+    //Free renderer
+    if(renderer)
+    {
+        Cyb_FreeObject((Cyb_Object**)&renderer);
+    }
+    
+    //Free root widget
+    if(root)
+    {
+        Cyb_FreeObject((Cyb_Object**)&root);
+    }
+    
+    //Free UI renderer
+    if(uiRenderer)
+    {
+        SDL_DestroyRenderer(uiRenderer);
+    }
+    
+    //Free UI overlay
+    if(uiOverlay)
+    {
+        SDL_FreeSurface(uiOverlay);
+    }
+    
+    //Destroy window
+    if(window)
+    {
+        SDL_DestroyWindow(window);
+    }
+}
+
+
+int Init(void)
 {
     //Initialize CybUI
     if(Cyb_InitUI())
@@ -58,6 +100,8 @@ int main(int argc, char **argv)
             "Failed to create a window.");
         return 1;
     }
+    
+    atexit(&Quit);
     
     //Create UI overlay
     uiOverlay = SDL_CreateRGBSurface(0, WINDOW_WIDTH, WINDOW_HEIGHT, 32,
@@ -81,7 +125,7 @@ int main(int argc, char **argv)
     }
     
     //Load UI
-    Cyb_Grid *root = Cyb_LoadUI(uiRenderer, "data/UI/RendererUI.xml");
+    root = Cyb_LoadUI(uiRenderer, "data/UI/RendererUI.xml");
     
     if(!root)
     {
@@ -97,6 +141,28 @@ int main(int argc, char **argv)
     }
     
     Cyb_SetRenderBGColor(renderer, BG_COLOR);
+    
+    //Load Shaders
+    rainbowShader = Cyb_LoadShader(renderer, "data/shaders/rainbow.glsl");
+    
+    if(!rainbowShader)
+    {
+        return 1;
+    }
+    
+    return 0;
+}
+
+
+//Entry Point
+//===========================================================================
+int main(int argc, char **argv)
+{
+    //Initialize
+    if(Init())
+    {
+        return 1;
+    }
     
     //Main Loop
     while(TRUE)
