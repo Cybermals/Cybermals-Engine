@@ -46,10 +46,14 @@ static void Cyb_FreeShaderCache(void)
 
 static void Cyb_FreeShader(Cyb_Shader *shader)
 {
+    //Deselect the shader program
+    Cyb_GLExtAPI *glExtAPI = shader->glExtAPI;
+    glExtAPI->UseProgram(0);
+    
     //Delete the shader program
     if(shader->program)
     {
-        shader->glExtAPI->DeleteProgram(shader->program);
+        glExtAPI->DeleteProgram(shader->program);
     }
 }
 
@@ -92,7 +96,7 @@ Cyb_Shader *Cyb_LoadShaderRW(Cyb_Renderer *renderer, SDL_RWops *file,
             return NULL;
         }
         
-        atexit(&Cyb_FreeShaderCache);
+        //atexit(&Cyb_FreeShaderCache); //crashing for some weird reason
     }
     
     //Return cached shader if it has already been loaded
@@ -361,8 +365,23 @@ Cyb_Shader *Cyb_LoadShaderRW(Cyb_Renderer *renderer, SDL_RWops *file,
 }
 
 
-void Cyb_SelectShader(Cyb_Shader *shader, Cyb_Renderer *renderer)
+void Cyb_SelectShader(Cyb_Renderer *renderer, Cyb_Shader *shader)
 {
     Cyb_SelectRenderer(renderer);
     shader->glExtAPI->UseProgram(shader->program);
+}
+
+
+void Cyb_SetMatrices(Cyb_Renderer *renderer, Cyb_Shader *shader,
+    const char *name, int count, const Cyb_Mat4 *matrices)
+{
+    GLint id = shader->glExtAPI->GetUniformLocation(shader->program, name);
+    shader->glExtAPI->UniformMatrix4fv(id, count, FALSE, (const float*)matrices);
+}
+    
+
+void Cyb_SetMatrix(Cyb_Renderer *renderer, Cyb_Shader *shader,
+    const char *name, const Cyb_Mat4 *matrix)
+{
+    Cyb_SetMatrices(renderer, shader, name, 1, matrix);
 }

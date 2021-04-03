@@ -14,8 +14,6 @@ if(WIN32)
         CybRender
         PUBLIC
         include
-        ../CybCommon
-        ../CybObjects/include
         ../deps/windows/i386/SDL2/include/SDL2
         ../deps/windows/i386/SDL2_image/include
     )
@@ -26,8 +24,6 @@ if(UNIX)
         CybRender
         PUBLIC
         include
-        ../CybCommon
-        ../CybObjects/include
         ../deps/linux/amd64/SDL2/include/SDL2
         ../deps/linux/amd64/SDL2_image/include
     )
@@ -56,6 +52,7 @@ endif(UNIX)
 target_sources(
     CybRender
     PRIVATE
+    src/CybMesh.c
     src/CybRenderer.c
     src/CybShader.c
 )
@@ -65,6 +62,7 @@ set(LIBS
     SDL2
     SDL2_image
     CybObjects
+    CybMath
 )
 
 if(WIN32)

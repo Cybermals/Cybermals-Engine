@@ -49,7 +49,7 @@ target_sources(
     src/CybBox.c
     src/CybMatrix.c
     src/CybSphere.c
-    src/CybVector.c
+    src/CybVec.c
 )
 
 #Libraries to link against

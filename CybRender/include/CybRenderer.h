@@ -24,7 +24,7 @@ typedef struct Cyb_Renderer Cyb_Renderer;
 //=================================================================================
 typedef struct
 {
-    //Shader functions
+    //Shader Functions
     PFNGLCREATESHADERPROC CreateShader;
     PFNGLDELETESHADERPROC DeleteShader;
     PFNGLSHADERSOURCEPROC ShaderSource;
@@ -32,7 +32,7 @@ typedef struct
     PFNGLGETSHADERIVPROC GetShaderiv;
     PFNGLGETSHADERINFOLOGPROC GetShaderInfoLog;
     
-    //Program functions
+    //Program Functions
     PFNGLCREATEPROGRAMPROC CreateProgram;
     PFNGLDELETEPROGRAMPROC DeleteProgram;
     PFNGLATTACHSHADERPROC AttachShader;
@@ -41,6 +41,26 @@ typedef struct
     PFNGLGETPROGRAMINFOLOGPROC GetProgramInfoLog;
     PFNGLVALIDATEPROGRAMPROC ValidateProgram;
     PFNGLUSEPROGRAMPROC UseProgram;
+    PFNGLGETUNIFORMLOCATIONPROC GetUniformLocation;
+    PFNGLUNIFORMMATRIX4FVPROC UniformMatrix4fv;
+    
+    //Buffer Functions
+    PFNGLGENBUFFERSPROC GenBuffers;
+    PFNGLDELETEBUFFERSPROC DeleteBuffers;
+    PFNGLBINDBUFFERPROC BindBuffer;
+    PFNGLBUFFERDATAPROC BufferData;
+    PFNGLMAPBUFFERPROC MapBuffer;
+    PFNGLUNMAPBUFFERPROC UnmapBuffer;
+    
+    //Vertex Array Functions
+    PFNGLGENVERTEXARRAYSPROC GenVertexArrays;
+    PFNGLDELETEVERTEXARRAYSPROC DeleteVertexArrays;
+    PFNGLBINDVERTEXARRAYPROC BindVertexArray;
+    
+    //Vertex Attrib Functions
+    PFNGLENABLEVERTEXATTRIBARRAYPROC EnableVertexAttribArray;
+    PFNGLDISABLEVERTEXATTRIBARRAYPROC DisableVertexAttribArray;
+    PFNGLVERTEXATTRIBPOINTERPROC VertexAttribPointer;
 } Cyb_GLExtAPI;
 
 

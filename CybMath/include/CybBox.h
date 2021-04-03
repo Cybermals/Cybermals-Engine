@@ -6,7 +6,7 @@
  */
  
 #include "CybCommon.h"
-#include "CybVector.h"
+#include "CybVec.h"
 
 #ifndef min
 #define min(a, b) (a < b ? a : b)

@@ -143,9 +143,9 @@ void Cyb_Ortho(Cyb_Mat4 *m, float left, float right, float top,
     m->k = -2.0f / (far - near);
     
     //Modify column 4
-    m->d = -(right + left) / (right - left);
-    m->h = -(top + bottom) / (top - bottom);
-    m->l = -(far + near) / (far - near);
+    m->m = -(right + left) / (right - left);
+    m->n = -(top + bottom) / (top - bottom);
+    m->o = -(far + near) / (far - near);
 }
 
 
@@ -156,7 +156,7 @@ void Cyb_Perspective(Cyb_Mat4 *m, float fov, float aspect, float near,
     Cyb_Identity(m);
     
     //Calculate f value
-    float f = 1.0f / tanf(radians(fov) / 2.0f);
+    float f = 1.0f / tanf(radians(fov / 2.0f));
     
     //Modify first 3 diagonal values
     m->a = f / aspect;
@@ -164,8 +164,9 @@ void Cyb_Perspective(Cyb_Mat4 *m, float fov, float aspect, float near,
     m->k = (far + near) / (near - far);
     
     //Modify column 3
-    m->o = -1.0f;
+    m->l = -1.0f;
     
     //Modify column 4
-    m->l = (2.0f * far * near) / (near - far);
+    m->o = (2.0f * far * near) / (near - far);
+    m->p = 0.0f;
 }

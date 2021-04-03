@@ -1,8 +1,8 @@
 /*
-CybMath - Vector API
+CybMath - Mathematical Vector API
 */
 
-#include "CybVector.h"
+#include "CybVec.h"
 
 
 //Functions

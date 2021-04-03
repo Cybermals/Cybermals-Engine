@@ -39,7 +39,8 @@ enum Cyb_ObjectTypes
     
     //Renderer objects
     CYB_RENDERER,    /**< Renderer object. */
-    CYB_SHADER
+    CYB_SHADER,      /**< Shader object. */
+    CYB_MESH         /**< Mesh object. */
 };
 
 

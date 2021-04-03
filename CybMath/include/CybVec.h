@@ -1,8 +1,8 @@
-#ifndef CYBVECTOR_H
-#define CYBVECTOR_H
+#ifndef CYBVEC_H
+#define CYBVEC_H
 
 /** @file
- * @brief CybMath - Vector API
+ * @brief CybMath - Mathematical Vector API
  */
  
 #include "CybCommon.h"

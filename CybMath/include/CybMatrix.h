@@ -8,9 +8,9 @@
 #include <math.h>
  
 #include "CybCommon.h"
-#include "CybVector.h"
+#include "CybVec.h"
 
-#define radians(n) (n * (M_PI / 180.0f))
+#define radians(n) ((n) * (M_PI / 180.0f))
 
  
 #ifdef __cplusplus

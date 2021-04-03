@@ -33,29 +33,29 @@ CybRender - Test Program
 //Globals
 //===========================================================================
 SDL_Window *window = NULL;
+Cyb_Renderer *renderer = NULL;
+
 SDL_Surface *uiOverlay = NULL;
 SDL_Renderer *uiRenderer = NULL;
 Cyb_Grid *root = NULL;
-Cyb_Renderer *renderer = NULL;
+
 Cyb_Shader *rainbowShader = NULL;
+
+Cyb_Mesh *triangle = NULL;
+Cyb_Mesh *cube = NULL;
+
+Cyb_Mat4 m;
+Cyb_Mat4 v;
+Cyb_Mat4 p;
+
+int drawTriangle = TRUE;
+int drawCube = TRUE;
 
 
 //Functions
 //===========================================================================
 void Quit(void)
 {
-    //Free shaders
-    if(rainbowShader)
-    {
-        Cyb_FreeObject((Cyb_Object**)&rainbowShader);
-    }
-    
-    //Free renderer
-    if(renderer)
-    {
-        Cyb_FreeObject((Cyb_Object**)&renderer);
-    }
-    
     //Free root widget
     if(root)
     {
@@ -72,6 +72,12 @@ void Quit(void)
     if(uiOverlay)
     {
         SDL_FreeSurface(uiOverlay);
+    }
+    
+    //Free renderer (this also frees the resources associated with the renderer)
+    if(renderer)
+    {
+        Cyb_FreeObject((Cyb_Object**)&renderer);
     }
     
     //Destroy window
@@ -103,6 +109,16 @@ int Init(void)
     
     atexit(&Quit);
     
+    //Create renderer
+    renderer = Cyb_CreateRenderer(window);
+    
+    if(!renderer)
+    {
+        return 1;
+    }
+    
+    Cyb_SetRenderBGColor(renderer, BG_COLOR);
+    
     //Create UI overlay
     uiOverlay = SDL_CreateRGBSurface(0, WINDOW_WIDTH, WINDOW_HEIGHT, 32,
         0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
@@ -132,16 +148,6 @@ int Init(void)
         return 1;
     }
     
-    //Create renderer
-    renderer = Cyb_CreateRenderer(window);
-    
-    if(!renderer)
-    {
-        return 1;
-    }
-    
-    Cyb_SetRenderBGColor(renderer, BG_COLOR);
-    
     //Load Shaders
     rainbowShader = Cyb_LoadShader(renderer, "data/shaders/rainbow.glsl");
     
@@ -150,7 +156,95 @@ int Init(void)
         return 1;
     }
     
+    //Create meshes
+    triangle = Cyb_CreateMesh(renderer);
+    
+    if(!triangle)
+    {
+        return 1;
+    }
+    
+    {
+        Cyb_Vec3 verts[] = {
+            {0.0f, 1.0f, 0.0f},
+            {-1.0f, -1.0f, 0.0f},
+            {1.0f, -1.0f, 0.0f}
+        };
+        
+        Cyb_Vec3 norms[] = {
+            {0.0f, 0.0f, 1.0f},
+            {0.0f, 0.0f, 1.0f},
+            {0.0f, 0.0f, 1.0f}
+        };
+        
+        Cyb_Vec4 colors[] = {
+            {1.0f, 0.0f, 0.0f, 1.0f},
+            {0.0f, 1.0f, 0.0f, 1.0f},
+            {0.0f, 0.0f, 1.0f, 1.0f}
+        };
+        
+        unsigned int indices[] = {
+            0, 1, 2
+        };
+        
+        int vertCount = sizeof(verts) / sizeof(verts[0]);
+        int indexCount = sizeof(indices) / sizeof(indices[0]);
+        
+        Cyb_UpdateMesh(renderer, triangle, vertCount, verts, norms, colors, NULL,
+            indexCount, indices);
+    }
+    
+    cube = Cyb_CreateMesh(renderer);
+
+    if(!cube)
+    {
+        return 1;
+    }
+    
+    /* {
+        Cyb_Vec3 verts[] = {};
+        
+        Cyb_Vec3 norms[] = {};
+        
+        Cyb_Vec4 colors[] = {};
+        
+        unsigned int indices = {};
+        
+        int vertCount = sizeof(verts) / sizeof(verts[0]);
+        int indexCount = sizeof(indices) / sizeof(indices[0]);
+    } */
+    
+    //Initialize matrices
+    Cyb_Identity(&m);
+    Cyb_Identity(&v);
+    //Cyb_Translate(&v, 0.0f, 0.0f, -5.0f);
+    Cyb_Identity(&p);
+    //Cyb_Perspective(&p, 45.0f, (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, .1f,
+    //    1000.0f);
+    //Cyb_Ortho(&p, -1.0f, 1.0f, 1.0f, -1.0f, .1f, 1000.0f);
     return 0;
+}
+
+
+void DrawTriangle(void)
+{
+    //Update model matrix
+    Cyb_Identity(&m);
+    
+    //Disable depth testing and face culling
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+    
+    //Select shader
+    Cyb_SelectShader(renderer, rainbowShader);
+    
+    //Set matrices
+    Cyb_SetMatrix(renderer, rainbowShader, "m", &m);
+    Cyb_SetMatrix(renderer, rainbowShader, "v", &v);
+    Cyb_SetMatrix(renderer, rainbowShader, "p", &p);
+    
+    //Draw the triangle
+    Cyb_DrawMesh(renderer, triangle);
 }
 
 
@@ -184,6 +278,12 @@ int main(int argc, char **argv)
         
         //Draw the UI
         //Cyb_DrawUI(root, uiRenderer);
+        
+        //Draw triangle?
+        if(drawTriangle)
+        {
+            DrawTriangle();
+        }
         
         //Swap buffers
         Cyb_RenderPresent(renderer);

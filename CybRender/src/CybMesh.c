@@ -1,0 +1,335 @@
+/*
+CybRender - Mesh API
+*/
+
+#include <string.h>
+
+#include "CybMesh.h"
+#include "CybObject.h"
+
+
+//Structures
+//=================================================================================
+struct Cyb_Mesh
+{
+    Cyb_Object base;
+    Cyb_GLExtAPI *glExtAPI;
+    int vFormat;
+    int indexCount;
+    GLuint vbo;
+    GLuint ebo;
+    GLuint vao;
+};
+
+
+//Functions
+//=================================================================================
+void Cyb_FreeMesh(Cyb_Mesh *mesh)
+{
+    //Unbind VAO and VBO and EBO
+    Cyb_GLExtAPI *glExtAPI = mesh->glExtAPI;
+    glExtAPI->BindVertexArray(0);
+    glExtAPI->BindBuffer(GL_ARRAY_BUFFER, 0);
+    glExtAPI->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    
+    //Free VAO
+    if(mesh->vao)
+    {
+        glExtAPI->DeleteVertexArrays(1, &mesh->vao);
+    }
+    
+    //Free VBO
+    if(mesh->vbo)
+    {
+        glExtAPI->DeleteBuffers(1, &mesh->vbo);
+    }
+    
+    //Free EBO
+    if(mesh->ebo)
+    {
+        glExtAPI->DeleteBuffers(1, &mesh->ebo);
+    }
+}
+
+
+Cyb_Mesh *Cyb_CreateMesh(Cyb_Renderer *renderer)
+{
+    //Allocate new mesh
+    Cyb_Mesh *mesh = (Cyb_Mesh*)Cyb_CreateObject(sizeof(Cyb_Mesh),
+        (Cyb_FreeProc)&Cyb_FreeMesh, CYB_MESH);
+        
+    if(!mesh)
+    {
+        return NULL;
+    }
+    
+    //Initialize the mesh
+    mesh->vFormat = CYB_VERTEX_UNKNOWN;
+    Cyb_SelectRenderer(renderer);
+    Cyb_GLExtAPI *glExtAPI = Cyb_GetGLExtAPI(renderer);
+    mesh->glExtAPI = glExtAPI;
+    glExtAPI->GenBuffers(1, &mesh->vbo);
+    
+    if(!mesh->vbo)
+    {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", 
+            "[CybRender] Failed to allocate VBO.");
+        Cyb_FreeObject((Cyb_Object**)&mesh);
+        return NULL;
+    }
+
+    glExtAPI->GenBuffers(1, &mesh->ebo);
+    
+    if(!mesh->ebo)
+    {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s",
+            "[CybRender] Failed to allocate EBO.");
+        Cyb_FreeObject((Cyb_Object**)&mesh);
+        return NULL;
+    }
+    
+    glExtAPI->GenVertexArrays(1, &mesh->vao);
+    
+    if(!mesh->vao)
+    {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s",
+            "[CybRender] Failed to allocate VAO.");
+        Cyb_FreeObject((Cyb_Object**)&mesh);
+        return NULL;
+    }
+
+    return mesh;
+}
+
+
+int Cyb_UpdateMesh(Cyb_Renderer *renderer, Cyb_Mesh *mesh, int vertCount, 
+    const Cyb_Vec3 *verts, const Cyb_Vec3 *norms, const Cyb_Vec4 *colors, 
+    const Cyb_Vec2 *uvs, int indexCount, const unsigned int *indices)
+{    
+    //Ensure that vertices and indices were given
+    if(!verts || !indices)
+    {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s",
+            "[CybRender] Function 'Cyb_UpdateMesh' requires at least an array of vertices and indices.");
+        return CYB_ERROR;
+    }
+    
+    //Select the renderer and bind the VAO
+    Cyb_SelectRenderer(renderer);
+    Cyb_GLExtAPI *glExtAPI = mesh->glExtAPI;
+    glExtAPI->BindVertexArray(mesh->vao);
+    
+    //Choose the vertex data format
+    if(norms)
+    {
+        if(!colors && !uvs)
+        {
+            //Bind and map VBO
+            glExtAPI->BindBuffer(GL_ARRAY_BUFFER, mesh->vbo);
+            glExtAPI->BufferData(GL_ARRAY_BUFFER, sizeof(Cyb_VertexVN) * vertCount,
+                NULL, GL_STATIC_DRAW);
+            Cyb_VertexVN *buf = glExtAPI->MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+        
+            if(!buf)
+            {
+                SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s",
+                    "[CybRender] Failed to map VBO.");
+                return CYB_ERROR;
+            }
+        
+            //Copy the vertex data
+            for(int i = 0; i < vertCount; i++)
+            {
+                memcpy(&buf[i].pos, &verts[i], sizeof(verts[i]));
+                memcpy(&buf[i].norm, &norms[i], sizeof(norms[i]));
+            }
+        
+            //Unmap VBO
+            glExtAPI->UnmapBuffer(GL_ARRAY_BUFFER);
+            
+            //Set vertex format and setup vertex attrib pointers
+            mesh->vFormat = CYB_VERTEX_VN;
+            glExtAPI->EnableVertexAttribArray(0);
+            glExtAPI->EnableVertexAttribArray(1);
+            glExtAPI->DisableVertexAttribArray(2);
+            glExtAPI->DisableVertexAttribArray(3);
+            glExtAPI->VertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 
+                sizeof(buf[0]), (void*)offsetof(Cyb_VertexVN, pos));
+            glExtAPI->VertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
+                sizeof(buf[0]), (void*)offsetof(Cyb_VertexVN, norm));
+        }
+        else if(colors && !uvs)
+        {
+            //Bind and map VBO
+            glExtAPI->BindBuffer(GL_ARRAY_BUFFER, mesh->vbo);
+            glExtAPI->BufferData(GL_ARRAY_BUFFER, sizeof(Cyb_VertexVNC) * vertCount,
+                NULL, GL_STATIC_DRAW);
+            Cyb_VertexVNC *buf = glExtAPI->MapBuffer(GL_ARRAY_BUFFER, 
+                GL_WRITE_ONLY);
+        
+            if(!buf)
+            {
+                SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s",
+                    "[CybRender] Failed to map VBO.");
+                return CYB_ERROR;
+            }
+        
+            //Copy the vertex data
+            for(int i = 0; i < vertCount; i++)
+            {
+                memcpy(&buf[i].pos, &verts[i], sizeof(verts[i]));
+                memcpy(&buf[i].norm, &norms[i], sizeof(norms[i]));
+                memcpy(&buf[i].color, &colors[i], sizeof(colors[i]));
+            }
+        
+            //Unmap VBO
+            glExtAPI->UnmapBuffer(GL_ARRAY_BUFFER);
+            
+            //Set vertex format and setup vertex attrib pointers
+            mesh->vFormat = CYB_VERTEX_VNC;
+            glExtAPI->EnableVertexAttribArray(0);
+            glExtAPI->EnableVertexAttribArray(1);
+            glExtAPI->EnableVertexAttribArray(2);
+            glExtAPI->DisableVertexAttribArray(3);
+            glExtAPI->VertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 
+                sizeof(buf[0]), (void*)offsetof(Cyb_VertexVNC, pos));
+            glExtAPI->VertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
+                sizeof(buf[0]), (void*)offsetof(Cyb_VertexVNC, norm));
+            glExtAPI->VertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE,
+                sizeof(buf[0]), (void*)offsetof(Cyb_VertexVNC, color));
+        }
+        else if(uvs && !colors)
+        {
+            //Bind and map VBO
+            glExtAPI->BindBuffer(GL_ARRAY_BUFFER, mesh->vbo);
+            glExtAPI->BufferData(GL_ARRAY_BUFFER, sizeof(Cyb_VertexVNT) * vertCount,
+                NULL, GL_STATIC_DRAW);
+            Cyb_VertexVNT *buf = glExtAPI->MapBuffer(GL_ARRAY_BUFFER, 
+                GL_WRITE_ONLY);
+        
+            if(!buf)
+            {
+                SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s",
+                    "[CybRender] Failed to map VBO.");
+                return CYB_ERROR;
+            }
+        
+            //Copy the vertex data
+            for(int i = 0; i < vertCount; i++)
+            {
+                memcpy(&buf[i].pos, &verts[i], sizeof(verts[i]));
+                memcpy(&buf[i].norm, &norms[i], sizeof(norms[i]));
+                memcpy(&buf[i].uv, &uvs[i], sizeof(uvs[i]));
+            }
+        
+            //Unmap VBO
+            glExtAPI->UnmapBuffer(GL_ARRAY_BUFFER);
+            
+            //Set vertex format
+            mesh->vFormat = CYB_VERTEX_VNT;
+            glExtAPI->EnableVertexAttribArray(0);
+            glExtAPI->EnableVertexAttribArray(1);
+            glExtAPI->EnableVertexAttribArray(2);
+            glExtAPI->DisableVertexAttribArray(3);
+            glExtAPI->VertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 
+                sizeof(buf[0]), (void*)offsetof(Cyb_VertexVNT, pos));
+            glExtAPI->VertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
+                sizeof(buf[0]), (void*)offsetof(Cyb_VertexVNT, norm));
+            glExtAPI->VertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
+                sizeof(buf[0]), (void*)offsetof(Cyb_VertexVNT, uv));
+        }
+        else if(colors && uvs)
+        {
+            //Bind and map VBO
+            glExtAPI->BindBuffer(GL_ARRAY_BUFFER, mesh->vbo);
+            glExtAPI->BufferData(GL_ARRAY_BUFFER, 
+                sizeof(Cyb_VertexVNCT) * vertCount, NULL, GL_STATIC_DRAW);
+            Cyb_VertexVNCT *buf = glExtAPI->MapBuffer(GL_ARRAY_BUFFER, 
+                GL_WRITE_ONLY);
+        
+            if(!buf)
+            {
+                SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s",
+                    "[CybRender] Failed to map VBO.");
+                return CYB_ERROR;
+            }
+        
+            //Copy the vertex data
+            for(int i = 0; i < vertCount; i++)
+            {
+                memcpy(&buf[i].pos, &verts[i], sizeof(verts[i]));
+                memcpy(&buf[i].norm, &norms[i], sizeof(norms[i]));
+                memcpy(&buf[i].color, &colors[i], sizeof(colors[i]));
+                memcpy(&buf[i].uv, &uvs[i], sizeof(uvs[i]));
+            }
+        
+            //Unmap VBO
+            glExtAPI->UnmapBuffer(GL_ARRAY_BUFFER);
+            
+            //Set vertex format
+            mesh->vFormat = CYB_VERTEX_VNCT;
+            glExtAPI->EnableVertexAttribArray(0);
+            glExtAPI->EnableVertexAttribArray(1);
+            glExtAPI->EnableVertexAttribArray(2);
+            glExtAPI->EnableVertexAttribArray(3);
+            glExtAPI->VertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 
+                sizeof(buf[0]), (void*)offsetof(Cyb_VertexVNCT, pos));
+            glExtAPI->VertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
+                sizeof(buf[0]), (void*)offsetof(Cyb_VertexVNCT, norm));
+            glExtAPI->VertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE,
+                sizeof(buf[0]), (void*)offsetof(Cyb_VertexVNCT, color));
+            glExtAPI->VertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE,
+                sizeof(buf[0]), (void*)offsetof(Cyb_VertexVNCT, uv));
+        }
+    }
+    else
+    {
+        //Bind and map VBO
+        glExtAPI->BindBuffer(GL_ARRAY_BUFFER, mesh->vbo);
+        glExtAPI->BufferData(GL_ARRAY_BUFFER, sizeof(Cyb_VertexV) * vertCount,
+            NULL, GL_STATIC_DRAW);
+        Cyb_VertexV *buf = glExtAPI->MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+        
+        if(!buf)
+        {
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s",
+                "[CybRender] Failed to map VBO.");
+            return CYB_ERROR;
+        }
+        
+        //Copy the vertex data
+        for(int i = 0; i < vertCount; i++)
+        {
+            memcpy(&buf[i].pos, &verts[i], sizeof(verts[i]));
+        }
+        
+        //Unmap VBO
+        glExtAPI->UnmapBuffer(GL_ARRAY_BUFFER);
+        
+        //Set vertex format and setup attrib pointers
+        mesh->vFormat = CYB_VERTEX_V;
+        glExtAPI->EnableVertexAttribArray(0);
+        glExtAPI->DisableVertexAttribArray(1);
+        glExtAPI->DisableVertexAttribArray(2);
+        glExtAPI->DisableVertexAttribArray(3);
+        glExtAPI->VertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 
+            sizeof(buf[0]), (void*)offsetof(Cyb_VertexV, pos));
+    }
+    
+    //Bind and fill EBO
+    glExtAPI->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->ebo);
+    glExtAPI->BufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indexCount,
+        indices, GL_STATIC_DRAW);
+        
+    //Set index count
+    mesh->indexCount = indexCount;
+    return CYB_NO_ERROR;
+}
+
+
+void Cyb_DrawMesh(Cyb_Renderer *renderer, Cyb_Mesh *mesh)
+{
+    Cyb_SelectRenderer(renderer);
+    mesh->glExtAPI->BindVertexArray(mesh->vao);
+    glDrawElements(GL_TRIANGLES, mesh->indexCount, GL_UNSIGNED_INT, NULL);
+}
