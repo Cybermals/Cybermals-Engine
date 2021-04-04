@@ -13,7 +13,7 @@ out vec4 vertColor;
 
 void main()
 {
-    gl_Position = (m * v * p) * vec4(pos, 1.0);
+    gl_Position = (p * v * m) * vec4(pos, 1.0);
     vertColor = color;
 }
 //End Vertex Shader

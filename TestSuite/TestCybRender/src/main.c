@@ -47,9 +47,12 @@ Cyb_Mesh *cube = NULL;
 Cyb_Mat4 m;
 Cyb_Mat4 v;
 Cyb_Mat4 p;
+Cyb_Mat4 mv;
+Cyb_Mat4 mvp;
 
 int drawTriangle = TRUE;
 int drawCube = TRUE;
+float angle = 0.0f;
 
 
 //Functions
@@ -201,26 +204,66 @@ int Init(void)
         return 1;
     }
     
-    /* {
-        Cyb_Vec3 verts[] = {};
+    {
+        Cyb_Vec3 verts[] = {
+            {-1.0f, 1.0f, 1.0f},
+            {1.0f, 1.0f, 1.0f},
+            {-1.0f, -1.0f, 1.0f},
+            {1.0f, -1.0f, 1.0f},
+            {-1.0f, 1.0f, -1.0f},
+            {1.0f, 1.0f, -1.0f},
+            {-1.0f, -1.0f, -1.0f},
+            {1.0f, -1.0f, -1.0f}
+        };
         
-        Cyb_Vec3 norms[] = {};
+        Cyb_Vec3 norms[] = {
+            {-1.0f, 1.0f, 1.0f},
+            {1.0f, 1.0f, 1.0f},
+            {-1.0f, -1.0f, 1.0f},
+            {1.0f, -1.0f, 1.0f},
+            {-1.0f, 1.0f, -1.0f},
+            {1.0f, 1.0f, -1.0f},
+            {-1.0f, -1.0f, -1.0f},
+            {1.0f, -1.0f, -1.0f}
+        };
         
-        Cyb_Vec4 colors[] = {};
+        Cyb_Vec4 colors[] = {
+            {0.0f, 0.0f, 0.0f, 1.0f},
+            {1.0f, 0.0f, 0.0f, 1.0f},
+            {0.0f, 1.0f, 0.0f, 1.0f},
+            {1.0f, 1.0f, 0.0f, 1.0f},
+            {0.0f, 0.0f, 1.0f, 1.0f},
+            {1.0f, 0.0f, 1.0f, 1.0f},
+            {1.0f, 1.0f, 1.0f, 1.0f},
+            {0.0f, 0.0f, 0.0f, 1.0f}
+        };
         
-        unsigned int indices = {};
+        unsigned int indices[] = {
+            0, 2, 3,
+            3, 1, 0,
+            5, 7, 6,
+            6, 4, 5,
+            4, 6, 2,
+            2, 0, 4,
+            1, 3, 7,
+            7, 5, 1,
+            4, 0, 1,
+            1, 5, 4,
+            2, 6, 7,
+            7, 3, 2
+        };
         
         int vertCount = sizeof(verts) / sizeof(verts[0]);
         int indexCount = sizeof(indices) / sizeof(indices[0]);
-    } */
+        
+        Cyb_UpdateMesh(renderer, cube, vertCount, verts, norms, colors, NULL,
+            indexCount, indices);
+    }
     
     //Initialize matrices
-    Cyb_Identity(&m);
-    Cyb_Identity(&v);
-    //Cyb_Translate(&v, 0.0f, 0.0f, -5.0f);
-    Cyb_Identity(&p);
-    //Cyb_Perspective(&p, 45.0f, (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, .1f,
-    //    1000.0f);
+    Cyb_Translate(&v, 0.0f, 0.0f, -5.0f);
+    Cyb_Perspective(&p, 45.0f, (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, .1f,
+        1000.0f);
     //Cyb_Ortho(&p, -1.0f, 1.0f, 1.0f, -1.0f, .1f, 1000.0f);
     return 0;
 }
@@ -229,10 +272,10 @@ int Init(void)
 void DrawTriangle(void)
 {
     //Update model matrix
-    Cyb_Identity(&m);
+    Cyb_Rotate(&m, 0.0f, angle, 0.0f);
     
-    //Disable depth testing and face culling
-    glDisable(GL_DEPTH_TEST);
+    //Enable depth testing and disable face culling
+    glEnable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
     
     //Select shader
@@ -245,6 +288,29 @@ void DrawTriangle(void)
     
     //Draw the triangle
     Cyb_DrawMesh(renderer, triangle);
+}
+
+
+void DrawCube(void)
+{
+    //Update model matrix
+    Cyb_Rotate(&m, 0.0f, -angle, 0.0f);
+    
+    //Enable depth testing and face culling
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_FRONT);
+    
+    //Select shader
+    Cyb_SelectShader(renderer, rainbowShader);
+    
+    //Set matrices
+    Cyb_SetMatrix(renderer, rainbowShader, "m", &m);
+    Cyb_SetMatrix(renderer, rainbowShader, "v", &v);
+    Cyb_SetMatrix(renderer, rainbowShader, "p", &p);
+    
+    //Draw the cube
+    Cyb_DrawMesh(renderer, cube);
 }
 
 
@@ -279,10 +345,19 @@ int main(int argc, char **argv)
         //Draw the UI
         //Cyb_DrawUI(root, uiRenderer);
         
+        //Update angle
+        angle += 1.0f;
+        
         //Draw triangle?
         if(drawTriangle)
         {
             DrawTriangle();
+        }
+        
+        //Draw cube?
+        if(drawCube)
+        {
+            DrawCube();
         }
         
         //Swap buffers
