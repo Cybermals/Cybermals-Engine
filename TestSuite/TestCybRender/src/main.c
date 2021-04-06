@@ -100,6 +100,15 @@ int Init(void)
     }
     
     //Create a window
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3); //major version 3
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3); //minor version 3
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, TRUE);       //double-buffered
+    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);              //8-bits for red
+    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);            //8-bits for green
+    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);             //8-bits for blue
+    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 0);            //no alpha
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);           //24-bit dept buffer
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);          //8-bit stencil buffer
     window = SDL_CreateWindow(APP_TITLE, WINDOW_X, WINDOW_Y, WINDOW_WIDTH,
         WINDOW_HEIGHT, WINDOW_FLAGS);
         

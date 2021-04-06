@@ -145,13 +145,6 @@ Cyb_Renderer *Cyb_CreateRenderer(SDL_Window *window)
     
     //Initialize the renderer
     renderer->window = window;
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, TRUE);
-    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
-    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 6);
-    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
-    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 0);
     renderer->glCtx = SDL_GL_CreateContext(window);
     
     if(!renderer->glCtx)
