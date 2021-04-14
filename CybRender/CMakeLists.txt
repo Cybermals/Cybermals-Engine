@@ -52,6 +52,7 @@ endif(UNIX)
 target_sources(
     CybRender
     PRIVATE
+    src/CybCamera.c
     src/CybMesh.c
     src/CybRenderer.c
     src/CybShader.c

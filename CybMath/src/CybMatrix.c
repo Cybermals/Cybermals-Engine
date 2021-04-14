@@ -131,6 +131,31 @@ void Cyb_Scale(Cyb_Mat4 *m, float x, float y, float z)
 }
 
 
+void Cyb_LookAt(Cyb_Mat4 *m, Cyb_Vec3 *pos, Cyb_Vec3 *right, Cyb_Vec3 *up, 
+    Cyb_Vec3 *dir)
+{
+    //Generate position matrix
+    Cyb_Mat4 posMat;
+    Cyb_Translate(&posMat, -pos->x, -pos->y, -pos->z);
+    
+    //Generate vector matrix
+    Cyb_Mat4 vecMat;
+    Cyb_Identity(&vecMat);
+    vecMat.a = right->x;
+    vecMat.b = right->y;
+    vecMat.c = right->z;
+    vecMat.e = up->x;
+    vecMat.f = up->y;
+    vecMat.g = up->z;
+    vecMat.i = dir->x;
+    vecMat.j = dir->y;
+    vecMat.k = dir->z;
+    
+    //Multiply position and vector matrices
+    Cyb_MulMat4(m, &posMat, &vecMat);
+}
+
+
 void Cyb_Ortho(Cyb_Mat4 *m, float left, float right, float top, 
     float bottom, float near, float far)
 {

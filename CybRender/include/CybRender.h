@@ -5,6 +5,7 @@
  * @brief CybRender - Main API
  */
  
+#include "CybCamera.h"
 #include "CybMesh.h"
 #include "CybRenderer.h"
 #include "CybShader.h"

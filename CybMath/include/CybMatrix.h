@@ -86,6 +86,17 @@ CYBAPI void Cyb_Rotate(Cyb_Mat4 *m, float x, float y, float z);
  */
 CYBAPI void Cyb_Scale(Cyb_Mat4 *m, float x, float y, float z);
 
+/** @brief Generate a look at matrix.
+ *
+ * @param m Pointer to the resulting matrix.
+ * @param pos Pointer to the object position (usually a camera object).
+ * @param right Pointer to the right vector.
+ * @param up Pointer to the up vector.
+ * @param dir Pointer to the direction vector.
+ */
+CYBAPI void Cyb_LookAt(Cyb_Mat4 *m, Cyb_Vec3 *pos, Cyb_Vec3 *right, Cyb_Vec3 *up, 
+    Cyb_Vec3 *dir);
+
 /** @brief Generate an orthographic projection matrix.
  *
  * @param m Pointer to the resulting matrix.

@@ -39,20 +39,22 @@ SDL_Surface *uiOverlay = NULL;
 SDL_Renderer *uiRenderer = NULL;
 Cyb_Grid *root = NULL;
 
+Cyb_Camera *cam = NULL;
+
 Cyb_Shader *rainbowShader = NULL;
 
 Cyb_Mesh *triangle = NULL;
 Cyb_Mesh *cube = NULL;
 
 Cyb_Mat4 m;
-Cyb_Mat4 v;
 Cyb_Mat4 p;
-Cyb_Mat4 mv;
-Cyb_Mat4 mvp;
 
 int drawTriangle = TRUE;
 int drawCube = TRUE;
 float angle = 0.0f;
+
+float playerVelocity = 0.0f;
+Cyb_Vec2 playerRotVelocity = {0.0f, 0.0f};
 
 
 //Functions
@@ -159,6 +161,16 @@ int Init(void)
     {
         return 1;
     }
+    
+    //Create cameras
+    cam = Cyb_CreateCamera();
+    
+    if(!cam)
+    {
+        return 1;
+    }
+    
+    Cyb_SetCameraPos(cam, 0.0f, 0.0f, 5.0f);
     
     //Load Shaders
     rainbowShader = Cyb_LoadShader(renderer, "data/shaders/rainbow.glsl");
@@ -270,7 +282,6 @@ int Init(void)
     }
     
     //Initialize matrices
-    Cyb_Translate(&v, 0.0f, 0.0f, -5.0f);
     Cyb_Perspective(&p, 45.0f, (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, .1f,
         1000.0f);
     //Cyb_Ortho(&p, -1.0f, 1.0f, 1.0f, -1.0f, .1f, 1000.0f);
@@ -292,7 +303,7 @@ void DrawTriangle(void)
     
     //Set matrices
     Cyb_SetMatrix(renderer, rainbowShader, "m", &m);
-    Cyb_SetMatrix(renderer, rainbowShader, "v", &v);
+    Cyb_SetMatrix(renderer, rainbowShader, "v", Cyb_GetViewMatrix(cam));
     Cyb_SetMatrix(renderer, rainbowShader, "p", &p);
     
     //Draw the triangle
@@ -315,7 +326,7 @@ void DrawCube(void)
     
     //Set matrices
     Cyb_SetMatrix(renderer, rainbowShader, "m", &m);
-    Cyb_SetMatrix(renderer, rainbowShader, "v", &v);
+    Cyb_SetMatrix(renderer, rainbowShader, "v", Cyb_GetViewMatrix(cam));
     Cyb_SetMatrix(renderer, rainbowShader, "p", &p);
     
     //Draw the cube
@@ -346,6 +357,72 @@ int main(int argc, char **argv)
             {
                 return 0;
             }
+            //Key down?
+            else if(event.type == SDL_KEYDOWN)
+            {
+                //Check keys
+                switch(event.key.keysym.sym)
+                {
+                    //A key (forward)?
+                case SDLK_w:
+                    playerVelocity = 2.0f;
+                    break;
+                    
+                    //S key (backward)?
+                case SDLK_s:
+                    playerVelocity = -2.0f;
+                    break;
+                    
+                    //A key (turn left)?
+                case SDLK_a:
+                    playerRotVelocity.y = 2.0f;
+                    break;
+                    
+                    //D key (turn right)?
+                case SDLK_d:
+                    playerRotVelocity.y = -2.0f;
+                    break;
+                    
+                    //R key (reset cam)?
+                case SDLK_r:
+                    Cyb_SetCameraPos(cam, 0.0f, 0.0f, 5.0f);
+                    Cyb_SetCameraRot(cam, 0.0f, 0.0f, 0.0f);
+                    break;
+                    
+                    //L key (enter look at mode)?
+                case SDLK_l:
+                {
+                    //Not working yet!
+                    Cyb_Vec3 pos = {0.0f, 0.0f, -5.0f};
+                    Cyb_Vec3 right = {1.0f, 0.0f, 0.0f};
+                    Cyb_Vec3 up = {0.0f, 1.0f, 0.0f};
+                    Cyb_Vec3 dir = {0.0f, 0.0f, 1.0f};
+                    Cyb_AimCamera(cam, &pos, &right, &up, &dir);
+                    break;
+                }
+                }
+            }
+            //Key up?
+            else if(event.type == SDL_KEYUP)
+            {
+                //Check keys
+                switch(event.key.keysym.sym)
+                {
+                    //W key (forward)?
+                case SDLK_w:
+                    //S key (backward)?
+                case SDLK_s:
+                    playerVelocity = 0.0f;
+                    break;
+                    
+                    //A key (turn left)?
+                case SDLK_a:
+                    //D key (turn right)?
+                case SDLK_d:
+                    playerRotVelocity.y = 0.0f;
+                    break;
+                }
+            }
         }
         
         //Clear the window
@@ -353,6 +430,10 @@ int main(int argc, char **argv)
         
         //Draw the UI
         //Cyb_DrawUI(root, uiRenderer);
+        
+        //Update camera
+        Cyb_MoveCamera(cam, playerVelocity);
+        Cyb_RotateCamera(cam, playerRotVelocity.x, playerRotVelocity.y, 0.0f);
         
         //Update angle
         angle += 1.0f;
