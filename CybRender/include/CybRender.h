@@ -9,5 +9,6 @@
 #include "CybMesh.h"
 #include "CybRenderer.h"
 #include "CybShader.h"
+#include "CybTexture.h"
 
 #endif

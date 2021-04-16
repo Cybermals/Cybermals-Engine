@@ -31,6 +31,8 @@ CYBAPI void Cyb_SetMatrices(Cyb_Renderer *renderer, Cyb_Shader *shader,
     const char *name, int count, const Cyb_Mat4 *matrices);
 CYBAPI void Cyb_SetMatrix(Cyb_Renderer *renderer, Cyb_Shader *shader,
     const char *name, const Cyb_Mat4 *matrix);
+CYBAPI void Cyb_SetTexture(Cyb_Renderer *renderer, Cyb_Shader *shader,
+    const char *name, int texUnit);
 
 #ifdef __cplusplus
 }

@@ -30,6 +30,14 @@ CybRender - Test Program
 #define BG_COLOR         0.0f, 0.5f, 1.0f, 1.0f
 
 
+//Constants
+//===========================================================================
+const unsigned char gridTexturePixels[] = {
+    0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0x00, 0x00, //row 1 (RGB w/ 2 bytes padding)
+    0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00  //row 2 (RGB w/ 2 bytes padding)
+};
+
+
 //Globals
 //===========================================================================
 SDL_Window *window = NULL;
@@ -42,15 +50,21 @@ Cyb_Grid *root = NULL;
 Cyb_Camera *cam = NULL;
 
 Cyb_Shader *rainbowShader = NULL;
+Cyb_Shader *textureShader = NULL;
 
-Cyb_Mesh *triangle = NULL;
-Cyb_Mesh *cube = NULL;
+Cyb_Texture *gridTexture = NULL;
+
+Cyb_Mesh *rainbowTriangle = NULL;
+Cyb_Mesh *texturedTriangle = NULL;
+Cyb_Mesh *rainbowCube = NULL;
+Cyb_Mesh *texturedCube = NULL;
 
 Cyb_Mat4 m;
 Cyb_Mat4 p;
 
 int drawTriangle = TRUE;
 int drawCube = TRUE;
+int useTextures = FALSE;
 float angle = 0.0f;
 
 float playerVelocity = 0.0f;
@@ -174,16 +188,29 @@ int Init(void)
     
     //Load Shaders
     rainbowShader = Cyb_LoadShader(renderer, "data/shaders/rainbow.glsl");
+    textureShader = Cyb_LoadShader(renderer, "data/shaders/texture.glsl");
     
-    if(!rainbowShader)
+    if(!rainbowShader || !textureShader)
     {
         return 1;
     }
     
-    //Create meshes
-    triangle = Cyb_CreateMesh(renderer);
+    //Load textures
+    gridTexture = Cyb_CreateTexture(renderer);
     
-    if(!triangle)
+    if(!gridTexture)
+    {
+        return 1;
+    }
+    
+    Cyb_UpdateTexture(renderer, gridTexture, 2, 2, CYB_PIXEL_FORMAT_RGB, 
+        gridTexturePixels);
+    
+    //Create meshes
+    rainbowTriangle = Cyb_CreateMesh(renderer);
+    texturedTriangle = Cyb_CreateMesh(renderer);
+    
+    if(!rainbowTriangle || !texturedTriangle)
     {
         return 1;
     }
@@ -207,6 +234,12 @@ int Init(void)
             {0.0f, 0.0f, 1.0f, 1.0f}
         };
         
+        Cyb_Vec2 uvs[] = {
+            {2.0f, 4.0f},
+            {0.0f, 0.0f},
+            {4.0f, 0.0f}
+        };
+        
         unsigned int indices[] = {
             0, 1, 2
         };
@@ -214,13 +247,16 @@ int Init(void)
         int vertCount = sizeof(verts) / sizeof(verts[0]);
         int indexCount = sizeof(indices) / sizeof(indices[0]);
         
-        Cyb_UpdateMesh(renderer, triangle, vertCount, verts, norms, colors, NULL,
-            indexCount, indices);
+        Cyb_UpdateMesh(renderer, rainbowTriangle, vertCount, verts, norms, colors, 
+            NULL, indexCount, indices);
+        Cyb_UpdateMesh(renderer, texturedTriangle, vertCount, verts, norms, NULL,
+            uvs, indexCount, indices);
     }
     
-    cube = Cyb_CreateMesh(renderer);
+    rainbowCube = Cyb_CreateMesh(renderer);
+    texturedCube = Cyb_CreateMesh(renderer);
 
-    if(!cube)
+    if(!rainbowCube || !texturedCube)
     {
         return 1;
     }
@@ -259,6 +295,17 @@ int Init(void)
             {0.0f, 0.0f, 0.0f, 1.0f}
         };
         
+        Cyb_Vec2 uvs[] = {
+            {0.0f, 1.0f},
+            {1.0f, 1.0f},
+            {0.0f, 0.0f},
+            {1.0f, 0.0f},
+            {1.0f, 1.0f},
+            {0.0f, 1.0f},
+            {1.0f, 0.0f},
+            {0.0f, 0.0f}
+        };
+        
         unsigned int indices[] = {
             0, 2, 3,
             3, 1, 0,
@@ -277,7 +324,9 @@ int Init(void)
         int vertCount = sizeof(verts) / sizeof(verts[0]);
         int indexCount = sizeof(indices) / sizeof(indices[0]);
         
-        Cyb_UpdateMesh(renderer, cube, vertCount, verts, norms, colors, NULL,
+        Cyb_UpdateMesh(renderer, rainbowCube, vertCount, verts, norms, colors, NULL,
+            indexCount, indices);
+        Cyb_UpdateMesh(renderer, texturedCube, vertCount, verts, norms, NULL, uvs,
             indexCount, indices);
     }
     
@@ -298,16 +347,38 @@ void DrawTriangle(void)
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
     
-    //Select shader
-    Cyb_SelectShader(renderer, rainbowShader);
+    //Textured?
+    if(useTextures)
+    {
+        //Select shader
+        Cyb_SelectShader(renderer, textureShader);
     
-    //Set matrices
-    Cyb_SetMatrix(renderer, rainbowShader, "m", &m);
-    Cyb_SetMatrix(renderer, rainbowShader, "v", Cyb_GetViewMatrix(cam));
-    Cyb_SetMatrix(renderer, rainbowShader, "p", &p);
+        //Set matrices
+        Cyb_SetMatrix(renderer, textureShader, "m", &m);
+        Cyb_SetMatrix(renderer, textureShader, "v", Cyb_GetViewMatrix(cam));
+        Cyb_SetMatrix(renderer, textureShader, "p", &p);
+        
+        //Set textures
+        Cyb_SelectTexture(renderer, gridTexture, 0);
+        Cyb_SetTexture(renderer, textureShader, "tex0", 0);
     
-    //Draw the triangle
-    Cyb_DrawMesh(renderer, triangle);
+        //Draw the triangle
+        Cyb_DrawMesh(renderer, texturedTriangle);
+    }
+    //Rainbow?
+    else
+    {
+        //Select shader
+        Cyb_SelectShader(renderer, rainbowShader);
+    
+        //Set matrices
+        Cyb_SetMatrix(renderer, rainbowShader, "m", &m);
+        Cyb_SetMatrix(renderer, rainbowShader, "v", Cyb_GetViewMatrix(cam));
+        Cyb_SetMatrix(renderer, rainbowShader, "p", &p);
+    
+        //Draw the triangle
+        Cyb_DrawMesh(renderer, rainbowTriangle);
+    }
 }
 
 
@@ -321,16 +392,38 @@ void DrawCube(void)
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
     
-    //Select shader
-    Cyb_SelectShader(renderer, rainbowShader);
+    //Textured?
+    if(useTextures)
+    {
+        //Select shader
+        Cyb_SelectShader(renderer, textureShader);
     
-    //Set matrices
-    Cyb_SetMatrix(renderer, rainbowShader, "m", &m);
-    Cyb_SetMatrix(renderer, rainbowShader, "v", Cyb_GetViewMatrix(cam));
-    Cyb_SetMatrix(renderer, rainbowShader, "p", &p);
+        //Set matrices
+        Cyb_SetMatrix(renderer, textureShader, "m", &m);
+        Cyb_SetMatrix(renderer, textureShader, "v", Cyb_GetViewMatrix(cam));
+        Cyb_SetMatrix(renderer, textureShader, "p", &p);
+        
+        //Set textures
+        Cyb_SelectTexture(renderer, gridTexture, 0);
+        Cyb_SetTexture(renderer, textureShader, "tex0", 0);
     
-    //Draw the cube
-    Cyb_DrawMesh(renderer, cube);
+        //Draw the cube
+        Cyb_DrawMesh(renderer, texturedCube);
+    }
+    //Rainbow?
+    else
+    {
+        //Select shader
+        Cyb_SelectShader(renderer, rainbowShader);
+    
+        //Set matrices
+        Cyb_SetMatrix(renderer, rainbowShader, "m", &m);
+        Cyb_SetMatrix(renderer, rainbowShader, "v", Cyb_GetViewMatrix(cam));
+        Cyb_SetMatrix(renderer, rainbowShader, "p", &p);
+    
+        //Draw the cube
+        Cyb_DrawMesh(renderer, rainbowCube);
+    }
 }
 
 
@@ -400,6 +493,11 @@ int main(int argc, char **argv)
                     Cyb_AimCamera(cam, &pos, &right, &up, &dir);
                     break;
                 }
+                
+                    //T key (toggle textures)?
+                case SDLK_t:
+                    useTextures = !useTextures;
+                    break;
                 }
             }
             //Key up?

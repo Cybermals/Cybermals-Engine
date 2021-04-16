@@ -43,6 +43,7 @@ typedef struct
     PFNGLUSEPROGRAMPROC UseProgram;
     PFNGLGETUNIFORMLOCATIONPROC GetUniformLocation;
     PFNGLUNIFORMMATRIX4FVPROC UniformMatrix4fv;
+    PFNGLUNIFORM1IPROC Uniform1i;
     
     //Buffer Functions
     PFNGLGENBUFFERSPROC GenBuffers;
@@ -61,6 +62,9 @@ typedef struct
     PFNGLENABLEVERTEXATTRIBARRAYPROC EnableVertexAttribArray;
     PFNGLDISABLEVERTEXATTRIBARRAYPROC DisableVertexAttribArray;
     PFNGLVERTEXATTRIBPOINTERPROC VertexAttribPointer;
+    
+    //Texture Functions
+    PFNGLACTIVETEXTUREPROC ActiveTexture;
 } Cyb_GLExtAPI;
 
 

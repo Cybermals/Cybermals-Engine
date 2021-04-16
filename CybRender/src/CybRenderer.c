@@ -67,6 +67,7 @@ static int Cyb_InitGLExtAPI(Cyb_GLExtAPI *glExtAPI)
     glExtAPI->UseProgram = SDL_GL_GetProcAddress("glUseProgram");
     glExtAPI->GetUniformLocation = SDL_GL_GetProcAddress("glGetUniformLocation");
     glExtAPI->UniformMatrix4fv = SDL_GL_GetProcAddress("glUniformMatrix4fv");
+    glExtAPI->Uniform1i = SDL_GL_GetProcAddress("glUniform1i");
     
     //Import buffer functions
     glExtAPI->GenBuffers = SDL_GL_GetProcAddress("glGenBuffers");
@@ -88,6 +89,9 @@ static int Cyb_InitGLExtAPI(Cyb_GLExtAPI *glExtAPI)
         "glDisableVertexAttribArray");
     glExtAPI->VertexAttribPointer = SDL_GL_GetProcAddress("glVertexAttribPointer");
     
+    //Import texture functions
+    glExtAPI->ActiveTexture = SDL_GL_GetProcAddress("glActiveTexture");
+    
     //Verify that all functions were imported
     if(!glExtAPI->CreateShader ||
         !glExtAPI->DeleteShader ||
@@ -105,6 +109,7 @@ static int Cyb_InitGLExtAPI(Cyb_GLExtAPI *glExtAPI)
         !glExtAPI->UseProgram ||
         !glExtAPI->GetUniformLocation ||
         !glExtAPI->UniformMatrix4fv ||
+        !glExtAPI->Uniform1i ||
         !glExtAPI->GenBuffers ||
         !glExtAPI->DeleteBuffers ||
         !glExtAPI->BindBuffer ||
@@ -115,7 +120,8 @@ static int Cyb_InitGLExtAPI(Cyb_GLExtAPI *glExtAPI)
         !glExtAPI->DeleteVertexArrays ||
         !glExtAPI->BindVertexArray ||
         !glExtAPI->EnableVertexAttribArray ||
-        !glExtAPI->VertexAttribPointer)
+        !glExtAPI->VertexAttribPointer ||
+        !glExtAPI->ActiveTexture)
     {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s",
             "[CybRender] Failed to import a required OpenGL function. Please update your graphics drivers and try again.");

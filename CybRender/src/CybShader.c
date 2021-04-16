@@ -385,3 +385,11 @@ void Cyb_SetMatrix(Cyb_Renderer *renderer, Cyb_Shader *shader,
 {
     Cyb_SetMatrices(renderer, shader, name, 1, matrix);
 }
+
+
+void Cyb_SetTexture(Cyb_Renderer *renderer, Cyb_Shader *shader,
+    const char *name, int texUnit)
+{
+    GLint id = shader->glExtAPI->GetUniformLocation(shader->program, name);
+    shader->glExtAPI->Uniform1i(id, texUnit);
+}
