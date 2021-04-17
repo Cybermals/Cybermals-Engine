@@ -13,7 +13,7 @@ CybRender - Mesh API
 struct Cyb_Mesh
 {
     Cyb_Object base;
-    Cyb_GLExtAPI *glExtAPI;
+    Cyb_Renderer *renderer;
     int vFormat;
     int indexCount;
     GLuint vbo;
@@ -27,7 +27,8 @@ struct Cyb_Mesh
 void Cyb_FreeMesh(Cyb_Mesh *mesh)
 {
     //Unbind VAO and VBO and EBO
-    Cyb_GLExtAPI *glExtAPI = mesh->glExtAPI;
+    Cyb_SelectRenderer(mesh->renderer);
+    Cyb_GLExtAPI *glExtAPI = Cyb_GetGLExtAPI(mesh->renderer);
     glExtAPI->BindVertexArray(0);
     glExtAPI->BindBuffer(GL_ARRAY_BUFFER, 0);
     glExtAPI->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -65,9 +66,9 @@ Cyb_Mesh *Cyb_CreateMesh(Cyb_Renderer *renderer)
     
     //Initialize the mesh
     mesh->vFormat = CYB_VERTEX_UNKNOWN;
+    mesh->renderer = renderer;
     Cyb_SelectRenderer(renderer);
     Cyb_GLExtAPI *glExtAPI = Cyb_GetGLExtAPI(renderer);
-    mesh->glExtAPI = glExtAPI;
     glExtAPI->GenBuffers(1, &mesh->vbo);
     
     if(!mesh->vbo)
@@ -116,7 +117,7 @@ int Cyb_UpdateMesh(Cyb_Renderer *renderer, Cyb_Mesh *mesh, int vertCount,
     
     //Select the renderer and bind the VAO
     Cyb_SelectRenderer(renderer);
-    Cyb_GLExtAPI *glExtAPI = mesh->glExtAPI;
+    Cyb_GLExtAPI *glExtAPI = Cyb_GetGLExtAPI(renderer);
     glExtAPI->BindVertexArray(mesh->vao);
     
     //Choose the vertex data format
@@ -330,6 +331,6 @@ int Cyb_UpdateMesh(Cyb_Renderer *renderer, Cyb_Mesh *mesh, int vertCount,
 void Cyb_DrawMesh(Cyb_Renderer *renderer, Cyb_Mesh *mesh)
 {
     Cyb_SelectRenderer(renderer);
-    mesh->glExtAPI->BindVertexArray(mesh->vao);
+    Cyb_GetGLExtAPI(renderer)->BindVertexArray(mesh->vao);
     glDrawElements(GL_TRIANGLES, mesh->indexCount, GL_UNSIGNED_INT, NULL);
 }

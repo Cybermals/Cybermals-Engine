@@ -33,8 +33,8 @@ CybRender - Test Program
 //Constants
 //===========================================================================
 const unsigned char gridTexturePixels[] = {
-    0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0x00, 0x00, //row 1 (RGB w/ 2 bytes padding)
-    0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00  //row 2 (RGB w/ 2 bytes padding)
+    0x80, 0x80, 0x80, 0xff, 0xff, 0xff, 0x00, 0x00, //row 1 (RGB w/ 2 bytes padding)
+    0xff, 0xff, 0xff, 0x80, 0x80, 0x80, 0x00, 0x00  //row 2 (RGB w/ 2 bytes padding)
 };
 
 
@@ -53,6 +53,7 @@ Cyb_Shader *rainbowShader = NULL;
 Cyb_Shader *textureShader = NULL;
 
 Cyb_Texture *gridTexture = NULL;
+Cyb_Texture *smilyTexture = NULL;
 
 Cyb_Mesh *rainbowTriangle = NULL;
 Cyb_Mesh *texturedTriangle = NULL;
@@ -197,8 +198,9 @@ int Init(void)
     
     //Load textures
     gridTexture = Cyb_CreateTexture(renderer);
+    smilyTexture = Cyb_LoadTexture(renderer, "data/textures/smily.png");
     
-    if(!gridTexture)
+    if(!gridTexture || !smilyTexture)
     {
         return 1;
     }
@@ -235,9 +237,9 @@ int Init(void)
         };
         
         Cyb_Vec2 uvs[] = {
-            {2.0f, 4.0f},
-            {0.0f, 0.0f},
-            {4.0f, 0.0f}
+            {.5f, 0.0f},
+            {0.0f, 1.0f},
+            {1.0f, 1.0f}
         };
         
         unsigned int indices[] = {
@@ -296,14 +298,14 @@ int Init(void)
         };
         
         Cyb_Vec2 uvs[] = {
-            {0.0f, 1.0f},
-            {1.0f, 1.0f},
             {0.0f, 0.0f},
             {1.0f, 0.0f},
-            {1.0f, 1.0f},
             {0.0f, 1.0f},
+            {1.0f, 1.0f},
             {1.0f, 0.0f},
-            {0.0f, 0.0f}
+            {0.0f, 0.0f},
+            {1.0f, 1.0f},
+            {0.0f, 1.0f}
         };
         
         unsigned int indices[] = {
@@ -361,6 +363,8 @@ void DrawTriangle(void)
         //Set textures
         Cyb_SelectTexture(renderer, gridTexture, 0);
         Cyb_SetTexture(renderer, textureShader, "tex0", 0);
+        Cyb_SelectTexture(renderer, smilyTexture, 1);
+        Cyb_SetTexture(renderer, textureShader, "tex1", 1);
     
         //Draw the triangle
         Cyb_DrawMesh(renderer, texturedTriangle);
@@ -406,6 +410,8 @@ void DrawCube(void)
         //Set textures
         Cyb_SelectTexture(renderer, gridTexture, 0);
         Cyb_SetTexture(renderer, textureShader, "tex0", 0);
+        Cyb_SelectTexture(renderer, smilyTexture, 1);
+        Cyb_SetTexture(renderer, textureShader, "tex1", 1);
     
         //Draw the cube
         Cyb_DrawMesh(renderer, texturedCube);

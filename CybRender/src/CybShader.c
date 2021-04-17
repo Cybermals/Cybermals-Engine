@@ -13,7 +13,7 @@ CybRender - Shader API
 struct Cyb_Shader
 {
     Cyb_Object base;
-    Cyb_GLExtAPI *glExtAPI;
+    Cyb_Renderer *renderer;
     GLuint program;
 };
 
@@ -22,7 +22,6 @@ typedef struct
 {
     Cyb_ListNode base;
     char *id;
-    Cyb_Renderer *renderer;
     Cyb_Shader *shader;
 } Cyb_ShaderCacheNode;
 
@@ -37,6 +36,8 @@ char infoLog[512];
 //=================================================================================
 static void Cyb_FreeShaderCache(void)
 {
+    //This currently causes a crash if it gets called after the OpenGL context
+    //was already destroyed.
     if(shaderCache)
     {
         Cyb_FreeObject((Cyb_Object**)shaderCache);
@@ -47,7 +48,8 @@ static void Cyb_FreeShaderCache(void)
 static void Cyb_FreeShader(Cyb_Shader *shader)
 {
     //Deselect the shader program
-    Cyb_GLExtAPI *glExtAPI = shader->glExtAPI;
+    Cyb_GLExtAPI *glExtAPI = Cyb_GetGLExtAPI(shader->renderer);
+    Cyb_SelectRenderer(shader->renderer);
     glExtAPI->UseProgram(0);
     
     //Delete the shader program
@@ -66,8 +68,11 @@ static void Cyb_FreeShaderCacheNode(Cyb_ShaderCacheNode *node)
         SDL_free(node->id);
     }
     
-    //Note: We cannot free the cached shader because freeing the OpenGL context
-    //frees all its associated resources
+    //Free the shader
+    if(node->shader)
+    {
+        Cyb_FreeObject((Cyb_Object**)&node->shader);
+    }
 }
 
 
@@ -96,7 +101,7 @@ Cyb_Shader *Cyb_LoadShaderRW(Cyb_Renderer *renderer, SDL_RWops *file,
             return NULL;
         }
         
-        //atexit(&Cyb_FreeShaderCache); //crashing for some weird reason
+        //atexit(&Cyb_FreeShaderCache);
     }
     
     //Return cached shader if it has already been loaded
@@ -104,9 +109,9 @@ Cyb_Shader *Cyb_LoadShaderRW(Cyb_Renderer *renderer, SDL_RWops *file,
         node; node = (Cyb_ShaderCacheNode*)node->base.next)
     {
         //Is this the requested shader?
-        if(node->renderer == renderer && strcmp(node->id, id) == 0)
+        if(node->shader->renderer == renderer && strcmp(node->id, id) == 0)
         {
-            return node->shader;
+            return (Cyb_Shader*)Cyb_NewObjectRef((Cyb_Object*)node->shader);
         }
     }
     
@@ -129,12 +134,12 @@ Cyb_Shader *Cyb_LoadShaderRW(Cyb_Renderer *renderer, SDL_RWops *file,
     }
     
     //Initialize the shader
-    Cyb_SelectRenderer(renderer);
-    Cyb_GLExtAPI *glExtAPI = Cyb_GetGLExtAPI(renderer);
-    shader->glExtAPI = glExtAPI;
+    shader->renderer = renderer;
     shader->program = 0;
     
     //Create shader program
+    Cyb_SelectRenderer(renderer);
+    Cyb_GLExtAPI *glExtAPI = Cyb_GetGLExtAPI(renderer);
     GLuint prog = glExtAPI->CreateProgram();
     
     if(!prog)
@@ -358,7 +363,6 @@ Cyb_Shader *Cyb_LoadShaderRW(Cyb_Renderer *renderer, SDL_RWops *file,
     }
     
     strcpy(node->id, id);
-    node->renderer = renderer;
     node->shader = (Cyb_Shader*)Cyb_NewObjectRef((Cyb_Object*)shader);
     SDL_Log("[CybRender] Shader '%s' loaded and cached.", id);
     return shader;
@@ -368,15 +372,16 @@ Cyb_Shader *Cyb_LoadShaderRW(Cyb_Renderer *renderer, SDL_RWops *file,
 void Cyb_SelectShader(Cyb_Renderer *renderer, Cyb_Shader *shader)
 {
     Cyb_SelectRenderer(renderer);
-    shader->glExtAPI->UseProgram(shader->program);
+    Cyb_GetGLExtAPI(renderer)->UseProgram(shader->program);
 }
 
 
 void Cyb_SetMatrices(Cyb_Renderer *renderer, Cyb_Shader *shader,
     const char *name, int count, const Cyb_Mat4 *matrices)
 {
-    GLint id = shader->glExtAPI->GetUniformLocation(shader->program, name);
-    shader->glExtAPI->UniformMatrix4fv(id, count, FALSE, (const float*)matrices);
+    Cyb_GLExtAPI *glExtAPI = Cyb_GetGLExtAPI(renderer);
+    GLint id = glExtAPI->GetUniformLocation(shader->program, name);
+    glExtAPI->UniformMatrix4fv(id, count, FALSE, (const float*)matrices);
 }
     
 
@@ -390,6 +395,7 @@ void Cyb_SetMatrix(Cyb_Renderer *renderer, Cyb_Shader *shader,
 void Cyb_SetTexture(Cyb_Renderer *renderer, Cyb_Shader *shader,
     const char *name, int texUnit)
 {
-    GLint id = shader->glExtAPI->GetUniformLocation(shader->program, name);
-    shader->glExtAPI->Uniform1i(id, texUnit);
+    Cyb_GLExtAPI *glExtAPI = Cyb_GetGLExtAPI(renderer);
+    GLint id = glExtAPI->GetUniformLocation(shader->program, name);
+    glExtAPI->Uniform1i(id, texUnit);
 }

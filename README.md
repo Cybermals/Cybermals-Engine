@@ -70,7 +70,22 @@ A lightweight high-performance game engine and application framework.
 ## CybRender
 * manages one or more OpenGL 3.3 contexts
 * uses resource caching to prevent repeated loading of the same resource
-    
+* shaders
+    * shader code for a single program is stored in a single self-contained file
+    * supports vertex shaders
+    * supports fragment shaders
+    * supports geometry shaders
+    * provides functions to easily attach matrices and textures as shader inputs
+* meshes
+    * uses vertex buffers
+    * uses element buffers
+    * uses vertex array objects
+* cameras
+    * supports relative and absolute movement
+    * supports Euler angle rotation
+* textures
+    * supports PNG and JPEG image loading
+    * multiple textures can be used with separate texture units
     
 ## Supported Platforms
 * Windows
