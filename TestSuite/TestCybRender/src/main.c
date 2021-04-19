@@ -206,6 +206,10 @@ int Init(void)
         return 1;
     }
     
+    light->pos.x = -5.0f;
+    light->pos.y = 5.0f;
+    light->pos.z = 5.0f;
+    
     //Load textures
     gridTexture = Cyb_CreateTexture(renderer);
     smilyTexture = Cyb_LoadTexture(renderer, "data/textures/smily.png");
@@ -371,6 +375,7 @@ void DrawTriangle(void)
         Cyb_SetMatrix(renderer, textureShader, "p", &p);
         
         //Set lights
+        Cyb_SetVec3(renderer, textureShader, "lightPos", &light->pos);
         Cyb_SetVec3(renderer, textureShader, "lightColor", &light->color);
         Cyb_SetFloat(renderer, textureShader, "ambientStrength", 
             light->ambientStrength);
@@ -396,6 +401,7 @@ void DrawTriangle(void)
         Cyb_SetMatrix(renderer, rainbowShader, "p", &p);
         
         //Set lights
+        Cyb_SetVec3(renderer, rainbowShader, "lightPos", &light->pos);
         Cyb_SetVec3(renderer, rainbowShader, "lightColor", &light->color);
         Cyb_SetFloat(renderer, rainbowShader, "ambientStrength", 
             light->ambientStrength);
@@ -427,6 +433,7 @@ void DrawCube(void)
         Cyb_SetMatrix(renderer, textureShader, "p", &p);
         
         //Set lights
+        Cyb_SetVec3(renderer, textureShader, "lightPos", &light->pos);
         Cyb_SetVec3(renderer, textureShader, "lightColor", &light->color);
         Cyb_SetFloat(renderer, textureShader, "ambientStrength", 
             light->ambientStrength);
@@ -452,6 +459,7 @@ void DrawCube(void)
         Cyb_SetMatrix(renderer, rainbowShader, "p", &p);
         
         //Set lights
+        Cyb_SetVec3(renderer, rainbowShader, "lightPos", &light->pos);
         Cyb_SetVec3(renderer, rainbowShader, "lightColor", &light->color);
         Cyb_SetFloat(renderer, rainbowShader, "ambientStrength", 
             light->ambientStrength);

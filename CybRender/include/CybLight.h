@@ -19,6 +19,7 @@ extern "C" {
 typedef struct
 {
     Cyb_Object base;
+    Cyb_Vec3 pos;
     Cyb_Vec3 color;
     float ambientStrength;
     float specularStrength;

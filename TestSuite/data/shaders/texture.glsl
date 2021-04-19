@@ -11,12 +11,16 @@ uniform mat4 p;
 
 out vec2 texCoord0;
 out vec2 texCoord1;
+out vec3 fragPos;
+out vec3 normal;
 
 void main()
 {
     gl_Position = (p * v * m) * vec4(pos, 1.0);
     texCoord0 = vec2(uv.x * 4.0, uv.y * 4.0);
     texCoord1 = uv;
+    fragPos = vec3(m * vec4(pos, 1.0));
+    normal = mat3(transpose(inverse(m))) * norm;
 }
 //End Vertex Shader
 
@@ -25,7 +29,10 @@ void main()
 
 in vec2 texCoord0;
 in vec2 texCoord1;
+in vec3 fragPos;
+in vec3 normal;
 
+uniform vec3 lightPos;
 uniform vec3 lightColor;
 uniform float ambientStrength;
 uniform sampler2D tex0;
@@ -48,7 +55,13 @@ void main()
     //Calculate ambient color
     vec3 ambient = ambientStrength * lightColor;
     
+    //Calculate diffuse color
+    vec3 norm = normalize(normal);
+    vec3 lightDir = normalize(lightPos - fragPos);
+    float diff = max(dot(norm, lightDir), 0.0);
+    vec3 diffuse = diff * lightColor;
+    
     //Calculate fragment color
-    fragColor = (color0 * color1) * vec4(ambient, 1.0);
+    fragColor = (color0 * color1) * vec4(ambient + diffuse, 1.0);
 }
 //End Fragment Shader

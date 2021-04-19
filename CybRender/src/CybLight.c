@@ -21,6 +21,9 @@ Cyb_Light *Cyb_CreateLight(void)
     }
     
     //Initialize the light
+    light->pos.x = 0.0f;
+    light->pos.y = 0.0f;
+    light->pos.z = 0.0f;
     light->color.x = 1.0f;
     light->color.y = 1.0f;
     light->color.z = 1.0f;
