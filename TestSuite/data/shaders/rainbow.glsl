@@ -23,10 +23,17 @@ void main()
 
 in vec4 vertColor;
 
+uniform vec3 lightColor;
+uniform float ambientStrength;
+
 out vec4 fragColor;
 
 void main()
 {
-    fragColor = vertColor;
+    //Calculate ambient color
+    vec3 ambient = ambientStrength * lightColor;
+    
+    //Calculate fragment color
+    fragColor = vertColor * vec4(ambient, 1.0);
 }
 //End Fragment Shader

@@ -26,6 +26,8 @@ void main()
 in vec2 texCoord0;
 in vec2 texCoord1;
 
+uniform vec3 lightColor;
+uniform float ambientStrength;
 uniform sampler2D tex0;
 uniform sampler2D tex1;
 
@@ -33,14 +35,20 @@ out vec4 fragColor;
 
 void main()
 {
+    //Fetch texture colors
     vec4 color0 = texture(tex0, texCoord0);
     vec4 color1 = texture(tex1, texCoord1);
     
-    if(color1.w < .1)
+    //Discard transparent fragments
+    if(color0.w < .1 || color1.w < .1)
     {
         discard;
     }
     
-    fragColor = color0 * color1;
+    //Calculate ambient color
+    vec3 ambient = ambientStrength * lightColor;
+    
+    //Calculate fragment color
+    fragColor = (color0 * color1) * vec4(ambient, 1.0);
 }
 //End Fragment Shader

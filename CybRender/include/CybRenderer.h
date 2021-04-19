@@ -44,6 +44,8 @@ typedef struct
     PFNGLGETUNIFORMLOCATIONPROC GetUniformLocation;
     PFNGLUNIFORMMATRIX4FVPROC UniformMatrix4fv;
     PFNGLUNIFORM1IPROC Uniform1i;
+    PFNGLUNIFORM3FVPROC Uniform3fv;
+    PFNGLUNIFORM1FPROC Uniform1f;
     
     //Buffer Functions
     PFNGLGENBUFFERSPROC GenBuffers;

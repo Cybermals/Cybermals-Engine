@@ -6,6 +6,8 @@
  */
  
 #include "CybCamera.h"
+#include "CybLight.h"
+#include "CybMaterial.h"
 #include "CybMesh.h"
 #include "CybRenderer.h"
 #include "CybShader.h"

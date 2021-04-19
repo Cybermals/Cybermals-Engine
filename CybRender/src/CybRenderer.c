@@ -68,6 +68,8 @@ static int Cyb_InitGLExtAPI(Cyb_GLExtAPI *glExtAPI)
     glExtAPI->GetUniformLocation = SDL_GL_GetProcAddress("glGetUniformLocation");
     glExtAPI->UniformMatrix4fv = SDL_GL_GetProcAddress("glUniformMatrix4fv");
     glExtAPI->Uniform1i = SDL_GL_GetProcAddress("glUniform1i");
+    glExtAPI->Uniform3fv = SDL_GL_GetProcAddress("glUniform3fv");
+    glExtAPI->Uniform1f = SDL_GL_GetProcAddress("glUniform1f");
     
     //Import buffer functions
     glExtAPI->GenBuffers = SDL_GL_GetProcAddress("glGenBuffers");
@@ -110,6 +112,8 @@ static int Cyb_InitGLExtAPI(Cyb_GLExtAPI *glExtAPI)
         !glExtAPI->GetUniformLocation ||
         !glExtAPI->UniformMatrix4fv ||
         !glExtAPI->Uniform1i ||
+        !glExtAPI->Uniform3fv ||
+        !glExtAPI->Uniform1f ||
         !glExtAPI->GenBuffers ||
         !glExtAPI->DeleteBuffers ||
         !glExtAPI->BindBuffer ||

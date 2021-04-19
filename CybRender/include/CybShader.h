@@ -33,6 +33,10 @@ CYBAPI void Cyb_SetMatrix(Cyb_Renderer *renderer, Cyb_Shader *shader,
     const char *name, const Cyb_Mat4 *matrix);
 CYBAPI void Cyb_SetTexture(Cyb_Renderer *renderer, Cyb_Shader *shader,
     const char *name, int texUnit);
+CYBAPI void Cyb_SetVec3(Cyb_Renderer *renderer, Cyb_Shader *shader,
+    const char *name, Cyb_Vec3 *v);
+CYBAPI void Cyb_SetFloat(Cyb_Renderer *renderer, Cyb_Shader *shader,
+    const char *name, float f);
 
 #ifdef __cplusplus
 }

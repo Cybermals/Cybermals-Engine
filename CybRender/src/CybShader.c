@@ -399,3 +399,21 @@ void Cyb_SetTexture(Cyb_Renderer *renderer, Cyb_Shader *shader,
     GLint id = glExtAPI->GetUniformLocation(shader->program, name);
     glExtAPI->Uniform1i(id, texUnit);
 }
+
+
+void Cyb_SetVec3(Cyb_Renderer *renderer, Cyb_Shader *shader,
+    const char *name, Cyb_Vec3 *v)
+{
+    Cyb_GLExtAPI *glExtAPI = Cyb_GetGLExtAPI(renderer);
+    GLint id = glExtAPI->GetUniformLocation(shader->program, name);
+    glExtAPI->Uniform3fv(id, 1, (float*)v);
+}
+
+
+void Cyb_SetFloat(Cyb_Renderer *renderer, Cyb_Shader *shader,
+    const char *name, float f)
+{
+    Cyb_GLExtAPI *glExtAPI = Cyb_GetGLExtAPI(renderer);
+    GLint id = glExtAPI->GetUniformLocation(shader->program, name);
+    glExtAPI->Uniform1f(id, f);
+}

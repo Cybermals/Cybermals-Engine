@@ -33,8 +33,8 @@ CybRender - Test Program
 //Constants
 //===========================================================================
 const unsigned char gridTexturePixels[] = {
-    0x80, 0x80, 0x80, 0xff, 0xff, 0xff, 0x00, 0x00, //row 1 (RGB w/ 2 bytes padding)
-    0xff, 0xff, 0xff, 0x80, 0x80, 0x80, 0x00, 0x00  //row 2 (RGB w/ 2 bytes padding)
+    0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, //row 1 (RGB w/ 2 bytes padding)
+    0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff  //row 2 (RGB w/ 2 bytes padding)
 };
 
 
@@ -51,6 +51,8 @@ Cyb_Camera *cam = NULL;
 
 Cyb_Shader *rainbowShader = NULL;
 Cyb_Shader *textureShader = NULL;
+
+Cyb_Light *light = NULL;
 
 Cyb_Texture *gridTexture = NULL;
 Cyb_Texture *smilyTexture = NULL;
@@ -196,6 +198,14 @@ int Init(void)
         return 1;
     }
     
+    //Create lights
+    light = Cyb_CreateLight();
+    
+    if(!light)
+    {
+        return 1;
+    }
+    
     //Load textures
     gridTexture = Cyb_CreateTexture(renderer);
     smilyTexture = Cyb_LoadTexture(renderer, "data/textures/smily.png");
@@ -205,7 +215,7 @@ int Init(void)
         return 1;
     }
     
-    Cyb_UpdateTexture(renderer, gridTexture, 2, 2, CYB_PIXEL_FORMAT_RGB, 
+    Cyb_UpdateTexture(renderer, gridTexture, 2, 2, CYB_PIXEL_FORMAT_RGBA, 
         gridTexturePixels);
     
     //Create meshes
@@ -360,6 +370,11 @@ void DrawTriangle(void)
         Cyb_SetMatrix(renderer, textureShader, "v", Cyb_GetViewMatrix(cam));
         Cyb_SetMatrix(renderer, textureShader, "p", &p);
         
+        //Set lights
+        Cyb_SetVec3(renderer, textureShader, "lightColor", &light->color);
+        Cyb_SetFloat(renderer, textureShader, "ambientStrength", 
+            light->ambientStrength);
+        
         //Set textures
         Cyb_SelectTexture(renderer, gridTexture, 0);
         Cyb_SetTexture(renderer, textureShader, "tex0", 0);
@@ -379,6 +394,11 @@ void DrawTriangle(void)
         Cyb_SetMatrix(renderer, rainbowShader, "m", &m);
         Cyb_SetMatrix(renderer, rainbowShader, "v", Cyb_GetViewMatrix(cam));
         Cyb_SetMatrix(renderer, rainbowShader, "p", &p);
+        
+        //Set lights
+        Cyb_SetVec3(renderer, rainbowShader, "lightColor", &light->color);
+        Cyb_SetFloat(renderer, rainbowShader, "ambientStrength", 
+            light->ambientStrength);
     
         //Draw the triangle
         Cyb_DrawMesh(renderer, rainbowTriangle);
@@ -393,8 +413,7 @@ void DrawCube(void)
     
     //Enable depth testing and face culling
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_FRONT);
+    glDisable(GL_CULL_FACE);
     
     //Textured?
     if(useTextures)
@@ -406,6 +425,11 @@ void DrawCube(void)
         Cyb_SetMatrix(renderer, textureShader, "m", &m);
         Cyb_SetMatrix(renderer, textureShader, "v", Cyb_GetViewMatrix(cam));
         Cyb_SetMatrix(renderer, textureShader, "p", &p);
+        
+        //Set lights
+        Cyb_SetVec3(renderer, textureShader, "lightColor", &light->color);
+        Cyb_SetFloat(renderer, textureShader, "ambientStrength", 
+            light->ambientStrength);
         
         //Set textures
         Cyb_SelectTexture(renderer, gridTexture, 0);
@@ -426,6 +450,11 @@ void DrawCube(void)
         Cyb_SetMatrix(renderer, rainbowShader, "m", &m);
         Cyb_SetMatrix(renderer, rainbowShader, "v", Cyb_GetViewMatrix(cam));
         Cyb_SetMatrix(renderer, rainbowShader, "p", &p);
+        
+        //Set lights
+        Cyb_SetVec3(renderer, rainbowShader, "lightColor", &light->color);
+        Cyb_SetFloat(renderer, rainbowShader, "ambientStrength", 
+            light->ambientStrength);
     
         //Draw the cube
         Cyb_DrawMesh(renderer, rainbowCube);

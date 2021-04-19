@@ -53,9 +53,12 @@ target_sources(
     CybRender
     PRIVATE
     src/CybCamera.c
+    src/CybLight.c
+    src/CybMaterial.c
     src/CybMesh.c
     src/CybRenderer.c
     src/CybShader.c
+    src/CybTexture.c
 )
 
 #Libraries to link against
