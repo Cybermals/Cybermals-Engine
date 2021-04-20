@@ -29,9 +29,11 @@ in vec4 vertColor;
 in vec3 fragPos;
 in vec3 normal;
 
+uniform vec3 camPos;
 uniform vec3 lightPos;
 uniform vec3 lightColor;
 uniform float ambientStrength;
+uniform float specularStrength;
 
 out vec4 fragColor;
 
@@ -46,7 +48,13 @@ void main()
     float diff = max(dot(norm, lightDir), 0.0);
     vec3 diffuse = diff * lightColor;
     
+    //Calculate specular color
+    vec3 viewDir = normalize(camPos - fragPos);
+    vec3 reflectDir = reflect(-viewDir, norm);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+    vec3 specular = specularStrength * spec * lightColor;
+    
     //Calculate fragment color
-    fragColor = vertColor * vec4(ambient + diffuse, 1.0);
+    fragColor = vertColor * vec4(ambient + diffuse + specular, 1.0);
 }
 //End Fragment Shader

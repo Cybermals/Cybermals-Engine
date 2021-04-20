@@ -402,7 +402,7 @@ void Cyb_SetTexture(Cyb_Renderer *renderer, Cyb_Shader *shader,
 
 
 void Cyb_SetVec3(Cyb_Renderer *renderer, Cyb_Shader *shader,
-    const char *name, Cyb_Vec3 *v)
+    const char *name, const Cyb_Vec3 *v)
 {
     Cyb_GLExtAPI *glExtAPI = Cyb_GetGLExtAPI(renderer);
     GLint id = glExtAPI->GetUniformLocation(shader->program, name);

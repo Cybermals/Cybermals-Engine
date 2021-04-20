@@ -106,6 +106,22 @@ void Cyb_MoveCamera(Cyb_Camera *cam, float velocity)
 }
 
 
+void Cyb_StrafeCamera(Cyb_Camera *cam, float velocity)
+{
+    //Ignore velocity of 0
+    if(velocity == 0.0f)
+    {
+        return;
+    }
+    
+    //Update camera pos
+    float theta = cam->rot.y + 90.0f;
+    cam->pos.x += -velocity * sinf(radians(theta));
+    cam->pos.z += -velocity * cosf(radians(theta));
+    cam->isDirty = TRUE;
+}
+
+
 void Cyb_RotateCamera(Cyb_Camera *cam, float x, float y, float z)
 {
     //Ignore 0 rotation

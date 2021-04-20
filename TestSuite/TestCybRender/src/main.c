@@ -70,7 +70,7 @@ int drawCube = TRUE;
 int useTextures = FALSE;
 float angle = 0.0f;
 
-float playerVelocity = 0.0f;
+Cyb_Vec3 playerVelocity = {0.0f, 0.0f, 0.0f};
 Cyb_Vec2 playerRotVelocity = {0.0f, 0.0f};
 
 
@@ -187,7 +187,7 @@ int Init(void)
         return 1;
     }
     
-    Cyb_SetCameraPos(cam, 0.0f, 0.0f, 5.0f);
+    Cyb_SetCameraPos(cam, 0.0f, 2.0f, 5.0f);
     
     //Load Shaders
     rainbowShader = Cyb_LoadShader(renderer, "data/shaders/rainbow.glsl");
@@ -375,6 +375,7 @@ void DrawTriangle(void)
         Cyb_SetMatrix(renderer, textureShader, "p", &p);
         
         //Set lights
+        Cyb_SetVec3(renderer, textureShader, "camPos", Cyb_GetCameraPos(cam));
         Cyb_SetVec3(renderer, textureShader, "lightPos", &light->pos);
         Cyb_SetVec3(renderer, textureShader, "lightColor", &light->color);
         Cyb_SetFloat(renderer, textureShader, "ambientStrength", 
@@ -401,6 +402,7 @@ void DrawTriangle(void)
         Cyb_SetMatrix(renderer, rainbowShader, "p", &p);
         
         //Set lights
+        Cyb_SetVec3(renderer, rainbowShader, "camPos", Cyb_GetCameraPos(cam));
         Cyb_SetVec3(renderer, rainbowShader, "lightPos", &light->pos);
         Cyb_SetVec3(renderer, rainbowShader, "lightColor", &light->color);
         Cyb_SetFloat(renderer, rainbowShader, "ambientStrength", 
@@ -433,6 +435,7 @@ void DrawCube(void)
         Cyb_SetMatrix(renderer, textureShader, "p", &p);
         
         //Set lights
+        Cyb_SetVec3(renderer, textureShader, "camPos", Cyb_GetCameraPos(cam));
         Cyb_SetVec3(renderer, textureShader, "lightPos", &light->pos);
         Cyb_SetVec3(renderer, textureShader, "lightColor", &light->color);
         Cyb_SetFloat(renderer, textureShader, "ambientStrength", 
@@ -459,6 +462,7 @@ void DrawCube(void)
         Cyb_SetMatrix(renderer, rainbowShader, "p", &p);
         
         //Set lights
+        Cyb_SetVec3(renderer, rainbowShader, "camPos", Cyb_GetCameraPos(cam));
         Cyb_SetVec3(renderer, rainbowShader, "lightPos", &light->pos);
         Cyb_SetVec3(renderer, rainbowShader, "lightColor", &light->color);
         Cyb_SetFloat(renderer, rainbowShader, "ambientStrength", 
@@ -499,24 +503,44 @@ int main(int argc, char **argv)
                 //Check keys
                 switch(event.key.keysym.sym)
                 {
-                    //A key (forward)?
+                    //A key (move forward)?
                 case SDLK_w:
-                    playerVelocity = 2.0f;
+                    playerVelocity.z = .2f;
                     break;
                     
-                    //S key (backward)?
+                    //S key (move backward)?
                 case SDLK_s:
-                    playerVelocity = -2.0f;
+                    playerVelocity.z = -.2f;
                     break;
                     
-                    //A key (turn left)?
+                    //A key (strafe left)
                 case SDLK_a:
+                    playerVelocity.x = .2f;
+                    break;
+                    
+                    //D key (strafe right)
+                case SDLK_d:
+                    playerVelocity.x = -.2f;
+                    break;
+                    
+                    //Left arrow key (turn left)?
+                case SDLK_LEFT:
                     playerRotVelocity.y = 2.0f;
                     break;
                     
-                    //D key (turn right)?
-                case SDLK_d:
+                    //Right arrow key (turn right)?
+                case SDLK_RIGHT:
                     playerRotVelocity.y = -2.0f;
+                    break;
+                    
+                    //Up arrow key (look up)
+                case SDLK_UP:
+                    playerRotVelocity.x = 2.0f;
+                    break;
+                    
+                    //Down arrow key (look down)
+                case SDLK_DOWN:
+                    playerRotVelocity.x = -2.0f;
                     break;
                     
                     //R key (reset cam)?
@@ -549,18 +573,31 @@ int main(int argc, char **argv)
                 //Check keys
                 switch(event.key.keysym.sym)
                 {
-                    //W key (forward)?
+                    //W key (move forward)?
                 case SDLK_w:
-                    //S key (backward)?
+                    //S key (move backward)?
                 case SDLK_s:
-                    playerVelocity = 0.0f;
+                    playerVelocity.z = 0.0f;
                     break;
                     
-                    //A key (turn left)?
+                    //A key (strafe left)?
                 case SDLK_a:
-                    //D key (turn right)?
+                    //D key (strafe right)?
                 case SDLK_d:
+                    playerVelocity.x = 0.0f;
+                    
+                    //Left arrow key (turn left)?
+                case SDLK_LEFT:
+                    //Right arrow key (turn right)?
+                case SDLK_RIGHT:
                     playerRotVelocity.y = 0.0f;
+                    break;
+                    
+                    //Up arrow key (look up)?
+                case SDLK_UP:
+                    //Down arrow key (look down)?
+                case SDLK_DOWN:
+                    playerRotVelocity.x = 0.0f;
                     break;
                 }
             }
@@ -573,7 +610,8 @@ int main(int argc, char **argv)
         //Cyb_DrawUI(root, uiRenderer);
         
         //Update camera
-        Cyb_MoveCamera(cam, playerVelocity);
+        Cyb_MoveCamera(cam, playerVelocity.z);
+        Cyb_StrafeCamera(cam, playerVelocity.x);
         Cyb_RotateCamera(cam, playerRotVelocity.x, playerRotVelocity.y, 0.0f);
         
         //Update angle

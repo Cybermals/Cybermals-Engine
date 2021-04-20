@@ -89,6 +89,13 @@ CYBAPI float Cyb_GetCameraZoom(Cyb_Camera *cam);
  */
 CYBAPI void Cyb_MoveCamera(Cyb_Camera *cam, float velocity);
 
+/** @brief Move a camera sideways based on just its yaw.
+ *
+ * @param cam Pointer to the camera.
+ * @param velocity The current camera velocity.
+ */
+CYBAPI void Cyb_StrafeCamera(Cyb_Camera *cam, float velocity);
+
 /** @brief Rotate a camera.
  *
  * @param cam Pointer to the camera.
