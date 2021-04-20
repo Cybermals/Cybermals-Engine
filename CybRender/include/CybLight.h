@@ -20,9 +20,9 @@ typedef struct
 {
     Cyb_Object base;
     Cyb_Vec3 pos;
-    Cyb_Vec3 color;
-    float ambientStrength;
-    float specularStrength;
+    Cyb_Vec3 ambient;
+    Cyb_Vec3 diffuse;
+    Cyb_Vec3 specular;
 } Cyb_Light;
 
 

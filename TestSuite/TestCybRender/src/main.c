@@ -54,6 +54,8 @@ Cyb_Shader *textureShader = NULL;
 
 Cyb_Light *light = NULL;
 
+Cyb_Material *mat = NULL;
+
 Cyb_Texture *gridTexture = NULL;
 Cyb_Texture *smilyTexture = NULL;
 
@@ -189,7 +191,7 @@ int Init(void)
     
     Cyb_SetCameraPos(cam, 0.0f, 2.0f, 5.0f);
     
-    //Load Shaders
+    //Load shaders
     rainbowShader = Cyb_LoadShader(renderer, "data/shaders/rainbow.glsl");
     textureShader = Cyb_LoadShader(renderer, "data/shaders/texture.glsl");
     
@@ -209,6 +211,14 @@ int Init(void)
     light->pos.x = -5.0f;
     light->pos.y = 5.0f;
     light->pos.z = 5.0f;
+    
+    //Create materials
+    mat = Cyb_CreateMaterial();
+    
+    if(!mat)
+    {
+        return 1;
+    }
     
     //Load textures
     gridTexture = Cyb_CreateTexture(renderer);
@@ -376,10 +386,16 @@ void DrawTriangle(void)
         
         //Set lights
         Cyb_SetVec3(renderer, textureShader, "camPos", Cyb_GetCameraPos(cam));
-        Cyb_SetVec3(renderer, textureShader, "lightPos", &light->pos);
-        Cyb_SetVec3(renderer, textureShader, "lightColor", &light->color);
-        Cyb_SetFloat(renderer, textureShader, "ambientStrength", 
-            light->ambientStrength);
+        Cyb_SetVec3(renderer, textureShader, "light.pos", &light->pos);
+        Cyb_SetVec3(renderer, textureShader, "light.ambient", &light->ambient);
+        Cyb_SetVec3(renderer, textureShader, "light.diffuse", &light->diffuse);
+        Cyb_SetVec3(renderer, textureShader, "light.specular", &light->specular);
+        
+        //Set material
+        Cyb_SetVec3(renderer, textureShader, "mat.ambient", &mat->ambient);
+        Cyb_SetVec3(renderer, textureShader, "mat.diffuse", &mat->diffuse);
+        Cyb_SetVec3(renderer, textureShader, "mat.specular", &mat->specular);
+        Cyb_SetFloat(renderer, textureShader, "mat.shininess", mat->shininess);
         
         //Set textures
         Cyb_SelectTexture(renderer, gridTexture, 0);
@@ -403,10 +419,16 @@ void DrawTriangle(void)
         
         //Set lights
         Cyb_SetVec3(renderer, rainbowShader, "camPos", Cyb_GetCameraPos(cam));
-        Cyb_SetVec3(renderer, rainbowShader, "lightPos", &light->pos);
-        Cyb_SetVec3(renderer, rainbowShader, "lightColor", &light->color);
-        Cyb_SetFloat(renderer, rainbowShader, "ambientStrength", 
-            light->ambientStrength);
+        Cyb_SetVec3(renderer, rainbowShader, "light.pos", &light->pos);
+        Cyb_SetVec3(renderer, rainbowShader, "light.ambient", &light->ambient);
+        Cyb_SetVec3(renderer, rainbowShader, "light.diffuse", &light->diffuse);
+        Cyb_SetVec3(renderer, rainbowShader, "light.specular", &light->specular);
+        
+        //Set material
+        Cyb_SetVec3(renderer, rainbowShader, "mat.ambient", &mat->ambient);
+        Cyb_SetVec3(renderer, rainbowShader, "mat.diffuse", &mat->diffuse);
+        Cyb_SetVec3(renderer, rainbowShader, "mat.specular", &mat->specular);
+        Cyb_SetFloat(renderer, rainbowShader, "mat.shininess", mat->shininess);
     
         //Draw the triangle
         Cyb_DrawMesh(renderer, rainbowTriangle);
@@ -436,10 +458,16 @@ void DrawCube(void)
         
         //Set lights
         Cyb_SetVec3(renderer, textureShader, "camPos", Cyb_GetCameraPos(cam));
-        Cyb_SetVec3(renderer, textureShader, "lightPos", &light->pos);
-        Cyb_SetVec3(renderer, textureShader, "lightColor", &light->color);
-        Cyb_SetFloat(renderer, textureShader, "ambientStrength", 
-            light->ambientStrength);
+        Cyb_SetVec3(renderer, textureShader, "light.pos", &light->pos);
+        Cyb_SetVec3(renderer, textureShader, "light.ambient", &light->ambient);
+        Cyb_SetVec3(renderer, textureShader, "light.diffuse", &light->diffuse);
+        Cyb_SetVec3(renderer, textureShader, "light.specular", &light->specular);
+        
+        //Set material
+        Cyb_SetVec3(renderer, textureShader, "mat.ambient", &mat->ambient);
+        Cyb_SetVec3(renderer, textureShader, "mat.diffuse", &mat->diffuse);
+        Cyb_SetVec3(renderer, textureShader, "mat.specular", &mat->specular);
+        Cyb_SetFloat(renderer, textureShader, "mat.shininess", mat->shininess);
         
         //Set textures
         Cyb_SelectTexture(renderer, gridTexture, 0);
@@ -463,10 +491,16 @@ void DrawCube(void)
         
         //Set lights
         Cyb_SetVec3(renderer, rainbowShader, "camPos", Cyb_GetCameraPos(cam));
-        Cyb_SetVec3(renderer, rainbowShader, "lightPos", &light->pos);
-        Cyb_SetVec3(renderer, rainbowShader, "lightColor", &light->color);
-        Cyb_SetFloat(renderer, rainbowShader, "ambientStrength", 
-            light->ambientStrength);
+        Cyb_SetVec3(renderer, rainbowShader, "light.pos", &light->pos);
+        Cyb_SetVec3(renderer, rainbowShader, "light.ambient", &light->ambient);
+        Cyb_SetVec3(renderer, rainbowShader, "light.diffuse", &light->diffuse);
+        Cyb_SetVec3(renderer, rainbowShader, "light.specular", &light->specular);
+        
+        //Set material
+        Cyb_SetVec3(renderer, rainbowShader, "mat.ambient", &mat->ambient);
+        Cyb_SetVec3(renderer, rainbowShader, "mat.diffuse", &mat->diffuse);
+        Cyb_SetVec3(renderer, rainbowShader, "mat.specular", &mat->specular);
+        Cyb_SetFloat(renderer, rainbowShader, "mat.shininess", mat->shininess);
     
         //Draw the cube
         Cyb_DrawMesh(renderer, rainbowCube);
