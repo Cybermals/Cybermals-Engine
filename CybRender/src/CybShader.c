@@ -7,6 +7,22 @@ CybRender - Shader API
 #include "CybObjects.h"
 #include "CybShader.h"
 
+#ifdef __ANDROID__
+    #define VERTEX_SHADER_HEADER "//ES Vertex Shader"
+    #define VERTEX_SHADER_FOOTER "//End ES Vertex Shader"
+    #define GEOMETRY_SHADER_HEADER "//ES Geometry Shader"
+    #define GEOMETRY_SHADER_FOOTER "//End ES Geometry Shader"
+    #define FRAGMENT_SHADER_HEADER "//ES Fragment Shader"
+    #define FRAGMENT_SHADER_FOOTER "//End ES Fragment Shader"
+#else
+    #define VERTEX_SHADER_HEADER "//Vertex Shader"
+    #define VERTEX_SHADER_FOOTER "//End Vertex Shader"
+    #define GEOMETRY_SHADER_HEADER "//Geometry Shader"
+    #define GEOMETRY_SHADER_FOOTER "//End Geometry Shader"
+    #define FRAGMENT_SHADER_HEADER "//Fragment Shader"
+    #define FRAGMENT_SHADER_FOOTER "//End Fragment Shader"
+#endif
+
 
 //Structures
 //=================================================================================
@@ -148,46 +164,9 @@ Cyb_Shader *Cyb_LoadShaderRW(Cyb_Renderer *renderer, SDL_RWops *file,
         return NULL;
     }
     
-    //Compile geometry shader
-    char *source = strstr(data, "//Geometry Shader");
-    char *end = strstr(data, "//End Geometry Shader");
-    GLuint gShader = 0;
-    
-    if(source && end)
-    {
-        int len = (GLsizei)(end - source);
-        gShader = glExtAPI->CreateShader(GL_GEOMETRY_SHADER);
-    
-        if(!gShader)
-        {
-            glExtAPI->DeleteProgram(prog);
-            Cyb_FreeObject((Cyb_Object**)&shader);
-            return NULL;
-        }
-    
-        glExtAPI->ShaderSource(gShader, 1, (const char * const*)&source, &len);
-        glExtAPI->CompileShader(gShader);
-        int isCompiled;
-        glExtAPI->GetShaderiv(gShader, GL_COMPILE_STATUS, &isCompiled);
-    
-        if(!isCompiled)
-        {
-            glExtAPI->GetShaderInfoLog(gShader, sizeof(infoLog), NULL, infoLog);
-            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, 
-                "[CybRender] Failed to compile geometry shader '%s': %s", 
-                id, infoLog);
-            glExtAPI->DeleteShader(gShader);
-            glExtAPI->DeleteProgram(prog);
-            Cyb_FreeObject((Cyb_Object**)&shader);
-            return NULL;
-        }
-        
-        glExtAPI->AttachShader(prog, gShader);
-    }
-    
     //Compile vertex shader
-    source = strstr(data, "//Vertex Shader");
-    end = strstr(data, "//End Vertex Shader");
+    char *source = strstr(data, VERTEX_SHADER_HEADER);
+    char *end = strstr(data, VERTEX_SHADER_FOOTER);
     GLuint vShader = 0;
     
     if(source && end)
@@ -197,11 +176,6 @@ Cyb_Shader *Cyb_LoadShaderRW(Cyb_Renderer *renderer, SDL_RWops *file,
     
         if(!vShader)
         {
-            if(gShader)
-            {
-                glExtAPI->DeleteShader(gShader);
-            }
-            
             glExtAPI->DeleteProgram(prog);
             Cyb_FreeObject((Cyb_Object**)&shader);
             return NULL;
@@ -219,11 +193,6 @@ Cyb_Shader *Cyb_LoadShaderRW(Cyb_Renderer *renderer, SDL_RWops *file,
                 "[CybRender] Failed to compile vertex shader '%s': %s", 
                 id, infoLog);
             
-            if(gShader)
-            {
-                glExtAPI->DeleteShader(gShader);
-            }
-            
             glExtAPI->DeleteShader(vShader);
             glExtAPI->DeleteProgram(prog);
             Cyb_FreeObject((Cyb_Object**)&shader);
@@ -233,9 +202,57 @@ Cyb_Shader *Cyb_LoadShaderRW(Cyb_Renderer *renderer, SDL_RWops *file,
         glExtAPI->AttachShader(prog, vShader);
     }
     
+    //Compile geometry shader
+    source = strstr(data, GEOMETRY_SHADER_HEADER);
+    end = strstr(data, GEOMETRY_SHADER_FOOTER);
+    GLuint gShader = 0;
+    
+    if(source && end)
+    {
+        int len = (GLsizei)(end - source);
+        gShader = glExtAPI->CreateShader(GL_GEOMETRY_SHADER);
+    
+        if(!gShader)
+        {
+            if(vShader)
+            {
+                glExtAPI->DeleteShader(vShader);
+            }
+        
+            glExtAPI->DeleteProgram(prog);
+            Cyb_FreeObject((Cyb_Object**)&shader);
+            return NULL;
+        }
+    
+        glExtAPI->ShaderSource(gShader, 1, (const char * const*)&source, &len);
+        glExtAPI->CompileShader(gShader);
+        int isCompiled;
+        glExtAPI->GetShaderiv(gShader, GL_COMPILE_STATUS, &isCompiled);
+    
+        if(!isCompiled)
+        {
+            glExtAPI->GetShaderInfoLog(gShader, sizeof(infoLog), NULL, infoLog);
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, 
+                "[CybRender] Failed to compile geometry shader '%s': %s", 
+                id, infoLog);
+                
+            if(vShader)
+            {
+                glExtAPI->DeleteShader(vShader);
+            }
+                
+            glExtAPI->DeleteShader(gShader);
+            glExtAPI->DeleteProgram(prog);
+            Cyb_FreeObject((Cyb_Object**)&shader);
+            return NULL;
+        }
+        
+        glExtAPI->AttachShader(prog, gShader);
+    }
+    
     //Compile fragment shader
-    source = strstr(data, "//Fragment Shader");
-    end = strstr(data, "//End Fragment Shader");
+    source = strstr(data, FRAGMENT_SHADER_HEADER);
+    end = strstr(data, FRAGMENT_SHADER_FOOTER);
     GLuint fShader = 0;
     
     if(source && end)

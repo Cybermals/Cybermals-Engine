@@ -7,6 +7,16 @@ CybRender - Renderer API
 #include "CybObjects.h"
 #include "CybRenderer.h"
 
+#define IMPORT_GL_FUNC(var, type, name) var = (type)SDL_GL_GetProcAddress(name); \
+    \
+    if(!var) \
+    { \
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, \
+            "[CybRender] Failed to import '%s'. Please update your graphics drivers.", \
+            name); \
+        return CYB_ERROR; \
+    }
+
 
 //Structures
 //=================================================================================
@@ -49,88 +59,176 @@ static void Cyb_FreeRenderer(Cyb_Renderer *renderer)
 static int Cyb_InitGLExtAPI(Cyb_GLExtAPI *glExtAPI)
 {
     //Import shader functions
-    glExtAPI->CreateShader = SDL_GL_GetProcAddress("glCreateShader");
-    glExtAPI->DeleteShader = SDL_GL_GetProcAddress("glDeleteShader");
-    glExtAPI->ShaderSource = SDL_GL_GetProcAddress("glShaderSource");
-    glExtAPI->CompileShader = SDL_GL_GetProcAddress("glCompileShader");
-    glExtAPI->GetShaderiv = SDL_GL_GetProcAddress("glGetShaderiv");
-    glExtAPI->GetShaderInfoLog = SDL_GL_GetProcAddress("glGetShaderInfoLog");
+    IMPORT_GL_FUNC(
+        glExtAPI->CreateShader, 
+        PFNGLCREATESHADERPROC, 
+        "glCreateShader"
+    );
+    IMPORT_GL_FUNC(
+        glExtAPI->DeleteShader, 
+        PFNGLDELETESHADERPROC, 
+        "glDeleteShader"
+    );
+    IMPORT_GL_FUNC(
+        glExtAPI->ShaderSource, 
+        PFNGLSHADERSOURCEPROC, 
+        "glShaderSource"
+    );
+    IMPORT_GL_FUNC(
+        glExtAPI->CompileShader, 
+        PFNGLCOMPILESHADERPROC, 
+        "glCompileShader"
+    );
+    IMPORT_GL_FUNC(
+        glExtAPI->GetShaderiv, 
+        PFNGLGETSHADERIVPROC, 
+        "glGetShaderiv"
+    );
+    IMPORT_GL_FUNC(
+        glExtAPI->GetShaderInfoLog, 
+        PFNGLGETSHADERINFOLOGPROC,
+        "glGetShaderInfoLog"
+    );
     
     //Import program functions
-    glExtAPI->CreateProgram = SDL_GL_GetProcAddress("glCreateProgram");
-    glExtAPI->DeleteProgram = SDL_GL_GetProcAddress("glDeleteProgram");
-    glExtAPI->AttachShader = SDL_GL_GetProcAddress("glAttachShader");
-    glExtAPI->LinkProgram = SDL_GL_GetProcAddress("glLinkProgram");
-    glExtAPI->GetProgramiv = SDL_GL_GetProcAddress("glGetProgramiv");
-    glExtAPI->GetProgramInfoLog = SDL_GL_GetProcAddress("glGetProgramInfoLog");
-    glExtAPI->ValidateProgram = SDL_GL_GetProcAddress("glValidateProgram");
-    glExtAPI->UseProgram = SDL_GL_GetProcAddress("glUseProgram");
-    glExtAPI->GetUniformLocation = SDL_GL_GetProcAddress("glGetUniformLocation");
-    glExtAPI->UniformMatrix4fv = SDL_GL_GetProcAddress("glUniformMatrix4fv");
-    glExtAPI->Uniform1i = SDL_GL_GetProcAddress("glUniform1i");
-    glExtAPI->Uniform3fv = SDL_GL_GetProcAddress("glUniform3fv");
-    glExtAPI->Uniform1f = SDL_GL_GetProcAddress("glUniform1f");
+    IMPORT_GL_FUNC(
+        glExtAPI->CreateProgram, 
+        PFNGLCREATEPROGRAMPROC, 
+        "glCreateProgram"
+    );
+    IMPORT_GL_FUNC(
+        glExtAPI->DeleteProgram, 
+        PFNGLDELETEPROGRAMPROC,
+        "glDeleteProgram"
+    );
+    IMPORT_GL_FUNC(
+        glExtAPI->AttachShader, 
+        PFNGLATTACHSHADERPROC,
+        "glAttachShader"
+    );
+    IMPORT_GL_FUNC(
+        glExtAPI->LinkProgram, 
+        PFNGLLINKPROGRAMPROC,
+        "glLinkProgram"
+    );
+    IMPORT_GL_FUNC(
+        glExtAPI->GetProgramiv, 
+        PFNGLGETPROGRAMIVPROC,
+        "glGetProgramiv"
+    );
+    IMPORT_GL_FUNC(
+        glExtAPI->GetProgramInfoLog, 
+        PFNGLGETPROGRAMINFOLOGPROC,
+        "glGetProgramInfoLog"
+    );
+    IMPORT_GL_FUNC(
+        glExtAPI->ValidateProgram, 
+        PFNGLVALIDATEPROGRAMPROC,
+        "glValidateProgram"
+    );
+    IMPORT_GL_FUNC(
+        glExtAPI->UseProgram, 
+        PFNGLUSEPROGRAMPROC,
+        "glUseProgram"
+    );
+    IMPORT_GL_FUNC(
+        glExtAPI->GetUniformLocation, 
+        PFNGLGETUNIFORMLOCATIONPROC,
+        "glGetUniformLocation"
+    );
+    IMPORT_GL_FUNC(
+        glExtAPI->UniformMatrix4fv, 
+        PFNGLUNIFORMMATRIX4FVPROC,
+        "glUniformMatrix4fv"
+    );
+    IMPORT_GL_FUNC(
+        glExtAPI->Uniform1i, 
+        PFNGLUNIFORM1IPROC,
+        "glUniform1i"
+    );
+    IMPORT_GL_FUNC(
+        glExtAPI->Uniform3fv, 
+        PFNGLUNIFORM3FVPROC,
+        "glUniform3fv"
+    );
+    IMPORT_GL_FUNC(
+        glExtAPI->Uniform1f, 
+        PFNGLUNIFORM1FPROC,
+        "glUniform1f"
+    );
     
     //Import buffer functions
-    glExtAPI->GenBuffers = SDL_GL_GetProcAddress("glGenBuffers");
-    glExtAPI->DeleteBuffers = SDL_GL_GetProcAddress("glDeleteBuffers");
-    glExtAPI->BindBuffer = SDL_GL_GetProcAddress("glBindBuffer");
-    glExtAPI->BufferData = SDL_GL_GetProcAddress("glBufferData");
-    glExtAPI->MapBuffer = SDL_GL_GetProcAddress("glMapBuffer");
-    glExtAPI->UnmapBuffer = SDL_GL_GetProcAddress("glUnmapBuffer");
+    IMPORT_GL_FUNC(
+        glExtAPI->GenBuffers, 
+        PFNGLGENBUFFERSPROC,
+        "glGenBuffers"
+    );
+    IMPORT_GL_FUNC(
+        glExtAPI->DeleteBuffers, 
+        PFNGLDELETEBUFFERSPROC,
+        "glDeleteBuffers"
+    );
+    IMPORT_GL_FUNC(
+        glExtAPI->BindBuffer, 
+        PFNGLBINDBUFFERPROC,
+        "glBindBuffer"
+    );
+    IMPORT_GL_FUNC(
+        glExtAPI->BufferData, 
+        PFNGLBUFFERDATAPROC,
+        "glBufferData"
+    );
+    IMPORT_GL_FUNC(
+        glExtAPI->MapBufferRange, 
+        PFNGLMAPBUFFERRANGEPROC,
+        "glMapBufferRange"
+    );
+    IMPORT_GL_FUNC(
+        glExtAPI->UnmapBuffer, 
+        PFNGLUNMAPBUFFERPROC,
+        "glUnmapBuffer"
+    );
     
     //Import vertex array functions
-    glExtAPI->GenVertexArrays = SDL_GL_GetProcAddress("glGenVertexArrays");
-    glExtAPI->DeleteVertexArrays = SDL_GL_GetProcAddress("glDeleteVertexArrays");
-    glExtAPI->BindVertexArray = SDL_GL_GetProcAddress("glBindVertexArray");
+    IMPORT_GL_FUNC(
+        glExtAPI->GenVertexArrays, 
+        PFNGLGENVERTEXARRAYSPROC,
+        "glGenVertexArrays"
+    );
+    IMPORT_GL_FUNC(
+        glExtAPI->DeleteVertexArrays, 
+        PFNGLDELETEVERTEXARRAYSPROC,
+        "glDeleteVertexArrays"
+    );
+    IMPORT_GL_FUNC(
+        glExtAPI->BindVertexArray, 
+        PFNGLBINDVERTEXARRAYPROC,
+        "glBindVertexArray"
+    );
     
     //Import vertex attrib functions
-    glExtAPI->EnableVertexAttribArray = SDL_GL_GetProcAddress(
-        "glEnableVertexAttribArray");
-    glExtAPI->DisableVertexAttribArray = SDL_GL_GetProcAddress(
-        "glDisableVertexAttribArray");
-    glExtAPI->VertexAttribPointer = SDL_GL_GetProcAddress("glVertexAttribPointer");
+    IMPORT_GL_FUNC(
+        glExtAPI->EnableVertexAttribArray, 
+        PFNGLENABLEVERTEXATTRIBARRAYPROC,
+        "glEnableVertexAttribArray"
+    );
+    IMPORT_GL_FUNC(
+        glExtAPI->DisableVertexAttribArray,
+        PFNGLDISABLEVERTEXATTRIBARRAYPROC,
+        "glDisableVertexAttribArray"
+    );
+    IMPORT_GL_FUNC(
+        glExtAPI->VertexAttribPointer,
+        PFNGLVERTEXATTRIBPOINTERPROC,
+        "glVertexAttribPointer"
+    );
     
     //Import texture functions
-    glExtAPI->ActiveTexture = SDL_GL_GetProcAddress("glActiveTexture");
-    
-    //Verify that all functions were imported
-    if(!glExtAPI->CreateShader ||
-        !glExtAPI->DeleteShader ||
-        !glExtAPI->ShaderSource ||
-        !glExtAPI->CompileShader ||
-        !glExtAPI->GetShaderiv ||
-        !glExtAPI->GetShaderInfoLog ||
-        !glExtAPI->CreateProgram ||
-        !glExtAPI->DeleteProgram ||
-        !glExtAPI->AttachShader ||
-        !glExtAPI->LinkProgram ||
-        !glExtAPI->GetProgramiv ||
-        !glExtAPI->GetProgramInfoLog ||
-        !glExtAPI->ValidateProgram ||
-        !glExtAPI->UseProgram ||
-        !glExtAPI->GetUniformLocation ||
-        !glExtAPI->UniformMatrix4fv ||
-        !glExtAPI->Uniform1i ||
-        !glExtAPI->Uniform3fv ||
-        !glExtAPI->Uniform1f ||
-        !glExtAPI->GenBuffers ||
-        !glExtAPI->DeleteBuffers ||
-        !glExtAPI->BindBuffer ||
-        !glExtAPI->BufferData ||
-        !glExtAPI->MapBuffer ||
-        !glExtAPI->UnmapBuffer ||
-        !glExtAPI->GenVertexArrays ||
-        !glExtAPI->DeleteVertexArrays ||
-        !glExtAPI->BindVertexArray ||
-        !glExtAPI->EnableVertexAttribArray ||
-        !glExtAPI->VertexAttribPointer ||
-        !glExtAPI->ActiveTexture)
-    {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s",
-            "[CybRender] Failed to import a required OpenGL function. Please update your graphics drivers and try again.");
-        return CYB_ERROR;
-    }
+    IMPORT_GL_FUNC(
+        glExtAPI->ActiveTexture,
+        PFNGLACTIVETEXTUREPROC,
+        "glActiveTexture"
+    );
     
     return CYB_NO_ERROR;
 }
@@ -159,8 +257,8 @@ Cyb_Renderer *Cyb_CreateRenderer(SDL_Window *window)
     
     if(!renderer->glCtx)
     {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", 
-            "[CybRender] Failed to create OpenGL context.");
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "[CybRender] %s",
+            SDL_GetError());
         Cyb_FreeObject((Cyb_Object**)&renderer);
         return NULL;
     }

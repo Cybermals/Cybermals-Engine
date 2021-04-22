@@ -78,6 +78,25 @@ Cyb_Vec2 playerRotVelocity = {0.0f, 0.0f};
 
 //Functions
 //===========================================================================
+void HandleLogOutput(void *userdata, int category, SDL_LogPriority priority,
+    const char *message)
+{
+    //Handle warnings and errors
+    switch(priority)
+    {
+        //Warning?
+    case SDL_LOG_PRIORITY_WARN:
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Warning", message, NULL);
+        break;
+        
+        //Error?
+    case SDL_LOG_PRIORITY_ERROR:
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", message, NULL);
+        break;
+    }
+}
+
+
 void Quit(void)
 {
     //Free root widget
@@ -114,6 +133,9 @@ void Quit(void)
 
 int Init(void)
 {
+    //Initialize logging
+    SDL_LogSetOutputFunction(&HandleLogOutput, NULL);
+    
     //Initialize CybUI
     if(Cyb_InitUI())
     {
@@ -122,7 +144,7 @@ int Init(void)
     
     //Create a window
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3); //major version 3
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3); //minor version 3
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0); //minor version 0
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, TRUE);       //double-buffered
     SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);              //8-bits for red
     SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);            //8-bits for green
@@ -190,6 +212,7 @@ int Init(void)
     }
     
     Cyb_SetCameraPos(cam, 0.0f, 2.0f, 5.0f);
+    Cyb_SetCameraRot(cam, -20.0f, 0.0f, 0.0f);
     
     //Load shaders
     rainbowShader = Cyb_LoadShader(renderer, "data/shaders/rainbow.glsl");
@@ -357,7 +380,9 @@ int Init(void)
     }
     
     //Initialize matrices
-    Cyb_Perspective(&p, 45.0f, (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, .1f,
+    GLint viewport[4];
+    glGetIntegerv(GL_VIEWPORT, viewport);
+    Cyb_Perspective(&p, 45.0f, (float)viewport[2] / (float)viewport[3], .1f,
         1000.0f);
     //Cyb_Ortho(&p, -1.0f, 1.0f, 1.0f, -1.0f, .1f, 1000.0f);
     return 0;
@@ -530,6 +555,12 @@ int main(int argc, char **argv)
             if(event.type == SDL_QUIT)
             {
                 return 0;
+            }
+            //Mouse button down?
+            else if(event.type == SDL_MOUSEBUTTONDOWN)
+            {
+                //Turn on text input for now
+                SDL_StartTextInput();
             }
             //Key down?
             else if(event.type == SDL_KEYDOWN)

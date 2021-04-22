@@ -52,7 +52,7 @@ typedef struct
     PFNGLDELETEBUFFERSPROC DeleteBuffers;
     PFNGLBINDBUFFERPROC BindBuffer;
     PFNGLBUFFERDATAPROC BufferData;
-    PFNGLMAPBUFFERPROC MapBuffer;
+    PFNGLMAPBUFFERRANGEPROC MapBufferRange;
     PFNGLUNMAPBUFFERPROC UnmapBuffer;
     
     //Vertex Array Functions

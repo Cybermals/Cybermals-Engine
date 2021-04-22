@@ -86,6 +86,11 @@ A lightweight high-performance game engine and application framework.
 * textures
     * supports PNG and JPEG image loading
     * multiple textures can be used with separate texture units
+* lights
+    * supports one or more light sources
+    * supports the common light attribs: position, ambient, diffuse, and specular
+* materials
+    * supports the common material attribs: ambient, diffuse, specular, and shininess
     
 ## Supported Platforms
 * Windows

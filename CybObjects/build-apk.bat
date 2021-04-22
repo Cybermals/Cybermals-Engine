@@ -1,5 +1,5 @@
 @echo off
 
-rem Build objects library
+rem Build CybObjects
 set NDK_PROJECT_PATH=.
 ndk-build NDK_APPLICATION_MK=./Application.mk

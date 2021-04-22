@@ -129,7 +129,8 @@ int Cyb_UpdateMesh(Cyb_Renderer *renderer, Cyb_Mesh *mesh, int vertCount,
             glExtAPI->BindBuffer(GL_ARRAY_BUFFER, mesh->vbo);
             glExtAPI->BufferData(GL_ARRAY_BUFFER, sizeof(Cyb_VertexVN) * vertCount,
                 NULL, GL_STATIC_DRAW);
-            Cyb_VertexVN *buf = glExtAPI->MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+            Cyb_VertexVN *buf = glExtAPI->MapBufferRange(GL_ARRAY_BUFFER, 0, 
+                sizeof(Cyb_VertexVN) * vertCount, GL_MAP_WRITE_BIT);
         
             if(!buf)
             {
@@ -165,8 +166,8 @@ int Cyb_UpdateMesh(Cyb_Renderer *renderer, Cyb_Mesh *mesh, int vertCount,
             glExtAPI->BindBuffer(GL_ARRAY_BUFFER, mesh->vbo);
             glExtAPI->BufferData(GL_ARRAY_BUFFER, sizeof(Cyb_VertexVNC) * vertCount,
                 NULL, GL_STATIC_DRAW);
-            Cyb_VertexVNC *buf = glExtAPI->MapBuffer(GL_ARRAY_BUFFER, 
-                GL_WRITE_ONLY);
+            Cyb_VertexVNC *buf = glExtAPI->MapBufferRange(GL_ARRAY_BUFFER, 0,
+                sizeof(Cyb_VertexVNC) * vertCount, GL_MAP_WRITE_BIT);
         
             if(!buf)
             {
@@ -205,8 +206,8 @@ int Cyb_UpdateMesh(Cyb_Renderer *renderer, Cyb_Mesh *mesh, int vertCount,
             glExtAPI->BindBuffer(GL_ARRAY_BUFFER, mesh->vbo);
             glExtAPI->BufferData(GL_ARRAY_BUFFER, sizeof(Cyb_VertexVNT) * vertCount,
                 NULL, GL_STATIC_DRAW);
-            Cyb_VertexVNT *buf = glExtAPI->MapBuffer(GL_ARRAY_BUFFER, 
-                GL_WRITE_ONLY);
+            Cyb_VertexVNT *buf = glExtAPI->MapBufferRange(GL_ARRAY_BUFFER, 0,
+                sizeof(Cyb_VertexVNT) * vertCount, GL_MAP_WRITE_BIT);
         
             if(!buf)
             {
@@ -245,8 +246,8 @@ int Cyb_UpdateMesh(Cyb_Renderer *renderer, Cyb_Mesh *mesh, int vertCount,
             glExtAPI->BindBuffer(GL_ARRAY_BUFFER, mesh->vbo);
             glExtAPI->BufferData(GL_ARRAY_BUFFER, 
                 sizeof(Cyb_VertexVNCT) * vertCount, NULL, GL_STATIC_DRAW);
-            Cyb_VertexVNCT *buf = glExtAPI->MapBuffer(GL_ARRAY_BUFFER, 
-                GL_WRITE_ONLY);
+            Cyb_VertexVNCT *buf = glExtAPI->MapBufferRange(GL_ARRAY_BUFFER, 0,
+                sizeof(Cyb_VertexVNCT) * vertCount, GL_MAP_WRITE_BIT);
         
             if(!buf)
             {
@@ -289,7 +290,8 @@ int Cyb_UpdateMesh(Cyb_Renderer *renderer, Cyb_Mesh *mesh, int vertCount,
         glExtAPI->BindBuffer(GL_ARRAY_BUFFER, mesh->vbo);
         glExtAPI->BufferData(GL_ARRAY_BUFFER, sizeof(Cyb_VertexV) * vertCount,
             NULL, GL_STATIC_DRAW);
-        Cyb_VertexV *buf = glExtAPI->MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+        Cyb_VertexV *buf = glExtAPI->MapBufferRange(GL_ARRAY_BUFFER, 0,
+            sizeof(Cyb_VertexV) * vertCount, GL_MAP_WRITE_BIT);
         
         if(!buf)
         {
