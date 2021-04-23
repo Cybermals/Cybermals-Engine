@@ -16,6 +16,7 @@ if(WIN32)
         include
         ../deps/windows/i386/SDL2/include/SDL2
         ../deps/windows/i386/SDL2_image/include
+        ../deps/windows/i386/sqlite3/include
     )
 endif(WIN32)
 
@@ -26,6 +27,7 @@ if(UNIX)
         include
         ../deps/linux/amd64/SDL2/include/SDL2
         ../deps/linux/amd64/SDL2_image/include
+        ../deps/linux/amd64/sqlite3/include
     )
 endif(UNIX)
 
@@ -36,6 +38,7 @@ if(WIN32)
         PUBLIC
         ../deps/windows/i386/SDL2_image/bin
         ../deps/windows/i386/SDL2_image/lib
+        ../deps/windows/i386/sqlite3/lib
     )
 endif(WIN32)
 
@@ -45,6 +48,7 @@ if(UNIX)
         PUBLIC
         ../deps/linux/amd64/SDL2_image/bin
         ../deps/linux/amd64/SDL2_image/lib
+        ../deps/linux/amd64/sqlite3/lib
     )
 endif(UNIX)
 
@@ -52,6 +56,7 @@ endif(UNIX)
 target_sources(
     CybRender
     PRIVATE
+    src/CybAssetLoader.c
     src/CybCamera.c
     src/CybLight.c
     src/CybMaterial.c
@@ -65,6 +70,7 @@ target_sources(
 set(LIBS
     SDL2
     SDL2_image
+    sqlite3
     CybObjects
     CybMath
 )

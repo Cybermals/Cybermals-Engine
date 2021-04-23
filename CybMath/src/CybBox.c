@@ -6,7 +6,6 @@ CybMath - Box API
 #include <string.h>
 
 #include "CybBox.h"
-#include "CybMatrix.h"
 
 
 //Functions
@@ -152,13 +151,13 @@ void Cyb_GenerateBoxGeometry(Cyb_Vec3 *verts, int *indices,
 
 
 void Cyb_RotateBox(Cyb_Box *out, const Cyb_Box *in, 
-    float x, float y, float z)
+    float x, float y, float z, int rotOrder)
 {
     //Generate box geometry and rotate it
     Cyb_Vec3 verts[8];
     Cyb_GenerateBoxGeometry(verts, NULL, in);
     Cyb_Mat4 r;
-    Cyb_Rotate(&r, x, y, z);
+    Cyb_Rotate(&r, x, y, z, rotOrder);
     
     for(int i = 0; i < sizeof(verts) / sizeof(verts[0]); i++)
     {

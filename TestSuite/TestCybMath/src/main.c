@@ -224,7 +224,7 @@ int TestCybMatrices(void)
     //Test rotation matrix
     puts("Testing rotation matrix...");
     Cyb_Mat4 r;
-    Cyb_Rotate(&r, 0, 0, 90);
+    Cyb_Rotate(&r, 0, 0, 90, CYB_ROT_XYZ);
     
     //Test scaling matrix
     puts("Testing scaling matrix...");
@@ -292,7 +292,7 @@ int TestCybBoxes(void)
         //Test bounding box rotation
         puts("Testing bounding box rotation...");
         Cyb_Box d;
-        Cyb_RotateBox(&d, &a, 0, 0, 45);
+        Cyb_RotateBox(&d, &a, 0, 0, 45, CYB_ROT_XYZ);
         printf("center = (%f, %f, %f)\nsize = (%f, %f, %f)\n", d.center.x, 
             d.center.y, d.center.z, d.size.x, d.size.y, d.size.z);
     }

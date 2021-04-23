@@ -158,7 +158,7 @@ Cyb_Mat4 *Cyb_GetViewMatrix(Cyb_Camera *cam)
         Cyb_Mat4 sr;
         
         Cyb_Translate(&t, -cam->pos.x, -cam->pos.y, -cam->pos.z);
-        Cyb_Rotate(&r, -cam->rot.x, -cam->rot.y, -cam->rot.z);
+        Cyb_Rotate(&r, -cam->rot.x, -cam->rot.y, -cam->rot.z, CYB_ROT_ZYX);
         Cyb_Scale(&s, cam->zoom, cam->zoom, cam->zoom);
         Cyb_MulMat4(&sr, &s, &r);
         Cyb_MulMat4(&cam->viewMat, &sr, &t);

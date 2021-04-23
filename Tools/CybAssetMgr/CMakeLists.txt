@@ -14,6 +14,7 @@ if(WIN32)
         CybAssetMgr
         PUBLIC
         ../../CybCommon
+        ../../CybMath/include
         ../../deps/windows/i386/sqlite3/include
         ../../deps/windows/i386/assimp/include
     )
@@ -24,6 +25,7 @@ if(UNIX)
         CybAssetMgr
         PUBLIC
         ../../CybCommon
+        ../../CybMath/include
         ../../deps/linux/amd64/sqlite3/include
         ../../deps/linux/amd64/assimp/include
     )
@@ -88,8 +90,8 @@ endif(UNIX)
 if(WIN32)
     file(
         GLOB DEPS
-        ../../deps/windows/assimp/bin/*.dll
-        ../../deps/windows/assimp/bin/LICENSE*
+        ../../deps/windows/i386/assimp/bin/*.dll
+        ../../deps/windows/i386/assimp/bin/LICENSE*
     )
     file(COPY ${DEPS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif(WIN32)

@@ -83,7 +83,7 @@ void Cyb_Translate(Cyb_Mat4 *m, float x, float y, float z)
 }
 
 
-void Cyb_Rotate(Cyb_Mat4 *m, float x, float y, float z)
+void Cyb_Rotate(Cyb_Mat4 *m, float x, float y, float z, int rotOrder)
 {
     //Generate X rotation matrix
     Cyb_Mat4 matX;
@@ -114,8 +114,27 @@ void Cyb_Rotate(Cyb_Mat4 *m, float x, float y, float z)
     
     //Multiply rotation matrices
     Cyb_Mat4 tmp;
-    Cyb_MulMat4(&tmp, &matX, &matY);
-    Cyb_MulMat4(m, &tmp, &matZ);
+    
+    switch(rotOrder)
+    {
+        //XYZ?
+    case CYB_ROT_XYZ:
+        Cyb_MulMat4(&tmp, &matZ, &matY);
+        Cyb_MulMat4(m, &tmp, &matX);
+        break;
+        
+        //ZYX?
+    case CYB_ROT_ZYX:
+        Cyb_MulMat4(&tmp, &matX, &matY);
+        Cyb_MulMat4(m, &tmp, &matZ);
+        break;
+        
+        //ZXY?
+    case CYB_ROT_ZXY:
+        Cyb_MulMat4(&tmp, &matY, &matX);
+        Cyb_MulMat4(m, &tmp, &matZ);
+        break;
+    }
 }
 
 

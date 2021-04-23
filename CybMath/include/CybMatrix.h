@@ -21,6 +21,15 @@ extern "C" {
  * @brief Cybermals Engine - 3D Math Library
  * @{
  */
+ 
+//Enums
+//=================================================================================
+enum Cyb_RotationOrder
+{
+    CYB_ROT_XYZ,
+    CYB_ROT_ZYX,
+    CYB_ROT_ZXY
+};
 
 //Structures
 //=================================================================================
@@ -74,8 +83,9 @@ CYBAPI void Cyb_Translate(Cyb_Mat4 *m, float x, float y, float z);
  * @param x The X axis angle.
  * @param y The Y axis angle.
  * @param z The Z axis angle.
+ * @param rotOrder The order used to apply rotations.
  */
-CYBAPI void Cyb_Rotate(Cyb_Mat4 *m, float x, float y, float z);
+CYBAPI void Cyb_Rotate(Cyb_Mat4 *m, float x, float y, float z, int rotOrder);
 
 /** @brief Generate a scaling matrix.
  *

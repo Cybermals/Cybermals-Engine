@@ -30,6 +30,17 @@ CybRender - Test Program
 #define BG_COLOR         0.0f, 0.5f, 1.0f, 1.0f
 
 
+//Enums
+//===========================================================================
+enum RenderMode
+{
+    TRIANGLE_MESH,
+    CUBE_MESH,
+    TRIANGLE_IN_CUBE_MESH,
+    PYRAMID_MESH
+};
+
+
 //Constants
 //===========================================================================
 const unsigned char gridTexturePixels[] = {
@@ -51,6 +62,7 @@ Cyb_Camera *cam = NULL;
 
 Cyb_Shader *rainbowShader = NULL;
 Cyb_Shader *textureShader = NULL;
+Cyb_Shader *bumpMapShader = NULL;
 
 Cyb_Light *light = NULL;
 
@@ -63,12 +75,12 @@ Cyb_Mesh *rainbowTriangle = NULL;
 Cyb_Mesh *texturedTriangle = NULL;
 Cyb_Mesh *rainbowCube = NULL;
 Cyb_Mesh *texturedCube = NULL;
+Cyb_Mesh *pyramid = NULL;
 
 Cyb_Mat4 m;
 Cyb_Mat4 p;
 
-int drawTriangle = TRUE;
-int drawCube = TRUE;
+int renderMode = TRIANGLE_MESH;
 int useTextures = FALSE;
 float angle = 0.0f;
 
@@ -217,8 +229,9 @@ int Init(void)
     //Load shaders
     rainbowShader = Cyb_LoadShader(renderer, "data/shaders/rainbow.glsl");
     textureShader = Cyb_LoadShader(renderer, "data/shaders/texture.glsl");
+    bumpMapShader = Cyb_LoadShader(renderer, "data/shaders/bump_map.glsl");
     
-    if(!rainbowShader || !textureShader)
+    if(!rainbowShader || !textureShader || !bumpMapShader)
     {
         return 1;
     }
@@ -255,7 +268,7 @@ int Init(void)
     Cyb_UpdateTexture(renderer, gridTexture, 2, 2, CYB_PIXEL_FORMAT_RGBA, 
         gridTexturePixels);
     
-    //Create meshes
+    //Load meshes
     rainbowTriangle = Cyb_CreateMesh(renderer);
     texturedTriangle = Cyb_CreateMesh(renderer);
     
@@ -379,6 +392,14 @@ int Init(void)
             indexCount, indices);
     }
     
+    pyramid = (Cyb_Mesh*)Cyb_LoadAsset(renderer, "assets.cyb", "pyramid", 
+        CYB_MESH_ASSET);
+    
+    if(!pyramid)
+    {
+        return 1;
+    }
+    
     //Initialize matrices
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
@@ -392,7 +413,7 @@ int Init(void)
 void DrawTriangle(void)
 {
     //Update model matrix
-    Cyb_Rotate(&m, 0.0f, angle, 0.0f);
+    Cyb_Rotate(&m, 0.0f, angle, 0.0f, CYB_ROT_XYZ);
     
     //Enable depth testing and disable face culling
     glEnable(GL_DEPTH_TEST);
@@ -464,9 +485,9 @@ void DrawTriangle(void)
 void DrawCube(void)
 {
     //Update model matrix
-    Cyb_Rotate(&m, 0.0f, -angle, 0.0f);
+    Cyb_Rotate(&m, 0.0f, -angle, 0.0f, CYB_ROT_XYZ);
     
-    //Enable depth testing and face culling
+    //Enable depth testing and disable face culling
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
     
@@ -530,6 +551,49 @@ void DrawCube(void)
         //Draw the cube
         Cyb_DrawMesh(renderer, rainbowCube);
     }
+}
+
+
+void DrawPyramid(void)
+{
+    //Update model matrix
+    Cyb_Mat4 r;
+    Cyb_Mat4 s;
+    Cyb_Rotate(&r, 90.0f, angle, 0.0f, CYB_ROT_XYZ);
+    Cyb_Scale(&s, 1.0f, -1.0f, -1.0f);
+    Cyb_MulMat4(&m, &r, &s);
+    
+    //Enable depth testing and face culling
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    
+    //Select shader
+    Cyb_SelectShader(renderer, bumpMapShader);
+    
+    //Set matrices
+    Cyb_SetMatrix(renderer, bumpMapShader, "m", &m);
+    Cyb_SetMatrix(renderer, bumpMapShader, "v", Cyb_GetViewMatrix(cam));
+    Cyb_SetMatrix(renderer, bumpMapShader, "p", &p);
+    
+    //Set lights
+    Cyb_SetVec3(renderer, bumpMapShader, "camPos", Cyb_GetCameraPos(cam));
+    Cyb_SetVec3(renderer, bumpMapShader, "light.pos", &light->pos);
+    Cyb_SetVec3(renderer, bumpMapShader, "light.ambient", &light->ambient);
+    Cyb_SetVec3(renderer, bumpMapShader, "light.diffuse", &light->diffuse);
+    Cyb_SetVec3(renderer, bumpMapShader, "light.specular", &light->specular);
+    
+    //Set material
+    Cyb_SetVec3(renderer, bumpMapShader, "mat.ambient", &mat->ambient);
+    Cyb_SetVec3(renderer, bumpMapShader, "mat.diffuse", &mat->diffuse);
+    Cyb_SetVec3(renderer, bumpMapShader, "mat.specular", &mat->specular);
+    Cyb_SetFloat(renderer, bumpMapShader, "mat.shininess", mat->shininess);
+    
+    //Set textures
+    Cyb_SelectTexture(renderer, smilyTexture, 0);
+    Cyb_SetTexture(renderer, bumpMapShader, "tex0", 0);
+    
+    //Draw the pyramid
+    Cyb_DrawMesh(renderer, pyramid);
 }
 
 
@@ -626,6 +690,17 @@ int main(int argc, char **argv)
                     break;
                 }
                 
+                    //M key (toggle render mode)?
+                case SDLK_m:
+                    renderMode++;
+                    
+                    if(renderMode > PYRAMID_MESH)
+                    {
+                        renderMode = TRIANGLE_MESH;
+                    }
+                    
+                    break;
+                
                     //T key (toggle textures)?
                 case SDLK_t:
                     useTextures = !useTextures;
@@ -682,16 +757,29 @@ int main(int argc, char **argv)
         //Update angle
         angle += 1.0f;
         
-        //Draw triangle?
-        if(drawTriangle)
+        //Render content
+        switch(renderMode)
         {
+            //Triangle?
+        case TRIANGLE_MESH:
             DrawTriangle();
-        }
-        
-        //Draw cube?
-        if(drawCube)
-        {
+            break;
+            
+            //Cube?
+        case CUBE_MESH:
             DrawCube();
+            break;
+            
+            //Triangle in cube?
+        case TRIANGLE_IN_CUBE_MESH:
+            DrawTriangle();
+            DrawCube();
+            break;
+            
+            //Pyramid?
+        case PYRAMID_MESH:
+            DrawPyramid();
+            break;
         }
         
         //Swap buffers
