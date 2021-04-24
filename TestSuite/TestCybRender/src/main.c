@@ -66,10 +66,12 @@ Cyb_Shader *bumpMapShader = NULL;
 
 Cyb_Light *light = NULL;
 
-Cyb_Material *mat = NULL;
+Cyb_Material *defaultMat = NULL;
+Cyb_Material *pyramidMat = NULL;
 
 Cyb_Texture *gridTexture = NULL;
 Cyb_Texture *smilyTexture = NULL;
+Cyb_Texture *uvGridTexture = NULL;
 
 Cyb_Mesh *rainbowTriangle = NULL;
 Cyb_Mesh *texturedTriangle = NULL;
@@ -249,9 +251,11 @@ int Init(void)
     light->pos.z = 5.0f;
     
     //Create materials
-    mat = Cyb_CreateMaterial();
+    defaultMat = Cyb_CreateMaterial();
+    pyramidMat = (Cyb_Material*)Cyb_LoadAsset(renderer, "assets.cyb", "pyramid",
+        CYB_MATERIAL_ASSET);
     
-    if(!mat)
+    if(!defaultMat || !pyramidMat)
     {
         return 1;
     }
@@ -259,8 +263,10 @@ int Init(void)
     //Load textures
     gridTexture = Cyb_CreateTexture(renderer);
     smilyTexture = Cyb_LoadTexture(renderer, "data/textures/smily.png");
+    uvGridTexture = (Cyb_Texture*)Cyb_LoadAsset(renderer, "assets.cyb",
+        "UV_grid", CYB_TEXTURE_ASSET);
     
-    if(!gridTexture || !smilyTexture)
+    if(!gridTexture || !smilyTexture || !uvGridTexture)
     {
         return 1;
     }
@@ -438,10 +444,10 @@ void DrawTriangle(void)
         Cyb_SetVec3(renderer, textureShader, "light.specular", &light->specular);
         
         //Set material
-        Cyb_SetVec3(renderer, textureShader, "mat.ambient", &mat->ambient);
-        Cyb_SetVec3(renderer, textureShader, "mat.diffuse", &mat->diffuse);
-        Cyb_SetVec3(renderer, textureShader, "mat.specular", &mat->specular);
-        Cyb_SetFloat(renderer, textureShader, "mat.shininess", mat->shininess);
+        Cyb_SetVec3(renderer, textureShader, "mat.ambient", &defaultMat->ambient);
+        Cyb_SetVec3(renderer, textureShader, "mat.diffuse", &defaultMat->diffuse);
+        Cyb_SetVec3(renderer, textureShader, "mat.specular", &defaultMat->specular);
+        Cyb_SetFloat(renderer, textureShader, "mat.shininess", defaultMat->shininess);
         
         //Set textures
         Cyb_SelectTexture(renderer, gridTexture, 0);
@@ -471,10 +477,10 @@ void DrawTriangle(void)
         Cyb_SetVec3(renderer, rainbowShader, "light.specular", &light->specular);
         
         //Set material
-        Cyb_SetVec3(renderer, rainbowShader, "mat.ambient", &mat->ambient);
-        Cyb_SetVec3(renderer, rainbowShader, "mat.diffuse", &mat->diffuse);
-        Cyb_SetVec3(renderer, rainbowShader, "mat.specular", &mat->specular);
-        Cyb_SetFloat(renderer, rainbowShader, "mat.shininess", mat->shininess);
+        Cyb_SetVec3(renderer, rainbowShader, "mat.ambient", &defaultMat->ambient);
+        Cyb_SetVec3(renderer, rainbowShader, "mat.diffuse", &defaultMat->diffuse);
+        Cyb_SetVec3(renderer, rainbowShader, "mat.specular", &defaultMat->specular);
+        Cyb_SetFloat(renderer, rainbowShader, "mat.shininess", defaultMat->shininess);
     
         //Draw the triangle
         Cyb_DrawMesh(renderer, rainbowTriangle);
@@ -510,10 +516,10 @@ void DrawCube(void)
         Cyb_SetVec3(renderer, textureShader, "light.specular", &light->specular);
         
         //Set material
-        Cyb_SetVec3(renderer, textureShader, "mat.ambient", &mat->ambient);
-        Cyb_SetVec3(renderer, textureShader, "mat.diffuse", &mat->diffuse);
-        Cyb_SetVec3(renderer, textureShader, "mat.specular", &mat->specular);
-        Cyb_SetFloat(renderer, textureShader, "mat.shininess", mat->shininess);
+        Cyb_SetVec3(renderer, textureShader, "mat.ambient", &defaultMat->ambient);
+        Cyb_SetVec3(renderer, textureShader, "mat.diffuse", &defaultMat->diffuse);
+        Cyb_SetVec3(renderer, textureShader, "mat.specular", &defaultMat->specular);
+        Cyb_SetFloat(renderer, textureShader, "mat.shininess", defaultMat->shininess);
         
         //Set textures
         Cyb_SelectTexture(renderer, gridTexture, 0);
@@ -543,10 +549,10 @@ void DrawCube(void)
         Cyb_SetVec3(renderer, rainbowShader, "light.specular", &light->specular);
         
         //Set material
-        Cyb_SetVec3(renderer, rainbowShader, "mat.ambient", &mat->ambient);
-        Cyb_SetVec3(renderer, rainbowShader, "mat.diffuse", &mat->diffuse);
-        Cyb_SetVec3(renderer, rainbowShader, "mat.specular", &mat->specular);
-        Cyb_SetFloat(renderer, rainbowShader, "mat.shininess", mat->shininess);
+        Cyb_SetVec3(renderer, rainbowShader, "mat.ambient", &defaultMat->ambient);
+        Cyb_SetVec3(renderer, rainbowShader, "mat.diffuse", &defaultMat->diffuse);
+        Cyb_SetVec3(renderer, rainbowShader, "mat.specular", &defaultMat->specular);
+        Cyb_SetFloat(renderer, rainbowShader, "mat.shininess", defaultMat->shininess);
     
         //Draw the cube
         Cyb_DrawMesh(renderer, rainbowCube);
@@ -583,13 +589,13 @@ void DrawPyramid(void)
     Cyb_SetVec3(renderer, bumpMapShader, "light.specular", &light->specular);
     
     //Set material
-    Cyb_SetVec3(renderer, bumpMapShader, "mat.ambient", &mat->ambient);
-    Cyb_SetVec3(renderer, bumpMapShader, "mat.diffuse", &mat->diffuse);
-    Cyb_SetVec3(renderer, bumpMapShader, "mat.specular", &mat->specular);
-    Cyb_SetFloat(renderer, bumpMapShader, "mat.shininess", mat->shininess);
+    Cyb_SetVec3(renderer, bumpMapShader, "mat.ambient", &pyramidMat->ambient);
+    Cyb_SetVec3(renderer, bumpMapShader, "mat.diffuse", &pyramidMat->diffuse);
+    Cyb_SetVec3(renderer, bumpMapShader, "mat.specular", &pyramidMat->specular);
+    Cyb_SetFloat(renderer, bumpMapShader, "mat.shininess", pyramidMat->shininess);
     
     //Set textures
-    Cyb_SelectTexture(renderer, smilyTexture, 0);
+    Cyb_SelectTexture(renderer, uvGridTexture, 0);
     Cyb_SetTexture(renderer, bumpMapShader, "tex0", 0);
     
     //Draw the pyramid

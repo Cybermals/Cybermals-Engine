@@ -30,7 +30,9 @@ const char *cmdRef = "Commands\n"
 "help - display this command reference\n"
 "quit - exit this program\n"
 "open filename - open a new or existing asset database\n"
-"list assets - list the assets in the open database";
+"list assets - list the assets in the open database\n"
+"add mesh filename - add the contents of a mesh file to the open database\n"
+"add texture filename - add a texture to the open database";
 
 const char *initSQL = "PRAGMA foreign_keys=ON;\n"
 "\n"
@@ -127,6 +129,13 @@ int OpenAssetDB(const char *filename)
 
 int ListAssets(void)
 {
+    //Make sure there is an open database
+    if(!db)
+    {
+        puts("ERROR: No open asset database.");
+        return CYB_ERROR;
+    }
+
     //Compile SQL statements
     sqlite3_stmt *listMeshesStmt;
     sqlite3_stmt *listTexturesStmt;
@@ -219,15 +228,23 @@ int ListAssets(void)
 
 int AddMeshes(const char *filename)
 {
+    //Make sure there is an open database
+    if(!db)
+    {
+        puts("ERROR: No open asset database.");
+        return CYB_ERROR;
+    }
+    
     //Open mesh file
     printf("Opening mesh file '%s'...\n", filename);
     const struct aiScene *scene = aiImportFile(filename, 
         aiProcess_Triangulate | 
+        aiProcess_FlipUVs | 
         aiProcess_CalcTangentSpace | 
         aiProcess_JoinIdenticalVertices | 
         aiProcess_SortByPType | 
         aiProcess_OptimizeMeshes | 
-        aiProcess_EmbedTextures |
+        aiProcess_EmbedTextures | 
         aiProcess_GenBoundingBoxes | 
         aiProcess_ValidateDataStructure | 
         aiProcess_FindInvalidData);
@@ -364,7 +381,8 @@ int AddMeshes(const char *filename)
             tex->mFilename.data, tex->achFormatHint);
         
         //Texture added
-        puts("ok");
+        //puts("ok");
+        puts("unsupported");
     }
     
     //Add all materials in the mesh file to the asset database
@@ -445,6 +463,92 @@ int AddMeshes(const char *filename)
 }
 
 
+int AddTexture(const char *filename, const char *name)
+{
+    //Make sure there is an open database
+    if(!db)
+    {
+        puts("ERROR: No open asset database.");
+        return CYB_ERROR;
+    }
+    
+    //Compile SQL statements
+    sqlite3_stmt *addTextureStmt = NULL;
+    
+    if(sqlite3_prepare_v2(db, addTextureSQL, -1, &addTextureStmt, NULL) != 
+        SQLITE_OK)
+    {
+        puts("Failed to compile an SQL statement.");
+        return CYB_ERROR;
+    }
+    
+    //Load the texture file
+    FILE *file = fopen(filename, "rb");
+    
+    if(!file)
+    {
+        printf("Failed to open texture '%s'.\n", filename);
+        sqlite3_finalize(addTextureStmt);
+        return CYB_ERROR;
+    }
+    
+    fseek(file, 0, SEEK_END);
+    long size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+    unsigned char *data = (unsigned char*)malloc(size);
+    
+    if(!data)
+    {
+        puts("Out of Memory");
+        fclose(file);
+        sqlite3_finalize(addTextureStmt);
+        return CYB_ERROR;
+    }
+    
+    if(fread(data, sizeof(unsigned char), size, file) < size)
+    {
+        puts("IOError");
+        free(data);
+        fclose(file);
+        sqlite3_finalize(addTextureStmt);
+        return CYB_ERROR;
+    }
+    
+    fclose(file);
+    
+    //Add the texture to the asset database
+    printf("Adding texture '%s' to the asset database...", name);
+    char *format = "unknown";
+    
+    if(strstr(filename, "png"))
+    {
+        format = "png";
+    }
+    else if(strstr(filename, "jpg"))
+    {
+        format = "jpg";
+    }
+    
+    sqlite3_bind_text(addTextureStmt, 1, name, -1, NULL);
+    sqlite3_bind_int(addTextureStmt, 2, -1);
+    sqlite3_bind_int(addTextureStmt, 3, -1);
+    sqlite3_bind_text(addTextureStmt, 4, format, -1, NULL);
+    sqlite3_bind_blob(addTextureStmt, 5, data, size, NULL);
+    
+    if(sqlite3_step(addTextureStmt) != SQLITE_DONE)
+    {
+        puts("failed");
+        free(data);
+        sqlite3_finalize(addTextureStmt);
+        return CYB_ERROR;
+    }
+    
+    free(data);
+    puts("ok");
+    return CYB_NO_ERROR;
+}
+
+
 //Entry Point
 //===========================================================================
 int main(int argc, char **argv)
@@ -508,6 +612,24 @@ int main(int argc, char **argv)
             if(AddMeshes(&cmd[9]))
             {
                 puts("Failed to add mesh.");
+            }
+        }
+        //Add texture?
+        else if(strncmp(cmd, "add texture ", 12) == 0)
+        {
+            //Add the texture to the open database
+            char filename[256];
+            char name[256];
+            
+            if(sscanf(cmd, "add texture %255s %255s", filename, name) < 2)
+            {
+                puts("Failed to parse command params.");
+                continue;
+            }
+            
+            if(AddTexture(filename, name))
+            {
+                puts("Failed to add texture.");
             }
         }
         //Invalid command?

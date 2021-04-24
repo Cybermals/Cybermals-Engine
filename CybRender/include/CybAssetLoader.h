@@ -8,7 +8,6 @@
 #include <sqlite3.h> 
 
 #include "CybObjects.h"
-#include "CybMesh.h"
 #include "CybRenderer.h"
 
  
@@ -20,7 +19,9 @@ extern "C" {
 //================================================================================
 enum Cyb_AssetType
 {
-    CYB_MESH_ASSET
+    CYB_MESH_ASSET,
+    CYB_MATERIAL_ASSET,
+    CYB_TEXTURE_ASSET
 };
 
 
