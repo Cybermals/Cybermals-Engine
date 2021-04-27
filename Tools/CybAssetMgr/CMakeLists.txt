@@ -15,6 +15,7 @@ if(WIN32)
         PUBLIC
         ../../CybCommon
         ../../CybMath/include
+        ../../CybRender/include
         ../../deps/windows/i386/sqlite3/include
         ../../deps/windows/i386/assimp/include
     )
@@ -26,6 +27,7 @@ if(UNIX)
         PUBLIC
         ../../CybCommon
         ../../CybMath/include
+        ../../CybRender/include
         ../../deps/linux/amd64/sqlite3/include
         ../../deps/linux/amd64/assimp/include
     )

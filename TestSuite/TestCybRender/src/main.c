@@ -419,7 +419,11 @@ int Init(void)
 void DrawTriangle(void)
 {
     //Update model matrix
-    Cyb_Rotate(&m, 0.0f, angle, 0.0f, CYB_ROT_XYZ);
+    //Cyb_Rotate(&m, 0.0f, angle, 0.0f, CYB_ROT_XYZ);
+    Cyb_Vec4 quat;
+    Cyb_QuatFromAxisAndAngle(&quat, 0.0f, 1.0f, 0.0f, angle);
+    Cyb_NormalizeQuat(&quat);
+    Cyb_QuatToMatrix(&m, &quat);
     
     //Enable depth testing and disable face culling
     glEnable(GL_DEPTH_TEST);
@@ -491,7 +495,11 @@ void DrawTriangle(void)
 void DrawCube(void)
 {
     //Update model matrix
-    Cyb_Rotate(&m, 0.0f, -angle, 0.0f, CYB_ROT_XYZ);
+    //Cyb_Rotate(&m, 0.0f, -angle, 0.0f, CYB_ROT_XYZ);
+    Cyb_Vec4 quat;
+    Cyb_QuatFromAxisAndAngle(&quat, 0.0f, 1.0f, 0.0f, -angle);
+    Cyb_NormalizeQuat(&quat);
+    Cyb_QuatToMatrix(&m, &quat);
     
     //Enable depth testing and disable face culling
     glEnable(GL_DEPTH_TEST);
@@ -565,7 +573,14 @@ void DrawPyramid(void)
     //Update model matrix
     Cyb_Mat4 r;
     Cyb_Mat4 s;
-    Cyb_Rotate(&r, 90.0f, angle, 0.0f, CYB_ROT_XYZ);
+    //Cyb_Rotate(&r, 90.0f, angle, 0.0f, CYB_ROT_XYZ);
+    Cyb_Vec4 rotX;
+    Cyb_Vec4 rotY;
+    Cyb_Vec4 total;
+    Cyb_QuatFromAxisAndAngle(&rotX, 1.0f, 0.0f, 0.0f, 90.0f);
+    Cyb_QuatFromAxisAndAngle(&rotY, 0.0f, 1.0f, 0.0f, angle);
+    Cyb_MulQuat(&total, &rotY, &rotX);
+    Cyb_QuatToMatrix(&r, &total);
     Cyb_Scale(&s, 1.0f, -1.0f, -1.0f);
     Cyb_MulMat4(&m, &r, &s);
     
@@ -680,8 +695,8 @@ int main(int argc, char **argv)
                     
                     //R key (reset cam)?
                 case SDLK_r:
-                    Cyb_SetCameraPos(cam, 0.0f, 0.0f, 5.0f);
-                    Cyb_SetCameraRot(cam, 0.0f, 0.0f, 0.0f);
+                    Cyb_SetCameraPos(cam, 0.0f, 2.0f, 5.0f);
+                    Cyb_SetCameraRot(cam, -20.0f, 0.0f, 0.0f);
                     break;
                     
                     //L key (enter look at mode)?

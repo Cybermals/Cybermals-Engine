@@ -7,6 +7,7 @@ LOCAL_C_INCLUDES := \
 LOCAL_SRC_FILES := \
     src/CybBox.c \
     src/CybMatrix.c \
+    src/CybQuat.c \
     src/CybSphere.c \
     src/CybVec.c
 LOCAL_LDFLAGS += \

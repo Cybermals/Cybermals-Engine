@@ -11,6 +11,7 @@ Cybermals Engine - Asset Manager Tool
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include "CybArmature.h"
 #include "CybCommon.h"
 #include "CybMath.h"
 
@@ -38,18 +39,21 @@ const char *initSQL = "PRAGMA foreign_keys=ON;\n"
 "\n"
 "BEGIN TRANSACTION;\n"
 "    CREATE TABLE IF NOT EXISTS meshes(\n"
-"        name varchar(256) UNIQUE PRIMARY KEY,\n"
+"        id INTEGER PRIMARY KEY,\n"
+"        name varchar(256) UNIQUE,\n"
 "        vert_count INT,\n"
 "        vertices BLOB,\n"
 "        normals BLOB,\n"
 "        colors BLOB,\n"
 "        uvs BLOB,\n"
 "        index_count INT,\n"
-"        indices BLOB"
+"        indices BLOB,\n"
+"        has_bones BOOL\n"
 "    );\n"
 "\n"
 "    CREATE TABLE IF NOT EXISTS textures(\n"
-"        name varchar(256) UNIQUE PRIMARY KEY,\n"
+"        id INTEGER PRIMARY KEY,\n"
+"        name varchar(256) UNIQUE,\n"
 "        width INT,\n"
 "        height INT,\n"
 "        format varchar(16),\n"
@@ -57,20 +61,33 @@ const char *initSQL = "PRAGMA foreign_keys=ON;\n"
 "    );\n"
 "\n"
 "    CREATE TABLE IF NOT EXISTS materials(\n"
-"        name varchar(256) UNIQUE PRIMARY KEY,\n"
+"        id INTEGER PRIMARY KEY,\n"
+"        name varchar(256) UNIQUE,\n"
 "        ambient BLOB,\n"
 "        diffuse BLOB,\n"
 "        specular BLOB,\n"
 "        shininess REAL"
 "    );\n"
+"\n"
+"    CREATE TABLE IF NOT EXISTS armature(\n"
+"        id INTEGER PRIMARY KEY,\n"
+"        name varchar(256) UNIQUE,\n"
+"        vert_count INT,\n"
+"        vgroups BLOB,\n"
+"        vweights BLOB,\n"
+"        bone_count INT,\n"
+"        bones BLOB\n"
+"    );\n"
 "END TRANSACTION;";
 
-const char *listMeshesSQL = "SELECT name, vert_count, index_count FROM meshes;";
-const char *listTexturesSQL = "SELECT name, width, height, format FROM textures;";
-const char *listMaterialsSQL = "SELECT name, ambient, diffuse, specular, shininess FROM materials;";
+const char *listMeshesSQL = "SELECT name, vert_count, index_count FROM meshes ORDER BY name;";
+const char *listTexturesSQL = "SELECT name, width, height, format FROM textures ORDER BY name;";
+const char *listMaterialsSQL = "SELECT name, ambient, diffuse, specular, shininess FROM materials ORDER BY name;";
+const char *listArmaturesSQL = "SELECT name, vert_count, bone_count FROM armatures ORDER BY name;"
 const char *addMeshSQL = "INSERT OR REPLACE INTO meshes(name, vert_count, vertices, normals, colors, uvs, index_count, indices) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
 const char *addTextureSQL = "INSERT OR REPLACE INTO textures(name, width, height, format, data) VALUES (?, ?, ?, ?, ?);";
 const char *addMaterialSQL = "INSERT OR REPLACE INTO materials(name, ambient, diffuse, specular, shininess) VALUES (?, ?, ?, ?, ?);";
+const char *addArmatureSQL = "INSERT OR REPLACE INTO armatures(name, vert_count, vgroups, vweights, bone_count, bones) VALUES (?, ?, ?, ?, ?);";
 
 
 //Globals
@@ -137,9 +154,10 @@ int ListAssets(void)
     }
 
     //Compile SQL statements
-    sqlite3_stmt *listMeshesStmt;
-    sqlite3_stmt *listTexturesStmt;
-    sqlite3_stmt *listMaterialsStmt;
+    sqlite3_stmt *listMeshesStmt = NULL;
+    sqlite3_stmt *listTexturesStmt = NULL;
+    sqlite3_stmt *listMaterialsStmt = NULL;
+    sqlite3_stmt *listArmaturesStmt = NULL;
     
     if(sqlite3_prepare_v2(db, listMeshesSQL, -1, &listMeshesStmt, NULL) != 
         SQLITE_OK)
@@ -162,6 +180,15 @@ int ListAssets(void)
         return CYB_ERROR;
     }
     
+    if(sqlite3_prepare_v2(db, listArmaturesSQL, -1, &listArmaturesStmt, NULL) !=
+        SQLITE_OK)
+    {
+        sqlite3_finalize(listMeshesStmt);
+        sqlite3_finalize(listTexturesStmt);
+        sqlite3_finalize(listMaterialsStmt);
+        return CYB_ERROR;
+    }
+    
     //List all meshes
     puts("Meshes");
     puts("======");
@@ -174,6 +201,8 @@ int ListAssets(void)
         printf("Indices: %i\n\n", sqlite3_column_int(listMeshesStmt, 2));
     }
     
+    //List all textures
+    puts("");
     puts("Textures");
     puts("========");
     
@@ -186,6 +215,7 @@ int ListAssets(void)
         printf("Format: %s\n\n", sqlite3_column_text(listTexturesStmt, 3));
     }
     
+    //List all materials
     puts("");
     puts("Materials");
     puts("=========");
@@ -218,10 +248,23 @@ int ListAssets(void)
         printf("Shininess: %f\n\n", sqlite3_column_double(listMaterialsStmt, 4));
     }
     
+    //List all armatures
+    puts("");
+    puts("Armatures");
+    puts("=========");
+    
+    while(sqlite3_step(listArmaturesStmt) == SQLITE_ROW)
+    {
+        printf("Name: %s\n", sqlite3_column_text(listArmaturesStmt, 0));
+        printf("Vertex Count: %i\n", sqlite3_column_int(listArmaturesStmt, 1));
+        printf("Bone Count: %i\n\n", sqlite3_column_int(listArmaturesStmt, 2));
+    }
+    
     //Finalize SQL statements
     sqlite3_finalize(listMeshesStmt);
     sqlite3_finalize(listTexturesStmt);
     sqlite3_finalize(listMaterialsStmt);
+    sqlite3_finalize(listArmaturesStmt);
     return CYB_NO_ERROR;
 }
 
@@ -258,6 +301,7 @@ int AddMeshes(const char *filename)
     sqlite3_stmt *addMeshStmt = NULL;
     sqlite3_stmt *addTextureStmt = NULL;
     sqlite3_stmt *addMaterialStmt = NULL;
+    sqlite3_stmt *addArmatureStmt = NULL;
     
     if(sqlite3_prepare_v2(db, addMeshSQL, -1, &addMeshStmt, NULL) != SQLITE_OK)
     {
@@ -276,6 +320,15 @@ int AddMeshes(const char *filename)
     {
         sqlite3_finalize(addMeshStmt);
         sqlite3_finalize(addTextureStmt);
+        return CYB_ERROR;
+    }
+    
+    if(sqlite3_prepare_v2(db, addArmatureSQL, -1, &addArmatureSQL, NULL) !=
+        SQLITE_OK)
+    {
+        sqlite3_finalize(addMeshStmt);
+        sqlite3_finalize(addTextureStmt);
+        sqlite3_finalize(addMaterialStmt);
         return CYB_ERROR;
     }
     
@@ -370,6 +423,56 @@ int AddMeshes(const char *filename)
         free(uvs);
         free(indices);
         puts("ok");
+        
+        //Does the mesh have bones?
+        if(mesh->mNumBones)
+        {
+            //Process armature
+            printf("Adding armature '%s' to the asset database...", 
+                mesh->mName.data);
+            
+            //Initialize vertex group array
+            Cyb_Vec4 *vgroups = (Cyb_Vec4*)malloc(
+                sizeof(Cyb_Vec4) * mesh->mNumVertices);
+                
+            if(!vgroups)
+            {
+                puts("failed");
+                continue;
+            }
+            
+            for(int i = 0; i < mesh->mNumVertices; i++)
+            {
+                vgroups[i].x = -1.0f;
+                vgroups[i].y = -1.0f;
+                vgroups[i].z = -1.0f;
+                vgroups[i].w = -1.0f;
+            }
+            
+            //Initialize vertex weight array
+            Cyb_Vec4 *vweights = (Cyb_Vec4*)malloc(
+                sizeof(Cyb_Vec4) * mesh->mNumVertices);
+                
+            if(!vweights)
+            {
+                puts("failed");
+                free(vgroups);
+                continue;
+            }
+            
+            //Initialize bone array
+            Cyb_Bone *bones = (Cyb_Bone*)malloc(sizeof(Cyb_Bone) * mesh->mNumBones);
+            
+            if(!bones)
+            {
+                puts("failed");
+                free(vgroups);
+                free(vweights);
+                continue;
+            }
+            
+            //Process bones
+        }
     }
     
     //Add all textures in the mesh file to the asset database
@@ -456,6 +559,7 @@ int AddMeshes(const char *filename)
     sqlite3_finalize(addMeshStmt);
     sqlite3_finalize(addTextureStmt);
     sqlite3_finalize(addMaterialStmt);
+    sqlite3_finalize(addArmatureStmt);
     
     //Free scene
     aiReleaseImport(scene);

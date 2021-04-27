@@ -48,6 +48,7 @@ target_sources(
     PRIVATE
     src/CybBox.c
     src/CybMatrix.c
+    src/CybQuat.c
     src/CybSphere.c
     src/CybVec.c
 )

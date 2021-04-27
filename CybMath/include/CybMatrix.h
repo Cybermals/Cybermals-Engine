@@ -24,11 +24,13 @@ extern "C" {
  
 //Enums
 //=================================================================================
+/** @brief Order to apply rotations.
+ */
 enum Cyb_RotationOrder
 {
-    CYB_ROT_XYZ,
-    CYB_ROT_ZYX,
-    CYB_ROT_ZXY
+    CYB_ROT_XYZ, /**< X, Y, Z rotation order. */
+    CYB_ROT_ZYX, /**< Z, Y, X rotation order. */
+    CYB_ROT_ZXY  /**< Z, X, Y rotation order. */
 };
 
 //Structures

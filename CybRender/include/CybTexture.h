@@ -27,11 +27,11 @@ extern "C" {
  */
 enum Cyb_PixelFormat
 {
-    CYB_PIXEL_FORMAT_UNKNOWN,
-    CYB_PIXEL_FORMAT_RGB,
-    CYB_PIXEL_FORMAT_RGBA,
-    CYB_PIXEL_FORMAT_BGR,
-    CYB_PIXEL_FORMAT_BGRA
+    CYB_PIXEL_FORMAT_UNKNOWN, /**< Unknown pixel format (aka. unusable). */
+    CYB_PIXEL_FORMAT_RGB,     /**< Red, green, blue pixels. */
+    CYB_PIXEL_FORMAT_RGBA,    /**< Red, green, blue, alpha pixels. */
+    CYB_PIXEL_FORMAT_BGR,     /**< Blue, green, red pixels. */
+    CYB_PIXEL_FORMAT_BGRA     /**< Blue, green, red, alpha pixels. */
 };
 
 
@@ -39,8 +39,8 @@ enum Cyb_PixelFormat
  */
 enum Cyb_TextureFilter
 {
-    CYB_TEXTURE_FILTER_NEAREST,
-    CYB_TEXTURE_FILTER_LINEAR
+    CYB_TEXTURE_FILTER_NEAREST, /**< No texture filtering (causes pixelation). */
+    CYB_TEXTURE_FILTER_LINEAR   /**< Linear antialiasing (smoothes edges). */
 };
 
 
