@@ -11,7 +11,7 @@ Cybermals Engine - Asset Manager Tool
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-#include "CybArmature.h"
+#include "CybBone.h"
 #include "CybCommon.h"
 #include "CybMath.h"
 
@@ -69,7 +69,7 @@ const char *initSQL = "PRAGMA foreign_keys=ON;\n"
 "        shininess REAL"
 "    );\n"
 "\n"
-"    CREATE TABLE IF NOT EXISTS armature(\n"
+"    CREATE TABLE IF NOT EXISTS armatures(\n"
 "        id INTEGER PRIMARY KEY,\n"
 "        name varchar(256) UNIQUE,\n"
 "        vert_count INT,\n"
@@ -83,11 +83,11 @@ const char *initSQL = "PRAGMA foreign_keys=ON;\n"
 const char *listMeshesSQL = "SELECT name, vert_count, index_count FROM meshes ORDER BY name;";
 const char *listTexturesSQL = "SELECT name, width, height, format FROM textures ORDER BY name;";
 const char *listMaterialsSQL = "SELECT name, ambient, diffuse, specular, shininess FROM materials ORDER BY name;";
-const char *listArmaturesSQL = "SELECT name, vert_count, bone_count FROM armatures ORDER BY name;"
+const char *listArmaturesSQL = "SELECT name, vert_count, bone_count FROM armatures ORDER BY name;";
 const char *addMeshSQL = "INSERT OR REPLACE INTO meshes(name, vert_count, vertices, normals, colors, uvs, index_count, indices) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
 const char *addTextureSQL = "INSERT OR REPLACE INTO textures(name, width, height, format, data) VALUES (?, ?, ?, ?, ?);";
 const char *addMaterialSQL = "INSERT OR REPLACE INTO materials(name, ambient, diffuse, specular, shininess) VALUES (?, ?, ?, ?, ?);";
-const char *addArmatureSQL = "INSERT OR REPLACE INTO armatures(name, vert_count, vgroups, vweights, bone_count, bones) VALUES (?, ?, ?, ?, ?);";
+const char *addArmatureSQL = "INSERT OR REPLACE INTO armatures(name, vert_count, vgroups, vweights, bone_count, bones) VALUES (?, ?, ?, ?, ?, ?);";
 
 
 //Globals
@@ -282,13 +282,14 @@ int AddMeshes(const char *filename)
     printf("Opening mesh file '%s'...\n", filename);
     const struct aiScene *scene = aiImportFile(filename, 
         aiProcess_Triangulate | 
-        aiProcess_FlipUVs | 
-        aiProcess_CalcTangentSpace | 
-        aiProcess_JoinIdenticalVertices | 
         aiProcess_SortByPType | 
+        aiProcess_JoinIdenticalVertices | 
         aiProcess_OptimizeMeshes | 
-        aiProcess_EmbedTextures | 
+        aiProcess_CalcTangentSpace | 
         aiProcess_GenBoundingBoxes | 
+        aiProcess_FlipUVs | 
+        aiProcess_EmbedTextures | 
+        aiProcess_PopulateArmatureData | 
         aiProcess_ValidateDataStructure | 
         aiProcess_FindInvalidData);
     
@@ -323,9 +324,10 @@ int AddMeshes(const char *filename)
         return CYB_ERROR;
     }
     
-    if(sqlite3_prepare_v2(db, addArmatureSQL, -1, &addArmatureSQL, NULL) !=
+    if(sqlite3_prepare_v2(db, addArmatureSQL, -1, &addArmatureStmt, NULL) !=
         SQLITE_OK)
     {
+        puts("Failed to compile armature SQL");
         sqlite3_finalize(addMeshStmt);
         sqlite3_finalize(addTextureStmt);
         sqlite3_finalize(addMaterialStmt);
@@ -416,6 +418,8 @@ int AddMeshes(const char *filename)
         if(sqlite3_step(addMeshStmt) != SQLITE_DONE)
         {
             puts("failed");
+            free(uvs);
+            free(indices);
             continue;
         }
         
@@ -472,6 +476,91 @@ int AddMeshes(const char *filename)
             }
             
             //Process bones
+            for(int i = 0; i < mesh->mNumBones; i++)
+            {
+                //Get next bone
+                struct aiBone *bone = mesh->mBones[i];
+                
+                //Process vertex groups and weights
+                for(int j = 0; j < bone->mNumWeights; j++)
+                {
+                    //Process next group and weight
+                    int vertex = bone->mWeights[j].mVertexId;
+                    Cyb_Vec4 *vgroup = &vgroups[vertex];
+                    Cyb_Vec4 *vweight = &vweights[vertex];
+                    
+                    if(vgroup->x == -1)
+                    {
+                        vgroup->x = i;
+                        vweight->x = bone->mWeights[j].mWeight;
+                    }
+                    else if(vgroup->y == -1)
+                    {
+                        vgroup->y = i;
+                        vweight->y = bone->mWeights[j].mWeight;
+                    }
+                    else if(vgroup->z == -1)
+                    {
+                        vgroup->z = i;
+                        vweight->z = bone->mWeights[j].mWeight;
+                    }
+                    else if(vgroup->w == -1)
+                    {
+                        vgroup->w = i;
+                        vweight->w = bone->mWeights[j].mWeight;
+                    }
+                }
+                
+                //Process bone
+                strncpy(bones[i].name, bone->mName.data, 31);
+                bones[i].parent = -1;
+                struct aiNode *parent = bone->mNode->mParent;
+                
+                if(parent)
+                {
+                    for(int j = 0; j < mesh->mNumBones; j++)
+                    {
+                        //Get next bone
+                        struct aiBone *bone2 = mesh->mBones[j];
+                        
+                        //Found parent bone?
+                        if(strcmp(bone2->mName.data, parent->mName.data) == 0)
+                        {
+                            bones[i].parent = j;
+                            break;
+                        }
+                    }
+                }
+                
+                memcpy(&bones[i].matrix, &bone->mOffsetMatrix, sizeof(Cyb_Mat4));
+            }
+            
+            //Add the armature to the asset database
+            sqlite3_reset(addArmatureStmt);
+            sqlite3_bind_text(addArmatureStmt, 1, mesh->mName.data, -1, NULL);
+            sqlite3_bind_int(addArmatureStmt, 2, mesh->mNumVertices);
+            sqlite3_bind_blob(addArmatureStmt, 3, vgroups, 
+                sizeof(Cyb_Vec4) * mesh->mNumVertices, NULL);
+            sqlite3_bind_blob(addArmatureStmt, 4, vweights, 
+                sizeof(Cyb_Vec4) * mesh->mNumVertices, NULL);
+            sqlite3_bind_int(addArmatureStmt, 5, mesh->mNumBones);
+            sqlite3_bind_blob(addArmatureStmt, 6, bones, 
+                sizeof(Cyb_Bone) * mesh->mNumBones, NULL);
+                
+            if(sqlite3_step(addArmatureStmt) != SQLITE_DONE)
+            {
+                puts("failed");
+                free(vgroups);
+                free(vweights);
+                free(bones);
+                continue;
+            }
+            
+            //Free vertex group, vertex weight, and bone arrays
+            free(vgroups);
+            free(vweights);
+            free(bones);
+            puts("ok");
         }
     }
     
@@ -647,7 +736,9 @@ int AddTexture(const char *filename, const char *name)
         return CYB_ERROR;
     }
     
+    //Finalize SQL statements
     free(data);
+    sqlite3_finalize(addTextureStmt);
     puts("ok");
     return CYB_NO_ERROR;
 }

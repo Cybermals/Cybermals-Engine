@@ -16,6 +16,7 @@ if(WIN32)
         ../../CybCommon
         ../../CybMath/include
         ../../CybRender/include
+        ../../deps/windows/i386/SDL2/include
         ../../deps/windows/i386/sqlite3/include
         ../../deps/windows/i386/assimp/include
     )
@@ -28,6 +29,7 @@ if(UNIX)
         ../../CybCommon
         ../../CybMath/include
         ../../CybRender/include
+        ../../deps/linux/amd64/SDL2/include
         ../../deps/linux/amd64/sqlite3/include
         ../../deps/linux/amd64/assimp/include
     )
