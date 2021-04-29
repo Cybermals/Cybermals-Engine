@@ -56,6 +56,20 @@ typedef struct
  */
 CYBAPI void Cyb_MulMat4(Cyb_Mat4 *c, const Cyb_Mat4 *a, const Cyb_Mat4 *b);
 
+/** @brief Transpose a 4 x 4 matrix.
+ *
+ * @param out Pointer to the resulting matrix.
+ * @param in Pointer to the original matix.
+ */
+CYBAPI void Cyb_Transpose(Cyb_Mat4 *out, const Cyb_Mat4 *in);
+
+/** @brief Invert a 4 x 4 matrix.
+ *
+ * @param out Pointer to the resulting matrix.
+ * @param in Pointer to the original matrix.
+ */
+CYBAPI void Cyb_Invert(Cyb_Mat4 *out, const Cyb_Mat4 *in);
+
 /** @brief Transform a 3D vector.
  *
  * @param c Pointer to the resulting vector.

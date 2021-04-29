@@ -4,6 +4,7 @@ CybRender - Asset Loader API
 
 #include <string.h>
 
+#include "CybArmature.h"
 #include "CybAssetLoader.h"
 #include "CybMaterial.h"
 #include "CybMesh.h"
@@ -12,9 +13,10 @@ CybRender - Asset Loader API
 
 //Constants
 //=================================================================================
-const char *loadMeshSQL = "SELECT vert_count, vertices, normals, colors, uvs, index_count, indices FROM meshes WHERE name=?;";
-const char *loadMaterialSQL = "SELECT ambient, diffuse, specular, shininess FROM materials WHERE name=?;";
-const char *loadTextureSQL = "SELECT width, height, format, data FROM textures WHERE name=?;";
+const char *loadMeshSQL = "SELECT vert_count, vertices, normals, colors, uvs, index_count, indices FROM meshes WHERE name = ?;";
+const char *loadMaterialSQL = "SELECT ambient, diffuse, specular, shininess FROM materials WHERE name = ?;";
+const char *loadTextureSQL = "SELECT width, height, format, data FROM textures WHERE name = ?;";
+const char *loadArmatureSQL = "SELECT vert_count, vgroups, vweights, bone_count, bones FROM armatures WHERE name = ?;";
 
 
 //Functions
@@ -185,12 +187,61 @@ Cyb_Object *Cyb_LoadAsset_DB(Cyb_Renderer *renderer, sqlite3 *db,
         
         if(!tex)
         {
+            sqlite3_finalize(loadTextureStmt);
             return NULL;
         }
         
         //Finalize SQL statements
         sqlite3_finalize(loadTextureStmt);
         return (Cyb_Object*)tex;
+    }
+    
+        //Armature?
+    case CYB_ARMATURE_ASSET:
+    {
+        //Compile SQL statements
+        sqlite3_stmt *loadArmatureStmt = NULL;
+        
+        if(sqlite3_prepare_v2(db, loadArmatureSQL, -1, &loadArmatureStmt, NULL) !=
+            SQLITE_OK)
+        {
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", 
+                "[CybRender] Failed to compile an SQL statement.");
+            return NULL;
+        }
+        
+        //Load the armature
+        sqlite3_bind_text(loadArmatureStmt, 1, name, -1, NULL);
+        
+        if(sqlite3_step(loadArmatureStmt) != SQLITE_ROW)
+        {
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s",
+                "[CybRender] Failed to locate armature '%s' in the asset database.");
+            sqlite3_finalize(loadArmatureStmt);
+            return NULL;
+        }
+        
+        Cyb_Armature *armature = Cyb_CreateArmature(renderer);
+        
+        if(!armature)
+        {
+            sqlite3_finalize(loadArmatureStmt);
+            return NULL;
+        }
+        
+        Cyb_UpdateArmature(
+            renderer,
+            armature,
+            sqlite3_column_int(loadArmatureStmt, 0),
+            sqlite3_column_blob(loadArmatureStmt, 1),
+            sqlite3_column_blob(loadArmatureStmt, 2),
+            sqlite3_column_int(loadArmatureStmt, 3),
+            sqlite3_column_blob(loadArmatureStmt, 4)
+        );
+        
+        //Finalize SQL statements
+        sqlite3_finalize(loadArmatureStmt);
+        return (Cyb_Object*)armature;
     }
     }
     

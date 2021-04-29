@@ -79,6 +79,10 @@ Cyb_Mesh *rainbowCube = NULL;
 Cyb_Mesh *texturedCube = NULL;
 Cyb_Mesh *pyramid = NULL;
 
+Cyb_Armature *pyramidArmature = NULL;
+
+Cyb_Pose *pyramidPose = NULL;
+
 Cyb_Mat4 m;
 Cyb_Mat4 p;
 
@@ -147,8 +151,10 @@ void Quit(void)
 
 int Init(void)
 {
+    #ifdef __ANDROID__
     //Initialize logging
     SDL_LogSetOutputFunction(&HandleLogOutput, NULL);
+    #endif
     
     //Initialize CybUI
     if(Cyb_InitUI())
@@ -406,6 +412,23 @@ int Init(void)
         return 1;
     }
     
+    //Load armatures
+    pyramidArmature = (Cyb_Armature*)Cyb_LoadAsset(renderer, "assets.cyb",
+        "pyramid", CYB_ARMATURE_ASSET);
+        
+    if(!pyramidArmature)
+    {
+        return 1;
+    }
+    
+    //Create poses
+    pyramidPose = Cyb_CreatePose(pyramidArmature);
+    
+    if(!pyramidPose)
+    {
+        return 1;
+    }
+    
     //Initialize matrices
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
@@ -583,6 +606,11 @@ void DrawPyramid(void)
     Cyb_QuatToMatrix(&r, &total);
     Cyb_Scale(&s, 1.0f, -1.0f, -1.0f);
     Cyb_MulMat4(&m, &r, &s);
+    
+    //Update pose
+    Cyb_Mat4 bone;
+    Cyb_Identity(&bone);
+    Cyb_UpdateBone(pyramidArmature, pyramidPose, 0, &bone);
     
     //Enable depth testing and face culling
     glEnable(GL_DEPTH_TEST);

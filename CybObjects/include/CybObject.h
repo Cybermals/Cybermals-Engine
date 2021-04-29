@@ -44,7 +44,9 @@ enum Cyb_ObjectTypes
     CYB_CAMERA,      /**< Camera object. */
     CYB_TEXTURE,     /**< Texture object. */
     CYB_LIGHT,       /**< Light object. */
-    CYB_MATERIAL     /**< Material object. */
+    CYB_MATERIAL,    /**< Material object. */
+    CYB_ARMATURE,    /**< Armature object. */
+    CYB_POSE         /**< Pose object. */
 };
 
 

@@ -35,6 +35,36 @@ void Cyb_MulMat4(Cyb_Mat4 *c, const Cyb_Mat4 *a, const Cyb_Mat4 *b)
 }
 
 
+void Cyb_Transpose(Cyb_Mat4 *out, const Cyb_Mat4 *in)
+{
+    out->a = in->a;
+    out->b = in->e;
+    out->c = in->i;
+    out->d = in->m;
+    
+    out->e = in->b;
+    out->f = in->f;
+    out->g = in->j;
+    out->h = in->n;
+    
+    out->i = in->c;
+    out->j = in->g;
+    out->k = in->k;
+    out->l = in->o;
+    
+    out->m = in->d;
+    out->n = in->h;
+    out->o = in->l;
+    out->p = in->p;
+}
+
+
+void Cyb_Invert(Cyb_Mat4 *out, const Cyb_Mat4 *in)
+{
+    //<========= need to calculate inverse matrix here
+}
+
+
 void Cyb_Transform(Cyb_Vec3 *c, const Cyb_Mat4 *a, const Cyb_Vec3 *b)
 {
     c->x = a->a * b->x + a->b * b->y + a->c * b->z + 1.0f * a->d;

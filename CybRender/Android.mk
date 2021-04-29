@@ -10,6 +10,8 @@ LOCAL_C_INCLUDES := \
     ../CybObjects/include \
     ../CybMath/include
 LOCAL_SRC_FILES := \
+    src/CybArmature.c \
+    src/CybAssetLoader.c \
     src/CybCamera.c \
     src/CybLight.c \
     src/CybMaterial.c \

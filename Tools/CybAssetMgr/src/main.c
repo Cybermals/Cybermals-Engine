@@ -116,6 +116,31 @@ int Init(void)
 }
 
 
+void ConvertMatrix(Cyb_Mat4 *out, struct aiMatrix4x4 *in)
+{
+    //Transpose the assimp matrix into the Cybermals matrix
+    out->a = in->a1;
+    out->b = in->a2;
+    out->c = in->a3;
+    out->d = in->a4;
+    
+    out->e = in->b1;
+    out->f = in->b2;
+    out->g = in->b3;
+    out->h = in->b4;
+    
+    out->i = in->c1;
+    out->j = in->c2;
+    out->k = in->c3;
+    out->l = in->c4;
+    
+    out->m = in->d1;
+    out->n = in->d2;
+    out->o = in->d3;
+    out->p = in->d4;
+}
+
+
 int OpenAssetDB(const char *filename)
 {
     //Close open asset database
@@ -532,7 +557,7 @@ int AddMeshes(const char *filename)
                     }
                 }
                 
-                memcpy(&bones[i].matrix, &bone->mOffsetMatrix, sizeof(Cyb_Mat4));
+                ConvertMatrix(&bones[i].matrix, &bone->mOffsetMatrix);
             }
             
             //Add the armature to the asset database
