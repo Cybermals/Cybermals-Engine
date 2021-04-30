@@ -63,6 +63,14 @@ CYBAPI void Cyb_MulMat4(Cyb_Mat4 *c, const Cyb_Mat4 *a, const Cyb_Mat4 *b);
  */
 CYBAPI void Cyb_Transpose(Cyb_Mat4 *out, const Cyb_Mat4 *in);
 
+/** @brief Calculate the determinant of a 4 x 4 matrix.
+ *
+ * @param m Pointer to the matrix.
+ *
+ * @return The determinant.
+ */
+CYBAPI float Cyb_Determinant(const Cyb_Mat4 *m);
+
 /** @brief Invert a 4 x 4 matrix.
  *
  * @param out Pointer to the resulting matrix.

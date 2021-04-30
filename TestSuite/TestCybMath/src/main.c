@@ -267,6 +267,19 @@ int TestCybMatrices(void)
     v.z = -v.z;
     Cyb_Transform(&v2, &p, &v);
     printf("Projected point (1, 1, 1) = (%f, %f, %f)\n", v2.x, v2.y, v2.z);
+    
+    //Test matrix inversion
+    Cyb_Mat4 invT;
+    Cyb_Invert(&invT, &t);
+    Cyb_MulMat4(&i, &t, &invT);
+    
+    puts("Inverse Matrix should be identity:");
+    printf("[%f, %f, %f, %f]\n[%f, %f, %f, %f]\n[%f, %f, %f, %f]\n[%f, %f, %f, %f]\n",
+        i.a, i.b, i.c, i.d,
+        i.e, i.f, i.g, i.h,
+        i.i, i.j, i.k, i.l,
+        i.m, i.n, i.o, i.p);
+
     return 0;
 }
 

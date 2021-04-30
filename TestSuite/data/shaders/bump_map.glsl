@@ -6,11 +6,15 @@
 layout (location = 0) in vec3 pos;
 layout (location = 1) in vec3 norm;
 layout (location = 2) in vec2 uv;
+layout (location = 4) in vec4 group;
+layout (location = 5) in vec4 weight;
 
 //Matrices
 uniform mat4 m;
 uniform mat4 v;
 uniform mat4 p;
+uniform mat4 n;
+uniform mat4 bones[20];
 
 //Shader Outputs
 out vec2 texCoord0;
@@ -21,10 +25,21 @@ out vec3 normal;
 //Entry Point
 void main()
 {
-    gl_Position = (p * v * m) * vec4(pos, 1.0);
+    //Apply bone transform
+    vec4 tmp = vec4(pos, 1.0);
+    
+    if(group.x > -1.0)
+    {
+        tmp = bones[int(group.x)] * tmp;
+    }
+    
+    //Calculate final vertex position and texture coords
+    gl_Position = (p * v * m) * tmp;
     texCoord0 = uv;
-    fragPos = vec3(m * vec4(pos, 1.0));
-    normal = mat3(transpose(inverse(m))) * norm;
+    
+    //Calculate frag pos and normal
+    fragPos = vec3(m * tmp);
+    normal = mat3(n) * norm;
 }
 //==================================================================================
 //End Vertex Shader

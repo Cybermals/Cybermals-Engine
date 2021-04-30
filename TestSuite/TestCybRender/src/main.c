@@ -85,6 +85,7 @@ Cyb_Pose *pyramidPose = NULL;
 
 Cyb_Mat4 m;
 Cyb_Mat4 p;
+Cyb_Mat4 n;
 
 int renderMode = TRIANGLE_MESH;
 int useTextures = FALSE;
@@ -448,6 +449,11 @@ void DrawTriangle(void)
     Cyb_NormalizeQuat(&quat);
     Cyb_QuatToMatrix(&m, &quat);
     
+    //Update normal matrix
+    Cyb_Mat4 tmp;
+    Cyb_Transpose(&tmp, &m);
+    Cyb_Invert(&n, &tmp);
+    
     //Enable depth testing and disable face culling
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
@@ -462,6 +468,7 @@ void DrawTriangle(void)
         Cyb_SetMatrix(renderer, textureShader, "m", &m);
         Cyb_SetMatrix(renderer, textureShader, "v", Cyb_GetViewMatrix(cam));
         Cyb_SetMatrix(renderer, textureShader, "p", &p);
+        Cyb_SetMatrix(renderer, textureShader, "n", &n);
         
         //Set lights
         Cyb_SetVec3(renderer, textureShader, "camPos", Cyb_GetCameraPos(cam));
@@ -495,6 +502,7 @@ void DrawTriangle(void)
         Cyb_SetMatrix(renderer, rainbowShader, "m", &m);
         Cyb_SetMatrix(renderer, rainbowShader, "v", Cyb_GetViewMatrix(cam));
         Cyb_SetMatrix(renderer, rainbowShader, "p", &p);
+        Cyb_SetMatrix(renderer, rainbowShader, "n", &n);
         
         //Set lights
         Cyb_SetVec3(renderer, rainbowShader, "camPos", Cyb_GetCameraPos(cam));
@@ -524,6 +532,11 @@ void DrawCube(void)
     Cyb_NormalizeQuat(&quat);
     Cyb_QuatToMatrix(&m, &quat);
     
+    //Update normal matrix
+    Cyb_Mat4 tmp;
+    Cyb_Transpose(&tmp, &m);
+    Cyb_Invert(&n, &tmp);
+    
     //Enable depth testing and disable face culling
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
@@ -538,6 +551,7 @@ void DrawCube(void)
         Cyb_SetMatrix(renderer, textureShader, "m", &m);
         Cyb_SetMatrix(renderer, textureShader, "v", Cyb_GetViewMatrix(cam));
         Cyb_SetMatrix(renderer, textureShader, "p", &p);
+        Cyb_SetMatrix(renderer, textureShader, "n", &n);
         
         //Set lights
         Cyb_SetVec3(renderer, textureShader, "camPos", Cyb_GetCameraPos(cam));
@@ -571,6 +585,7 @@ void DrawCube(void)
         Cyb_SetMatrix(renderer, rainbowShader, "m", &m);
         Cyb_SetMatrix(renderer, rainbowShader, "v", Cyb_GetViewMatrix(cam));
         Cyb_SetMatrix(renderer, rainbowShader, "p", &p);
+        Cyb_SetMatrix(renderer, rainbowShader, "n", &n);
         
         //Set lights
         Cyb_SetVec3(renderer, rainbowShader, "camPos", Cyb_GetCameraPos(cam));
@@ -607,10 +622,19 @@ void DrawPyramid(void)
     Cyb_Scale(&s, 1.0f, -1.0f, -1.0f);
     Cyb_MulMat4(&m, &r, &s);
     
+    //Update normal matrix
+    Cyb_Mat4 tmp;
+    Cyb_Transpose(&tmp, &m);
+    Cyb_Invert(&n, &tmp);
+    
     //Update pose
     Cyb_Mat4 bone;
-    Cyb_Identity(&bone);
-    Cyb_UpdateBone(pyramidArmature, pyramidPose, 0, &bone);
+    Cyb_Vec4 quat;
+    //Cyb_Identity(&bone);
+    Cyb_QuatFromAxisAndAngle(&quat, 0.0f, 0.0f, 1.0f, 30.0f);
+    Cyb_QuatToMatrix(&bone, &quat);
+    Cyb_UpdateBone(pyramidPose, 1, &bone);
+    Cyb_UpdateBone(pyramidPose, 0, &bone);
     
     //Enable depth testing and face culling
     glEnable(GL_DEPTH_TEST);
@@ -623,6 +647,7 @@ void DrawPyramid(void)
     Cyb_SetMatrix(renderer, bumpMapShader, "m", &m);
     Cyb_SetMatrix(renderer, bumpMapShader, "v", Cyb_GetViewMatrix(cam));
     Cyb_SetMatrix(renderer, bumpMapShader, "p", &p);
+    Cyb_SetMatrix(renderer, bumpMapShader, "n", &n);
     
     //Set lights
     Cyb_SetVec3(renderer, bumpMapShader, "camPos", Cyb_GetCameraPos(cam));
@@ -640,6 +665,9 @@ void DrawPyramid(void)
     //Set textures
     Cyb_SelectTexture(renderer, uvGridTexture, 0);
     Cyb_SetTexture(renderer, bumpMapShader, "tex0", 0);
+    
+    //Select pose
+    Cyb_SelectPose(renderer, bumpMapShader, pyramidPose);
     
     //Draw the pyramid
     Cyb_DrawMesh(renderer, pyramid);

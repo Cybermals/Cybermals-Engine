@@ -18,7 +18,6 @@ struct Cyb_Mesh
     int indexCount;
     GLuint vbo;
     GLuint ebo;
-    GLuint vao;
 };
 
 
@@ -26,18 +25,11 @@ struct Cyb_Mesh
 //=================================================================================
 void Cyb_FreeMesh(Cyb_Mesh *mesh)
 {
-    //Unbind VAO and VBO and EBO
+    //Unbind VBO and EBO
     Cyb_SelectRenderer(mesh->renderer);
     Cyb_GLExtAPI *glExtAPI = Cyb_GetGLExtAPI(mesh->renderer);
-    glExtAPI->BindVertexArray(0);
     glExtAPI->BindBuffer(GL_ARRAY_BUFFER, 0);
     glExtAPI->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    
-    //Free VAO
-    if(mesh->vao)
-    {
-        glExtAPI->DeleteVertexArrays(1, &mesh->vao);
-    }
     
     //Free VBO
     if(mesh->vbo)
@@ -88,16 +80,6 @@ Cyb_Mesh *Cyb_CreateMesh(Cyb_Renderer *renderer)
         Cyb_FreeObject((Cyb_Object**)&mesh);
         return NULL;
     }
-    
-    glExtAPI->GenVertexArrays(1, &mesh->vao);
-    
-    if(!mesh->vao)
-    {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s",
-            "[CybRender] Failed to allocate VAO.");
-        Cyb_FreeObject((Cyb_Object**)&mesh);
-        return NULL;
-    }
 
     return mesh;
 }
@@ -106,7 +88,7 @@ Cyb_Mesh *Cyb_CreateMesh(Cyb_Renderer *renderer)
 int Cyb_UpdateMesh(Cyb_Renderer *renderer, Cyb_Mesh *mesh, int vertCount, 
     const Cyb_Vec3 *verts, const Cyb_Vec3 *norms, const Cyb_Vec4 *colors, 
     const Cyb_Vec2 *uvs, int indexCount, const unsigned int *indices)
-{    
+{
     //Ensure that vertices and indices were given
     if(!verts || !indices)
     {
@@ -115,10 +97,9 @@ int Cyb_UpdateMesh(Cyb_Renderer *renderer, Cyb_Mesh *mesh, int vertCount,
         return CYB_ERROR;
     }
     
-    //Select the renderer and bind the VAO
+    //Select the renderer
     Cyb_SelectRenderer(renderer);
     Cyb_GLExtAPI *glExtAPI = Cyb_GetGLExtAPI(renderer);
-    glExtAPI->BindVertexArray(mesh->vao);
     
     //Choose the vertex data format
     if(norms)
@@ -149,16 +130,8 @@ int Cyb_UpdateMesh(Cyb_Renderer *renderer, Cyb_Mesh *mesh, int vertCount,
             //Unmap VBO
             glExtAPI->UnmapBuffer(GL_ARRAY_BUFFER);
             
-            //Set vertex format and setup vertex attrib pointers
+            //Set vertex format
             mesh->vFormat = CYB_VERTEX_VN;
-            glExtAPI->EnableVertexAttribArray(0);
-            glExtAPI->EnableVertexAttribArray(1);
-            glExtAPI->DisableVertexAttribArray(2);
-            glExtAPI->DisableVertexAttribArray(3);
-            glExtAPI->VertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 
-                sizeof(buf[0]), (void*)offsetof(Cyb_VertexVN, pos));
-            glExtAPI->VertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-                sizeof(buf[0]), (void*)offsetof(Cyb_VertexVN, norm));
         }
         else if(colors && !uvs)
         {
@@ -187,18 +160,8 @@ int Cyb_UpdateMesh(Cyb_Renderer *renderer, Cyb_Mesh *mesh, int vertCount,
             //Unmap VBO
             glExtAPI->UnmapBuffer(GL_ARRAY_BUFFER);
             
-            //Set vertex format and setup vertex attrib pointers
+            //Set vertex format
             mesh->vFormat = CYB_VERTEX_VNC;
-            glExtAPI->EnableVertexAttribArray(0);
-            glExtAPI->EnableVertexAttribArray(1);
-            glExtAPI->EnableVertexAttribArray(2);
-            glExtAPI->DisableVertexAttribArray(3);
-            glExtAPI->VertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 
-                sizeof(buf[0]), (void*)offsetof(Cyb_VertexVNC, pos));
-            glExtAPI->VertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-                sizeof(buf[0]), (void*)offsetof(Cyb_VertexVNC, norm));
-            glExtAPI->VertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE,
-                sizeof(buf[0]), (void*)offsetof(Cyb_VertexVNC, color));
         }
         else if(uvs && !colors)
         {
@@ -229,16 +192,6 @@ int Cyb_UpdateMesh(Cyb_Renderer *renderer, Cyb_Mesh *mesh, int vertCount,
             
             //Set vertex format
             mesh->vFormat = CYB_VERTEX_VNT;
-            glExtAPI->EnableVertexAttribArray(0);
-            glExtAPI->EnableVertexAttribArray(1);
-            glExtAPI->EnableVertexAttribArray(2);
-            glExtAPI->DisableVertexAttribArray(3);
-            glExtAPI->VertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 
-                sizeof(buf[0]), (void*)offsetof(Cyb_VertexVNT, pos));
-            glExtAPI->VertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-                sizeof(buf[0]), (void*)offsetof(Cyb_VertexVNT, norm));
-            glExtAPI->VertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
-                sizeof(buf[0]), (void*)offsetof(Cyb_VertexVNT, uv));
         }
         else if(colors && uvs)
         {
@@ -270,18 +223,6 @@ int Cyb_UpdateMesh(Cyb_Renderer *renderer, Cyb_Mesh *mesh, int vertCount,
             
             //Set vertex format
             mesh->vFormat = CYB_VERTEX_VNCT;
-            glExtAPI->EnableVertexAttribArray(0);
-            glExtAPI->EnableVertexAttribArray(1);
-            glExtAPI->EnableVertexAttribArray(2);
-            glExtAPI->EnableVertexAttribArray(3);
-            glExtAPI->VertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 
-                sizeof(buf[0]), (void*)offsetof(Cyb_VertexVNCT, pos));
-            glExtAPI->VertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-                sizeof(buf[0]), (void*)offsetof(Cyb_VertexVNCT, norm));
-            glExtAPI->VertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE,
-                sizeof(buf[0]), (void*)offsetof(Cyb_VertexVNCT, color));
-            glExtAPI->VertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE,
-                sizeof(buf[0]), (void*)offsetof(Cyb_VertexVNCT, uv));
         }
     }
     else
@@ -309,14 +250,8 @@ int Cyb_UpdateMesh(Cyb_Renderer *renderer, Cyb_Mesh *mesh, int vertCount,
         //Unmap VBO
         glExtAPI->UnmapBuffer(GL_ARRAY_BUFFER);
         
-        //Set vertex format and setup attrib pointers
+        //Set vertex format
         mesh->vFormat = CYB_VERTEX_V;
-        glExtAPI->EnableVertexAttribArray(0);
-        glExtAPI->DisableVertexAttribArray(1);
-        glExtAPI->DisableVertexAttribArray(2);
-        glExtAPI->DisableVertexAttribArray(3);
-        glExtAPI->VertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 
-            sizeof(buf[0]), (void*)offsetof(Cyb_VertexV, pos));
     }
     
     //Bind and fill EBO
@@ -332,7 +267,84 @@ int Cyb_UpdateMesh(Cyb_Renderer *renderer, Cyb_Mesh *mesh, int vertCount,
 
 void Cyb_DrawMesh(Cyb_Renderer *renderer, Cyb_Mesh *mesh)
 {
+    //Select renderer
     Cyb_SelectRenderer(renderer);
-    Cyb_GetGLExtAPI(renderer)->BindVertexArray(mesh->vao);
+    Cyb_GLExtAPI *glExtAPI = Cyb_GetGLExtAPI(renderer);
+    
+    //Bind VBO and EBO
+    glExtAPI->BindBuffer(GL_ARRAY_BUFFER, mesh->vbo);
+    glExtAPI->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->ebo);
+    
+    //Setup vertex attrib pointers
+    switch(mesh->vFormat)
+    {
+        //Position only
+    case CYB_VERTEX_V:
+        glExtAPI->EnableVertexAttribArray(0);
+        glExtAPI->DisableVertexAttribArray(1);
+        glExtAPI->DisableVertexAttribArray(2);
+        glExtAPI->DisableVertexAttribArray(3);
+        glExtAPI->VertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 
+            sizeof(Cyb_VertexV), (void*)offsetof(Cyb_VertexV, pos));
+        break;
+        
+        //Position and normal
+    case CYB_VERTEX_VN:
+        glExtAPI->EnableVertexAttribArray(0);
+        glExtAPI->EnableVertexAttribArray(1);
+        glExtAPI->DisableVertexAttribArray(2);
+        glExtAPI->DisableVertexAttribArray(3);
+        glExtAPI->VertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 
+            sizeof(Cyb_VertexVN), (void*)offsetof(Cyb_VertexVN, pos));
+        glExtAPI->VertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
+            sizeof(Cyb_VertexVN), (void*)offsetof(Cyb_VertexVN, norm));
+        break;
+        
+        //Position, normal, and color
+    case CYB_VERTEX_VNC:
+        glExtAPI->EnableVertexAttribArray(0);
+        glExtAPI->EnableVertexAttribArray(1);
+        glExtAPI->EnableVertexAttribArray(2);
+        glExtAPI->DisableVertexAttribArray(3);
+        glExtAPI->VertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 
+            sizeof(Cyb_VertexVNC), (void*)offsetof(Cyb_VertexVNC, pos));
+        glExtAPI->VertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
+            sizeof(Cyb_VertexVNC), (void*)offsetof(Cyb_VertexVNC, norm));
+        glExtAPI->VertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE,
+            sizeof(Cyb_VertexVNC), (void*)offsetof(Cyb_VertexVNC, color));
+        break;
+        
+        //Position, normal, and texcoord
+    case CYB_VERTEX_VNT:
+        glExtAPI->EnableVertexAttribArray(0);
+        glExtAPI->EnableVertexAttribArray(1);
+        glExtAPI->EnableVertexAttribArray(2);
+        glExtAPI->DisableVertexAttribArray(3);
+        glExtAPI->VertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 
+            sizeof(Cyb_VertexVNT), (void*)offsetof(Cyb_VertexVNT, pos));
+        glExtAPI->VertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
+            sizeof(Cyb_VertexVNT), (void*)offsetof(Cyb_VertexVNT, norm));
+        glExtAPI->VertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
+            sizeof(Cyb_VertexVNT), (void*)offsetof(Cyb_VertexVNT, uv));
+        break;
+        
+        //Position, normal, color, and texcoord
+    case CYB_VERTEX_VNCT:
+        glExtAPI->EnableVertexAttribArray(0);
+        glExtAPI->EnableVertexAttribArray(1);
+        glExtAPI->EnableVertexAttribArray(2);
+        glExtAPI->EnableVertexAttribArray(3);
+        glExtAPI->VertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 
+            sizeof(Cyb_VertexVNCT), (void*)offsetof(Cyb_VertexVNCT, pos));
+        glExtAPI->VertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
+            sizeof(Cyb_VertexVNCT), (void*)offsetof(Cyb_VertexVNCT, norm));
+        glExtAPI->VertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE,
+            sizeof(Cyb_VertexVNCT), (void*)offsetof(Cyb_VertexVNCT, color));
+        glExtAPI->VertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE,
+            sizeof(Cyb_VertexVNCT), (void*)offsetof(Cyb_VertexVNCT, uv));
+        break;
+    }
+    
+    //Draw the mesh
     glDrawElements(GL_TRIANGLES, mesh->indexCount, GL_UNSIGNED_INT, NULL);
 }

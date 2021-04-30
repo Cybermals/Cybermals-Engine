@@ -19,6 +19,16 @@ struct Cyb_Armature
 };
 
 
+struct Cyb_Pose
+{
+    Cyb_Object base;
+    Cyb_Armature *armature;
+    int boneCount;
+    Cyb_Mat4 *matrices;
+    Cyb_Mat4 *bones;
+};
+
+
 //Functions
 //================================================================================
 static void Cyb_FreeArmature(Cyb_Armature *armature)
@@ -148,6 +158,7 @@ Cyb_Pose *Cyb_CreatePose(Cyb_Armature *armature)
     }
     
     //Initialize the pose
+    pose->armature = armature;
     pose->boneCount = armature->boneCount;
     pose->matrices = (Cyb_Mat4*)SDL_malloc(sizeof(Cyb_Mat4) * pose->boneCount);
     
@@ -174,20 +185,87 @@ Cyb_Pose *Cyb_CreatePose(Cyb_Armature *armature)
         return NULL;
     }
     
+    for(int i = 0; i < pose->boneCount; i++)
+    {
+        Cyb_Identity(&pose->bones[i]);
+    }
+    
     return pose;
 }
 
 
-void Cyb_UpdateBone(Cyb_Armature *armature, Cyb_Pose *pose, int bone, 
-    const Cyb_Mat4 *matrix)
+void Cyb_UpdateBone(Cyb_Pose *pose, int boneID, const Cyb_Mat4 *matrix)
 {
-    //Copy the new bone transform
-    memcpy(&pose->matrices[bone], matrix, sizeof(Cyb_Mat4));
+    //Fetch bone data
+    Cyb_Bone *bone = &pose->armature->bones[boneID];
+    Cyb_Mat4 *boneMatrix = &bone->matrix;
+    Cyb_Mat4 *poseMatrix = &pose->matrices[boneID];
+    Cyb_Mat4 *poseBoneMatrix = &pose->bones[boneID];
+    Cyb_Mat4 invBoneMatrix;
+    Cyb_Invert(&invBoneMatrix, &bone->matrix);
+    Cyb_Mat4 *parentMatrix = NULL;
     
-    //Update the bone matrix
-    Cyb_Mat4 *boneMatrix = &armature->bones[bone].matrix;
-    Cyb_Mat4 *poseBoneMatrix = &pose->bones[bone];
-    Cyb_Mat4 tmp;
-    Cyb_MulMat4(&tmp, boneMatrix, matrix);
-    //Cyb_MulMat4(poseBoneMatrix, &tmp, )
+    if(bone->parent > -1)
+    {
+        parentMatrix = &pose->bones[bone->parent];
+    }
+    
+    //Update pose matrix
+    if(matrix)
+    {
+        memcpy(poseMatrix, matrix, sizeof(Cyb_Mat4));
+    }
+    
+    //Update bone matrix
+    Cyb_Armature *armature = pose->armature;
+    
+    if(parentMatrix)
+    {
+        Cyb_Mat4 tmp;
+        Cyb_Mat4 tmp2;
+        Cyb_MulMat4(&tmp, &invBoneMatrix, poseMatrix);
+        Cyb_MulMat4(&tmp2, &tmp, boneMatrix);
+        Cyb_MulMat4(poseBoneMatrix, parentMatrix, &tmp2);
+    }
+    else
+    {
+        Cyb_Mat4 tmp;
+        Cyb_MulMat4(&tmp, &invBoneMatrix, poseMatrix);
+        Cyb_MulMat4(poseBoneMatrix, &tmp, boneMatrix);
+    }
+    
+    //Update child bones
+    for(int i = 0; i < pose->boneCount; i++)
+    {
+        //Is this bone a child of the bone we updated?
+        Cyb_Bone *child = &pose->armature->bones[i];
+        
+        if(child->parent == boneID)
+        {
+            Cyb_UpdateBone(pose, i, NULL);
+        }
+    }
+}
+
+
+void Cyb_SelectPose(Cyb_Renderer *renderer, Cyb_Shader *shader, Cyb_Pose *pose)
+{
+    //Select renderer
+    Cyb_Armature *armature = pose->armature;
+    Cyb_SelectRenderer(renderer);
+    Cyb_GLExtAPI *glExtAPI = Cyb_GetGLExtAPI(renderer);
+    
+    //Bind armature VBO
+    glExtAPI->BindBuffer(GL_ARRAY_BUFFER, armature->vbo);
+    
+    //Setup vertex attrib pointers
+    glExtAPI->EnableVertexAttribArray(4);
+    glExtAPI->EnableVertexAttribArray(5);
+    glExtAPI->VertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(Cyb_VertexGW),
+        (void*)offsetof(Cyb_VertexGW, group));
+    glExtAPI->VertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(Cyb_VertexGW),
+        (void*)offsetof(Cyb_VertexGW, weight));
+        
+    //Setup bone matrices
+    Cyb_SetMatrices(renderer, shader, "bones", pose->boneCount, pose->bones);
 }
