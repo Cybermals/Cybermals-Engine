@@ -78,16 +78,39 @@ const char *initSQL = "PRAGMA foreign_keys=ON;\n"
 "        bone_count INT,\n"
 "        bones BLOB\n"
 "    );\n"
+"\n"
+"    CREATE TABLE IF NOT EXISTS animations(\n"
+"        id INTEGER PRIMARY KEY,\n"
+"        name varchar(256) UNIQUE,\n"
+"        channel_count INT,\n"
+"        ticks_per_sec REAL\n"
+"    );\n"
+"\n"
+"    CREATE TABLE IF NOT EXISTS anim_channels(\n"
+"        id INTEGER PRIMARY KEY,\n"
+"        anim_id INTEGER,\n"
+"        name varchar(32),\n"
+"        pos_key_count INT,\n"
+"        pos_keys BLOB,\n"
+"        rot_key_count INT,\n"
+"        rot_keys BLOB,\n"
+"        scl_key_count INT,\n"
+"        scl_keys BLOB,\n"
+"        CONSTRAINT anim_channels_anim_id FOREIGN KEY(anim_id) REFERENCES animations(id) ON DELETE CASCADE"
+"    );\n"
 "END TRANSACTION;";
 
 const char *listMeshesSQL = "SELECT name, vert_count, index_count FROM meshes ORDER BY name;";
 const char *listTexturesSQL = "SELECT name, width, height, format FROM textures ORDER BY name;";
 const char *listMaterialsSQL = "SELECT name, ambient, diffuse, specular, shininess FROM materials ORDER BY name;";
 const char *listArmaturesSQL = "SELECT name, vert_count, bone_count FROM armatures ORDER BY name;";
+const char *listAnimationsSQL = "SELECT name, channel_count, ticks_per_sec FROM animations ORDER BY name;";
 const char *addMeshSQL = "INSERT OR REPLACE INTO meshes(name, vert_count, vertices, normals, colors, uvs, index_count, indices) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
 const char *addTextureSQL = "INSERT OR REPLACE INTO textures(name, width, height, format, data) VALUES (?, ?, ?, ?, ?);";
 const char *addMaterialSQL = "INSERT OR REPLACE INTO materials(name, ambient, diffuse, specular, shininess) VALUES (?, ?, ?, ?, ?);";
 const char *addArmatureSQL = "INSERT OR REPLACE INTO armatures(name, vert_count, vgroups, vweights, bone_count, bones) VALUES (?, ?, ?, ?, ?, ?);";
+const char *addAnimationSQL = "INSERT OR REPLACE INTO animations(name, channel_count, ticks_per_sec) VALUES (?, ?, ?);";
+const char *addAnimChannelSQL = "INSERT OR REPLACE INTO anim_channels(anim_id, name, pos_key_count, pos_keys, rot_key_count, rot_keys, scl_key_count, scl_keys) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
 
 
 //Globals
@@ -183,6 +206,7 @@ int ListAssets(void)
     sqlite3_stmt *listTexturesStmt = NULL;
     sqlite3_stmt *listMaterialsStmt = NULL;
     sqlite3_stmt *listArmaturesStmt = NULL;
+    sqlite3_stmt *listAnimationsStmt = NULL;
     
     if(sqlite3_prepare_v2(db, listMeshesSQL, -1, &listMeshesStmt, NULL) != 
         SQLITE_OK)
@@ -211,6 +235,16 @@ int ListAssets(void)
         sqlite3_finalize(listMeshesStmt);
         sqlite3_finalize(listTexturesStmt);
         sqlite3_finalize(listMaterialsStmt);
+        return CYB_ERROR;
+    }
+    
+    if(sqlite3_prepare_v2(db, listAnimationsSQL, -1, &listAnimationsStmt, NULL) !=
+        SQLITE_OK)
+    {
+        sqlite3_finalize(listMeshesStmt);
+        sqlite3_finalize(listTexturesStmt);
+        sqlite3_finalize(listMaterialsStmt);
+        sqlite3_finalize(listArmaturesStmt);
         return CYB_ERROR;
     }
     
@@ -285,11 +319,25 @@ int ListAssets(void)
         printf("Bone Count: %i\n\n", sqlite3_column_int(listArmaturesStmt, 2));
     }
     
+    //List all animations
+    puts("");
+    puts("Animations");
+    puts("==========");
+    
+    while(sqlite3_step(listAnimationsStmt) == SQLITE_ROW)
+    {
+        printf("Name: %s\n", sqlite3_column_text(listAnimationsStmt, 0));
+        printf("Channel Count: %i\n", sqlite3_column_int(listAnimationsStmt, 1));
+        printf("Ticks Per Second: %d\n\n", 
+            sqlite3_column_double(listAnimationsStmt, 2));
+    }
+    
     //Finalize SQL statements
     sqlite3_finalize(listMeshesStmt);
     sqlite3_finalize(listTexturesStmt);
     sqlite3_finalize(listMaterialsStmt);
     sqlite3_finalize(listArmaturesStmt);
+    sqlite3_finalize(listAnimationsStmt);
     return CYB_NO_ERROR;
 }
 
@@ -328,6 +376,8 @@ int AddMeshes(const char *filename)
     sqlite3_stmt *addTextureStmt = NULL;
     sqlite3_stmt *addMaterialStmt = NULL;
     sqlite3_stmt *addArmatureStmt = NULL;
+    sqlite3_stmt *addAnimationStmt = NULL;
+    sqlite3_stmt *addAnimChannelStmt = NULL;
     
     if(sqlite3_prepare_v2(db, addMeshSQL, -1, &addMeshStmt, NULL) != SQLITE_OK)
     {
@@ -352,10 +402,30 @@ int AddMeshes(const char *filename)
     if(sqlite3_prepare_v2(db, addArmatureSQL, -1, &addArmatureStmt, NULL) !=
         SQLITE_OK)
     {
-        puts("Failed to compile armature SQL");
         sqlite3_finalize(addMeshStmt);
         sqlite3_finalize(addTextureStmt);
         sqlite3_finalize(addMaterialStmt);
+        return CYB_ERROR;
+    }
+    
+    if(sqlite3_prepare_v2(db, addAnimationSQL, -1, &addAnimationStmt, NULL) !=
+        SQLITE_OK)
+    {
+        sqlite3_finalize(addMeshStmt);
+        sqlite3_finalize(addTextureStmt);
+        sqlite3_finalize(addMaterialStmt);
+        sqlite3_finalize(addArmatureStmt);
+        return CYB_ERROR;
+    }
+    
+    if(sqlite3_prepare_v2(db, addAnimChannelSQL, -1, &addAnimChannelStmt, NULL) !=
+        SQLITE_OK)
+    {
+        sqlite3_finalize(addMeshStmt);
+        sqlite3_finalize(addTextureStmt);
+        sqlite3_finalize(addMaterialStmt);
+        sqlite3_finalize(addArmatureStmt);
+        sqlite3_finalize(addAnimationStmt);
         return CYB_ERROR;
     }
     
@@ -369,17 +439,23 @@ int AddMeshes(const char *filename)
         printf("Adding mesh '%s' to asset database...", mesh->mName.data);
         
         //Convert UVs to 2D vectors
-        Cyb_Vec2 *uvs = (Cyb_Vec2*)malloc(sizeof(Cyb_Vec2) * mesh->mNumVertices);
+        Cyb_Vec2 *uvs = NULL;
         
-        if(!uvs)
+        if(mesh->mTextureCoords[0])
         {
-            puts("failed");
-            continue;
-        }
+            uvs = (Cyb_Vec2*)malloc(
+                sizeof(Cyb_Vec2) * mesh->mNumVertices);
         
-        for(int i = 0; i < mesh->mNumVertices; i++)
-        {
-            memcpy(&uvs[i], &mesh->mTextureCoords[0][i], sizeof(Cyb_Vec2));
+            if(!uvs)
+            {
+                puts("failed");
+                continue;
+            }
+        
+            for(int i = 0; i < mesh->mNumVertices; i++)
+            {
+                memcpy(&uvs[i], &mesh->mTextureCoords[0][i], sizeof(Cyb_Vec2));
+            }
         }
         
         //Convert faces to indices
@@ -426,7 +502,7 @@ int AddMeshes(const char *filename)
             sqlite3_bind_null(addMeshStmt, 5);
         }
         
-        if(mesh->mTextureCoords[0])
+        if(uvs)
         {
             sqlite3_bind_blob(addMeshStmt, 6, uvs,
                 sizeof(Cyb_Vec2) * mesh->mNumVertices, NULL);
@@ -443,13 +519,22 @@ int AddMeshes(const char *filename)
         if(sqlite3_step(addMeshStmt) != SQLITE_DONE)
         {
             puts("failed");
-            free(uvs);
+            
+            if(uvs)
+            {
+                free(uvs);
+            }
+            
             free(indices);
             continue;
         }
         
         //Free converted UVs and indices
-        free(uvs);
+        if(uvs)
+        {
+            free(uvs);
+        }
+        
         free(indices);
         puts("ok");
         
@@ -514,22 +599,22 @@ int AddMeshes(const char *filename)
                     Cyb_Vec4 *vgroup = &vgroups[vertex];
                     Cyb_Vec4 *vweight = &vweights[vertex];
                     
-                    if(vgroup->x == -1)
+                    if(vgroup->x == -1.0f)
                     {
                         vgroup->x = i;
                         vweight->x = bone->mWeights[j].mWeight;
                     }
-                    else if(vgroup->y == -1)
+                    else if(vgroup->y == -1.0f)
                     {
                         vgroup->y = i;
                         vweight->y = bone->mWeights[j].mWeight;
                     }
-                    else if(vgroup->z == -1)
+                    else if(vgroup->z == -1.0f)
                     {
                         vgroup->z = i;
                         vweight->z = bone->mWeights[j].mWeight;
                     }
-                    else if(vgroup->w == -1)
+                    else if(vgroup->w == -1.0f)
                     {
                         vgroup->w = i;
                         vweight->w = bone->mWeights[j].mWeight;
@@ -669,11 +754,94 @@ int AddMeshes(const char *filename)
         puts("ok");
     }
     
+    //Add all animations to the asset database
+    for(int i = 0; i < scene->mNumAnimations; i++)
+    {
+        //Get next animation
+        struct aiAnimation *anim = scene->mAnimations[i];
+        
+        //Add new animation
+        printf("Adding animation '%s' to the asset database...", anim->mName.data);
+        sqlite3_reset(addAnimationStmt);
+        sqlite3_bind_text(addAnimationStmt, 1, anim->mName.data, -1, NULL);
+        sqlite3_bind_int(addAnimationStmt, 2, anim->mNumChannels);
+        sqlite3_bind_double(addAnimationStmt, 3, anim->mTicksPerSecond);
+        
+        if(sqlite3_step(addAnimationStmt) != SQLITE_DONE)
+        {
+            puts("failed");
+            continue;
+        }
+        
+        long long animID = sqlite3_last_insert_rowid(db);
+        puts("ok");
+        
+        //Add animation channels
+        printf("%s", "Adding animation channels to the asset database...");
+        
+        for(int j = 0; j < anim->mNumChannels; j++)
+        {
+            //Get next animation channel
+            struct aiNodeAnim *channel = anim->mChannels[j];
+            
+            //Add animation channel
+            sqlite3_reset(addAnimChannelStmt);
+            sqlite3_bind_int64(addAnimChannelStmt, 1, animID);
+            sqlite3_bind_text(addAnimChannelStmt, 2, channel->mNodeName.data, -1, 
+                NULL);
+            sqlite3_bind_int(addAnimChannelStmt, 3, channel->mNumPositionKeys);
+            
+            if(channel->mPositionKeys)
+            {
+                sqlite3_bind_blob(addAnimChannelStmt, 4, channel->mPositionKeys, 
+                    sizeof(struct aiVectorKey) * channel->mNumPositionKeys, NULL);
+            }
+            else
+            {
+                sqlite3_bind_null(addAnimChannelStmt, 4);
+            }
+        
+            sqlite3_bind_int(addAnimChannelStmt, 5, channel->mNumRotationKeys);
+            
+            if(channel->mRotationKeys)
+            {
+                sqlite3_bind_blob(addAnimChannelStmt, 6, channel->mRotationKeys, 
+                    sizeof(struct aiQuatKey) * channel->mNumRotationKeys, NULL);
+            }
+            else
+            {
+                sqlite3_bind_null(addAnimChannelStmt, 6);
+            }
+            
+            sqlite3_bind_int(addAnimChannelStmt, 7, channel->mNumScalingKeys);
+            
+            if(channel->mScalingKeys)
+            {
+                sqlite3_bind_blob(addAnimChannelStmt, 8, channel->mScalingKeys, 
+                    sizeof(struct aiVectorKey) * channel->mNumScalingKeys, NULL);
+            }
+            else
+            {
+                sqlite3_bind_null(addAnimChannelStmt, 8);
+            }
+                
+            if(sqlite3_step(addAnimChannelStmt) != SQLITE_DONE)
+            {
+                puts("failed");
+                break;
+            }
+        }
+        
+        puts("ok");
+    }
+    
     //Finalize SQL statements
     sqlite3_finalize(addMeshStmt);
     sqlite3_finalize(addTextureStmt);
     sqlite3_finalize(addMaterialStmt);
     sqlite3_finalize(addArmatureStmt);
+    sqlite3_finalize(addAnimationStmt);
+    sqlite3_finalize(addAnimChannelStmt);
     
     //Free scene
     aiReleaseImport(scene);

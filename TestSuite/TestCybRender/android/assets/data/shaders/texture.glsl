@@ -11,6 +11,7 @@ layout (location = 2) in vec2 uv;
 uniform mat4 m;
 uniform mat4 v;
 uniform mat4 p;
+uniform mat4 n;
 
 //Shader Outputs
 out vec2 texCoord0;
@@ -26,7 +27,7 @@ void main()
     texCoord0 = vec2(uv.x * 4.0, uv.y * 4.0);
     texCoord1 = uv;
     fragPos = vec3(m * vec4(pos, 1.0));
-    normal = mat3(transpose(inverse(m))) * norm;
+    normal = mat3(n) * norm;
 }
 //==================================================================================
 //End Vertex Shader
@@ -120,6 +121,7 @@ layout (location = 2) in vec2 uv;
 uniform mat4 m;
 uniform mat4 v;
 uniform mat4 p;
+uniform mat4 n;
 
 //Shader Outputs
 out vec2 texCoord0;
@@ -135,7 +137,7 @@ void main()
     texCoord0 = vec2(uv.x * 4.0, uv.y * 4.0);
     texCoord1 = uv;
     fragPos = vec3(m * vec4(pos, 1.0));
-    normal = mat3(transpose(inverse(m))) * norm;
+    normal = mat3(n) * norm;
 }
 //==================================================================================
 //End ES Vertex Shader

@@ -59,6 +59,10 @@ A lightweight high-performance game engine and application framework.
     * supports identity, translation, rotation, scaling, and projection matrix
     generation
     * supports multiplication
+* quaternions
+    * supports creation of a quaternion from an axis and angle
+    * supports quaternion multiplication
+    * supports converting a quaternion to a 4 x 4 matrix
 * axis-aligned bounding boxes
     * supports collision detection with points and other boxes
     * supports generation of a box from geometry data
@@ -91,6 +95,11 @@ A lightweight high-performance game engine and application framework.
     * supports the common light attribs: position, ambient, diffuse, and specular
 * materials
     * supports the common material attribs: ambient, diffuse, specular, and shininess
+* armatures
+    * uses GPU skinning for optimum performance
+* asset management
+    * supports saving and loading of meshes, textures, materials, and armatures
+    * assets can be stored in a single compact file with optional encryption
     
 ## Supported Platforms
 * Windows

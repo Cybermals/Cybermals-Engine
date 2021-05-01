@@ -9,7 +9,7 @@
 #include "CybRenderer.h"
 
 #define Cyb_LoadTexture(renderer, filename) Cyb_LoadTextureRW(renderer, \
-    SDL_RWFromFile(filename, "r"), TRUE, filename)
+    SDL_RWFromFile(filename, "rb"), TRUE, filename)
  
  
 #ifdef __cplusplus

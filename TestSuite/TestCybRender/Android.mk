@@ -6,6 +6,7 @@ LOCAL_C_INCLUDES := \
     ../../deps/android/armeabi-v7a/SDL2/include \
     ../../deps/android/armeabi-v7a/SDL2/include/SDL2 \
     ../../deps/android/armeabi-v7a/SDL2_ttf/include \
+    ../../deps/android/armeabi-v7a/sqlite3/include \
     ../../CybObjects/include \
     ../../CybMath/include \
     ../../CybUI/include \

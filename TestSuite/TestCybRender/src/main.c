@@ -51,6 +51,8 @@ const unsigned char gridTexturePixels[] = {
 
 //Globals
 //===========================================================================
+char assetDBPath[256] = "data/assets.cyb";
+
 SDL_Window *window = NULL;
 Cyb_Renderer *renderer = NULL;
 
@@ -147,14 +149,74 @@ void Quit(void)
     {
         SDL_DestroyWindow(window);
     }
+    
+    //Quit SDL2
+    SDL_Quit();
 }
 
 
 int Init(void)
 {
+    //Initialize SDL2
+    if(SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_EVENTS) == -1)
+    {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", 
+            "Failed to initilaize SDL2.");
+        return 1;
+    }
+    
     #ifdef __ANDROID__
     //Initialize logging
     SDL_LogSetOutputFunction(&HandleLogOutput, NULL);
+    
+    //Get asset database path
+    SDL_snprintf(assetDBPath, sizeof(assetDBPath), "%s/assets.cyb", 
+        SDL_AndroidGetInternalStoragePath());
+        
+    //Unpack asset database?
+    if(TRUE)
+    {
+        //Open read-only assets DB
+        SDL_RWops *in = SDL_RWFromFile("data/assets.cyb", "rb");
+    
+        if(!in)
+        {
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", 
+                "Failed to unpack assets (input).");
+            return 1;
+        }
+    
+        //Open read-write assets DB
+        SDL_RWops *out = SDL_RWFromFile(assetDBPath, "wb");
+    
+        if(!out)
+        {
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", 
+                "Failed to unpack assets (output).");
+            SDL_RWclose(in);
+            return 1;
+        }
+        
+        //Copy all data
+        unsigned char buf[1024];
+        
+        while(TRUE)
+        {
+            //Copy next block of data
+            size_t count = SDL_RWread(in, buf, 1, sizeof(buf));
+            SDL_RWwrite(out, buf, 1, count);
+            
+            //At end of file?
+            if(count < sizeof(buf))
+            {
+                break;
+            }
+        }
+        
+        //Close both files
+        SDL_RWclose(in);
+        SDL_RWclose(out);
+    }
     #endif
     
     //Initialize CybUI
@@ -259,8 +321,8 @@ int Init(void)
     
     //Create materials
     defaultMat = Cyb_CreateMaterial();
-    pyramidMat = (Cyb_Material*)Cyb_LoadAsset(renderer, "assets.cyb", "pyramid",
-        CYB_MATERIAL_ASSET);
+    pyramidMat = (Cyb_Material*)Cyb_LoadAsset(renderer, assetDBPath, 
+        "pyramid", CYB_MATERIAL_ASSET);
     
     if(!defaultMat || !pyramidMat)
     {
@@ -270,7 +332,7 @@ int Init(void)
     //Load textures
     gridTexture = Cyb_CreateTexture(renderer);
     smilyTexture = Cyb_LoadTexture(renderer, "data/textures/smily.png");
-    uvGridTexture = (Cyb_Texture*)Cyb_LoadAsset(renderer, "assets.cyb",
+    uvGridTexture = (Cyb_Texture*)Cyb_LoadAsset(renderer, assetDBPath,
         "UV_grid", CYB_TEXTURE_ASSET);
     
     if(!gridTexture || !smilyTexture || !uvGridTexture)
@@ -405,7 +467,7 @@ int Init(void)
             indexCount, indices);
     }
     
-    pyramid = (Cyb_Mesh*)Cyb_LoadAsset(renderer, "assets.cyb", "pyramid", 
+    pyramid = (Cyb_Mesh*)Cyb_LoadAsset(renderer, assetDBPath, "pyramid", 
         CYB_MESH_ASSET);
     
     if(!pyramid)
@@ -414,7 +476,7 @@ int Init(void)
     }
     
     //Load armatures
-    pyramidArmature = (Cyb_Armature*)Cyb_LoadAsset(renderer, "assets.cyb",
+    pyramidArmature = (Cyb_Armature*)Cyb_LoadAsset(renderer, assetDBPath,
         "pyramid", CYB_ARMATURE_ASSET);
         
     if(!pyramidArmature)

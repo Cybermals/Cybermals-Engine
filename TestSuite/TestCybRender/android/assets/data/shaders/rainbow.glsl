@@ -11,6 +11,7 @@ layout (location = 2) in vec4 color;
 uniform mat4 m;
 uniform mat4 v;
 uniform mat4 p;
+uniform mat4 n;
 
 //Shader Outputs
 out vec4 vertColor;
@@ -24,7 +25,7 @@ void main()
     gl_Position = (p * v * m) * vec4(pos, 1.0);
     vertColor = color;
     fragPos = vec3(m * vec4(pos, 1.0));
-    normal = mat3(transpose(inverse(m))) * norm;
+    normal = mat3(n) * norm;
 }
 //=================================================================================
 //End Vertex Shader
@@ -105,6 +106,7 @@ layout (location = 2) in vec4 color;
 uniform mat4 m;
 uniform mat4 v;
 uniform mat4 p;
+uniform mat4 n;
 
 //Shader Outputs
 out vec4 vertColor;
@@ -118,7 +120,7 @@ void main()
     gl_Position = (p * v * m) * vec4(pos, 1.0);
     vertColor = color;
     fragPos = vec3(m * vec4(pos, 1.0));
-    normal = mat3(transpose(inverse(m))) * norm;
+    normal = mat3(n) * norm;
 }
 //=================================================================================
 //End ES Vertex Shader
