@@ -15,7 +15,7 @@ extern "C" {
 #endif
 
 /** @addtogroup CybRender
- * @brief Cybermals Engine - Light API
+ * @brief Cybermals Engine - Renderer Subsystem
  * @{
  */
 

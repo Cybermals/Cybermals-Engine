@@ -85,6 +85,8 @@ Cyb_Armature *pyramidArmature = NULL;
 
 Cyb_Pose *pyramidPose = NULL;
 
+Cyb_Animation *pyramidWiggleAnim = NULL;
+
 Cyb_Mat4 m;
 Cyb_Mat4 p;
 Cyb_Mat4 n;
@@ -488,6 +490,15 @@ int Init(void)
     pyramidPose = Cyb_CreatePose(pyramidArmature);
     
     if(!pyramidPose)
+    {
+        return 1;
+    }
+    
+    //Load animations
+    pyramidWiggleAnim = (Cyb_Animation*)Cyb_LoadAsset(renderer, assetDBPath,
+        "pyramid.skel|wiggle", CYB_ANIMATION_ASSET);
+        
+    if(!pyramidWiggleAnim)
     {
         return 1;
     }

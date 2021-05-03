@@ -5,6 +5,8 @@
  * @brief CybRender - Main API
  */
  
+#include "CybAnimation.h"
+#include "CybAnimChannel.h"
 #include "CybArmature.h"
 #include "CybAssetLoader.h"
 #include "CybCamera.h"

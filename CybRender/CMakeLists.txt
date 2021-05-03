@@ -56,6 +56,8 @@ endif(UNIX)
 target_sources(
     CybRender
     PRIVATE
+    src/CybAnimation.c
+    src/CybAnimChannel.c
     src/CybArmature.c
     src/CybAssetLoader.c
     src/CybCamera.c
@@ -130,4 +132,14 @@ install(FILES ${DEPS} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 # install(DIRECTORY data DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 
 file(GLOB CYBRENDER_HEADERS include/*)
+
+if(WIN32)
+    file(GLOB SQLITE3_HEADERS ../deps/windows/i386/sqlite3/include/*)
+endif(WIN32)
+
+if(UNIX)
+    file(GLOB SQLITE3_HEADERS ../deps/linux/amd64/sqlite3/include/*)
+endif(UNIX)
+
+install(FILES ${SQLITE3_HEADERS} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/sqlite3)
 install(FILES ${CYBRENDER_HEADERS} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/CybRender)
