@@ -46,6 +46,17 @@ CYBAPI void Cyb_MulQuat(Cyb_Vec4 *c, const Cyb_Vec4 *a, const Cyb_Vec4 *b);
  */
 CYBAPI void Cyb_NormalizeQuat(Cyb_Vec4 *quat);
 
+/** @brief Calculate the quaternion that lies between a and b given the progression
+ * between the 2 quaternions by using spherical linear interpolation.
+ *
+ * @param c Pointer to the resulting quaternion.
+ * @param a Pointer to the start quaternion.
+ * @param b Pointer to the end quaternion.
+ * @param progress The amount of progress between a and b (between 0.0 and 1.0).
+ */
+CYBAPI void Cyb_Slerp(Cyb_Vec4 *c, const Cyb_Vec4 *a, const Cyb_Vec4 *b,
+    double progress);
+
 /** @brief Convert a quaternion to a matrix.
  *
  * @param Pointer to the resulting matrix.

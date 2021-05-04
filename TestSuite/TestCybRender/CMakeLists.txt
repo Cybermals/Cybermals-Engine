@@ -49,7 +49,6 @@ target_sources(
 set(LIBS
     SDL2main
     CybRender
-    CybUI
 )
 
 if(WIN32)

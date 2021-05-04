@@ -5,7 +5,9 @@
  * @brief CybRender - Animation Channel API
  */
  
+#include "CybArmature.h"
 #include "CybCommon.h"
+#include "CybKeyframes.h"
 #include "CybMath.h"
 
  
@@ -18,28 +20,14 @@ extern "C" {
 typedef struct Cyb_AnimChannel Cyb_AnimChannel;
 
 
-//Structures
-//=================================================================================
-typedef struct
-{
-    double time;
-    Cyb_Vec3 value;
-} Cyb_VecKey;
-
-
-typedef struct
-{
-    double time;
-    Cyb_Vec4 value;
-} Cyb_QuatKey;
-
-
 //Functions
 //=================================================================================
 CYBAPI Cyb_AnimChannel *Cyb_CreateAnimChannel(void);
 CYBAPI void Cyb_UpdateAnimChannel(Cyb_AnimChannel *animChannel, const char *name,
     int posKeyCount, const Cyb_VecKey *posKeys, int rotKeyCount, 
-    const Cyb_QuatKey *quatKeys, int sclKeyCount, const Cyb_VecKey *sclKeys);
+    const Cyb_QuatKey *rotKeys, int sclKeyCount, const Cyb_VecKey *sclKeys);
+CYBAPI void Cyb_ApplyAnimChannel(Cyb_AnimChannel *animChannel, Cyb_Pose *pose,
+    double time);
 
 #ifdef __cplusplus
 }

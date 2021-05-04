@@ -67,6 +67,7 @@ target_sources(
     src/CybRenderer.c
     src/CybShader.c
     src/CybTexture.c
+    src/CybTimer.c
 )
 
 #Libraries to link against

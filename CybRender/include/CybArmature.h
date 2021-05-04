@@ -75,6 +75,15 @@ CYBAPI void Cyb_UpdateArmature(Cyb_Renderer *renderer, Cyb_Armature *armature,
  */
 CYBAPI Cyb_Pose *Cyb_CreatePose(Cyb_Armature *armature);
 
+/** @brief Get the ID of a bone.
+ *
+ * @param pose Pointer to the armature pose.
+ * @param name The name of the bone.
+ *
+ * @return The bone ID.
+ */
+CYBAPI int Cyb_GetBoneID(Cyb_Pose *pose, const char *name);
+
 /** @brief Update the transformation matrix of an armature bone.
  *
  * @param pose Pointer to the pose.

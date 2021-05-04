@@ -193,6 +193,21 @@ int TestCybVectors(void)
         }
     }
     
+    //Test lerp
+    {
+        puts("Testing lerp...");
+        Cyb_Vec3 a = {0, 0, 0};
+        Cyb_Vec3 b = {8, 8, 8};
+        Cyb_Vec3 c;
+        Cyb_Lerp(&c, &a, &b, .25);
+        
+        if(c.x != 2 || c.y != 2 || c.z != 2)
+        {
+            puts("failed");
+            return 1;
+        }
+    }
+    
     return 0;
 }
 

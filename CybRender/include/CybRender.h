@@ -16,5 +16,6 @@
 #include "CybRenderer.h"
 #include "CybShader.h"
 #include "CybTexture.h"
+#include "CybTimer.h"
 
 #endif

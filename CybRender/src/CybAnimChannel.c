@@ -77,7 +77,7 @@ Cyb_AnimChannel *Cyb_CreateAnimChannel(void)
 
 void Cyb_UpdateAnimChannel(Cyb_AnimChannel *animChannel, const char *name,
     int posKeyCount, const Cyb_VecKey *posKeys, int rotKeyCount, 
-    const Cyb_QuatKey *quatKeys, int sclKeyCount, const Cyb_VecKey *sclKeys)
+    const Cyb_QuatKey *rotKeys, int sclKeyCount, const Cyb_VecKey *sclKeys)
 {
     //Free old name, position keys, rotation keys, and scale keys
     if(animChannel->name)
@@ -113,6 +113,9 @@ void Cyb_UpdateAnimChannel(Cyb_AnimChannel *animChannel, const char *name,
         return;
     }
     
+    strcpy(animChannel->name, name);
+    
+    //Update position keys
     animChannel->posKeyCount = posKeyCount;
     animChannel->posKeys = (Cyb_VecKey*)SDL_malloc(
         sizeof(Cyb_VecKey) * posKeyCount);
@@ -125,6 +128,9 @@ void Cyb_UpdateAnimChannel(Cyb_AnimChannel *animChannel, const char *name,
         return;
     }
     
+    memcpy(animChannel->posKeys, posKeys, sizeof(Cyb_VecKey) * posKeyCount);
+    
+    //Update rotation keys
     animChannel->rotKeyCount = rotKeyCount;
     animChannel->rotKeys = (Cyb_QuatKey*)SDL_malloc(
         sizeof(Cyb_QuatKey) * rotKeyCount);
@@ -137,6 +143,9 @@ void Cyb_UpdateAnimChannel(Cyb_AnimChannel *animChannel, const char *name,
         return;
     }
     
+    memcpy(animChannel->rotKeys, rotKeys, sizeof(Cyb_QuatKey) * rotKeyCount);
+    
+    //Update scale keys
     animChannel->sclKeyCount = sclKeyCount;
     animChannel->sclKeys = (Cyb_VecKey*)SDL_malloc(
         sizeof(Cyb_VecKey) * sclKeyCount);
@@ -148,4 +157,87 @@ void Cyb_UpdateAnimChannel(Cyb_AnimChannel *animChannel, const char *name,
         animChannel->sclKeyCount = 0;
         return;
     }
+    
+    memcpy(animChannel->sclKeys, sclKeys, sizeof(Cyb_VecKey) * sclKeyCount);
+}
+
+
+void Cyb_ApplyAnimChannel(Cyb_AnimChannel *animChannel, Cyb_Pose *pose,
+    double time)
+{
+    //Get the ID of the bone to update
+    int boneID = Cyb_GetBoneID(pose, animChannel->name);
+    
+    if(boneID == -1)
+    {
+        return;
+    }
+    
+    //Calculate the current position
+    Cyb_Vec3 pos = {0.0f, 0.0f, 0.0f};
+    
+    for(int i = 0; i < animChannel->posKeyCount - 1; i++)
+    {
+        //Is the current time between this key and the next?
+        Cyb_VecKey *a = &animChannel->posKeys[i];
+        Cyb_VecKey *b = &animChannel->posKeys[i + 1];
+        
+        if(time >= a->time && time <= b->time)
+        {
+            //Calculate progression between keys and interpolate
+            double progress =  (time - a->time) / (b->time - a->time);
+            Cyb_Lerp(&pos, &a->value, &b->value, progress);
+        }
+    }
+    
+    //Calculate the current rotation
+    Cyb_Vec4 rot = {0.0f, 0.0f, 0.0f, 1.0f};
+    
+    for(int i = 0; i < animChannel->rotKeyCount - 1; i++)
+    {
+        //Is the current time between this key and the next?
+        Cyb_QuatKey *a = &animChannel->rotKeys[i];
+        Cyb_QuatKey *b = &animChannel->rotKeys[i + 1];
+        
+        if(time >= a->time && time <= b->time)
+        {
+            //Calculate progression between keys and interpolate
+            SDL_Log("rot = {%f, %f, %f, %f}\n", a->value.x, a->value.y, a->value.z, 
+                a->value.w);
+            double progress =  (time - a->time) / (b->time - a->time);
+            Cyb_Slerp(&rot, &a->value, &b->value, progress);
+        }
+    }
+    
+    //Calculate the current scale
+    Cyb_Vec3 scale = {1.0f, 1.0f, 1.0f};
+    
+    for(int i = 0; i < animChannel->sclKeyCount - 1; i++)
+    {
+        //Is the current time between this key and the next?
+        Cyb_VecKey *a = &animChannel->sclKeys[i];
+        Cyb_VecKey *b = &animChannel->sclKeys[i + 1];
+        
+        if(time >= a->time && time <= b->time)
+        {
+            //Calculate progression between keys and interpolate
+            double progress =  (time - a->time) / (b->time - a->time);
+            Cyb_Lerp(&scale, &a->value, &b->value, progress);
+        }
+    }
+    
+    //Build transformation matrix
+    Cyb_Mat4 s;
+    Cyb_Mat4 r;
+    Cyb_Mat4 t;
+    Cyb_Mat4 tmp;
+    Cyb_Mat4 m;
+    Cyb_Scale(&s, scale.x, scale.y, scale.z);
+    Cyb_QuatToMatrix(&r, &rot);
+    Cyb_Translate(&t, pos.x, pos.y, pos.z);
+    Cyb_MulMat4(&tmp, &t, &r);
+    Cyb_MulMat4(&m, &tmp, &s);
+    
+    //Update the bone that is controlled by this channel
+    Cyb_UpdateBone(pose, boneID, &m);
 }

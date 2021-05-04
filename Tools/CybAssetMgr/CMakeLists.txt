@@ -14,6 +14,7 @@ if(WIN32)
         CybAssetMgr
         PUBLIC
         ../../CybCommon
+        ../../CybObjects/include
         ../../CybMath/include
         ../../CybRender/include
         ../../deps/windows/i386/SDL2/include
@@ -27,6 +28,7 @@ if(UNIX)
         CybAssetMgr
         PUBLIC
         ../../CybCommon
+        ../../CybObjects/include
         ../../CybMath/include
         ../../CybRender/include
         ../../deps/linux/amd64/SDL2/include

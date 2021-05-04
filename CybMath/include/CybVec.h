@@ -115,6 +115,18 @@ CYBAPI void Cyb_MulVec3(Cyb_Vec3 *c, const Cyb_Vec3 *a, const Cyb_Vec3 *b);
  */
 CYBAPI void Cyb_DivVec3(Cyb_Vec3 *c, const Cyb_Vec3 *a, const Cyb_Vec3 *b);
 
+
+/** @brief Find the point that lies between a and b given the progression between
+ * the 2 points by using linear interpolation.
+ *
+ * @param c Pointer to the resulting point.
+ * @param a Pointer to the start point.
+ * @param b Pointer to the end point.
+ * @param progress The amount of progress (between 0.0 and 1.0).
+ */
+CYBAPI void Cyb_Lerp(Cyb_Vec3 *c, const Cyb_Vec3 *a, const Cyb_Vec3 *b,
+    double progress);
+
 /** @brief Add two 4D vectors.
  *
  * @param c Pointer to the resulting vector.

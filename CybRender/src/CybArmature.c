@@ -194,6 +194,24 @@ Cyb_Pose *Cyb_CreatePose(Cyb_Armature *armature)
 }
 
 
+int Cyb_GetBoneID(Cyb_Pose *pose, const char *name)
+{
+    //Find the requested bone
+    Cyb_Armature *armature = pose->armature;
+    
+    for(int i = 0; i < armature->boneCount; i++)
+    {
+        //Is this the bone?
+        if(strcmp(armature->bones[i].name, name) == 0)
+        {
+            return i;
+        }
+    }
+    
+    return -1;
+}
+
+
 void Cyb_UpdateBone(Cyb_Pose *pose, int boneID, const Cyb_Mat4 *matrix)
 {
     //Fetch bone data

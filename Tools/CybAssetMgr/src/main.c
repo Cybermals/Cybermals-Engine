@@ -11,6 +11,7 @@ Cybermals Engine - Asset Manager Tool
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include "CybKeyframes.h"
 #include "CybBone.h"
 #include "CybCommon.h"
 #include "CybMath.h"
@@ -784,6 +785,30 @@ int AddMeshes(const char *filename)
             //Get next animation channel
             struct aiNodeAnim *channel = anim->mChannels[j];
             
+            //Convert rotation keys to Cyb_Vec4 format
+            Cyb_QuatKey *rotKeys = NULL;
+            
+            if(channel->mRotationKeys)
+            {
+                rotKeys = (Cyb_QuatKey*)malloc(
+                    sizeof(Cyb_QuatKey) * channel->mNumRotationKeys);
+                    
+                if(!rotKeys)
+                {
+                    puts("failed");
+                    break;
+                }
+                
+                for(int i = 0; i < channel->mNumRotationKeys; i++)
+                {
+                    rotKeys[i].time = channel->mRotationKeys[i].mTime;
+                    rotKeys[i].value.x = channel->mRotationKeys[i].mValue.x;
+                    rotKeys[i].value.y = channel->mRotationKeys[i].mValue.y;
+                    rotKeys[i].value.z = channel->mRotationKeys[i].mValue.z;
+                    rotKeys[i].value.w = channel->mRotationKeys[i].mValue.w;
+                }
+            }
+            
             //Add animation channel
             sqlite3_reset(addAnimChannelStmt);
             sqlite3_bind_int64(addAnimChannelStmt, 1, animID);
@@ -803,9 +828,9 @@ int AddMeshes(const char *filename)
         
             sqlite3_bind_int(addAnimChannelStmt, 5, channel->mNumRotationKeys);
             
-            if(channel->mRotationKeys)
+            if(rotKeys)
             {
-                sqlite3_bind_blob(addAnimChannelStmt, 6, channel->mRotationKeys, 
+                sqlite3_bind_blob(addAnimChannelStmt, 6, rotKeys, 
                     sizeof(struct aiQuatKey) * channel->mNumRotationKeys, NULL);
             }
             else
@@ -828,7 +853,19 @@ int AddMeshes(const char *filename)
             if(sqlite3_step(addAnimChannelStmt) != SQLITE_DONE)
             {
                 puts("failed");
+                
+                if(rotKeys)
+                {
+                    free(rotKeys);
+                }
+                
                 break;
+            }
+            
+            //Free converted rotation keys
+            if(rotKeys)
+            {
+                free(rotKeys);
             }
         }
         

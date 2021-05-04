@@ -67,6 +67,21 @@ void Cyb_DivVec3(Cyb_Vec3 *c, const Cyb_Vec3 *a, const Cyb_Vec3 *b)
 }
 
 
+void Cyb_Lerp(Cyb_Vec3 *c, const Cyb_Vec3 *a, const Cyb_Vec3 *b,
+    double progress)
+{
+    //Calculate increment
+    Cyb_Vec3 inc;
+    Cyb_SubVec3(&inc, b, a);
+    inc.x *= progress;
+    inc.y *= progress;
+    inc.z *= progress;
+    
+    //Calculate current position
+    Cyb_AddVec3(c, a, &inc);
+}
+
+
 void Cyb_AddVec4(Cyb_Vec4 *c, const Cyb_Vec4 *a, const Cyb_Vec4 *b)
 {
     c->x = a->x + b->x;

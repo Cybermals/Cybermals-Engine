@@ -273,9 +273,9 @@ Cyb_Object *Cyb_LoadAsset_DB(Cyb_Renderer *renderer, sqlite3 *db,
         }
         
         //Load animation
-        sqlite3_bind_text(loadAnimChannelStmt, 1, name, -1, NULL);
+        sqlite3_bind_text(loadAnimationStmt, 1, name, -1, NULL);
         
-        if(sqlite3_step(loadAnimChannelStmt) != SQLITE_ROW)
+        if(sqlite3_step(loadAnimationStmt) != SQLITE_ROW)
         {
             SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
                 "[CybRender] Failed to locate animation '%s' in the asset database.",

@@ -9,7 +9,7 @@ CybRender - Test Program
 #include <SDL2/SDL.h>
 
 #include "CybRender.h"
-#include "CybUI.h"
+//#include "CybUI.h"
 
 
 //Macros
@@ -56,9 +56,9 @@ char assetDBPath[256] = "data/assets.cyb";
 SDL_Window *window = NULL;
 Cyb_Renderer *renderer = NULL;
 
-SDL_Surface *uiOverlay = NULL;
+/* SDL_Surface *uiOverlay = NULL;
 SDL_Renderer *uiRenderer = NULL;
-Cyb_Grid *root = NULL;
+Cyb_Grid *root = NULL; */
 
 Cyb_Camera *cam = NULL;
 
@@ -91,9 +91,10 @@ Cyb_Mat4 m;
 Cyb_Mat4 p;
 Cyb_Mat4 n;
 
-int renderMode = TRIANGLE_MESH;
+int renderMode = PYRAMID_MESH; //TRIANGLE_MESH;
 int useTextures = FALSE;
 float angle = 0.0f;
+double animTime = 0.0;
 
 Cyb_Vec3 playerVelocity = {0.0f, 0.0f, 0.0f};
 Cyb_Vec2 playerRotVelocity = {0.0f, 0.0f};
@@ -122,7 +123,7 @@ void HandleLogOutput(void *userdata, int category, SDL_LogPriority priority,
 
 void Quit(void)
 {
-    //Free root widget
+    /* //Free root widget
     if(root)
     {
         Cyb_FreeObject((Cyb_Object**)&root);
@@ -138,7 +139,7 @@ void Quit(void)
     if(uiOverlay)
     {
         SDL_FreeSurface(uiOverlay);
-    }
+    } */
     
     //Free renderer (this also frees the resources associated with the renderer)
     if(renderer)
@@ -221,11 +222,11 @@ int Init(void)
     }
     #endif
     
-    //Initialize CybUI
+    /* //Initialize CybUI
     if(Cyb_InitUI())
     {
         return 1;
-    }
+    } */
     
     //Create a window
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3); //major version 3
@@ -259,7 +260,7 @@ int Init(void)
     
     Cyb_SetRenderBGColor(renderer, BG_COLOR);
     
-    //Create UI overlay
+    /* //Create UI overlay
     uiOverlay = SDL_CreateRGBSurface(0, WINDOW_WIDTH, WINDOW_HEIGHT, 32,
         0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
         
@@ -286,7 +287,7 @@ int Init(void)
     if(!root)
     {
         return 1;
-    }
+    } */
     
     //Create cameras
     cam = Cyb_CreateCamera();
@@ -701,13 +702,14 @@ void DrawPyramid(void)
     Cyb_Invert(&n, &tmp);
     
     //Update pose
-    Cyb_Mat4 bone;
+    /* Cyb_Mat4 bone;
     Cyb_Vec4 quat;
     //Cyb_Identity(&bone);
     Cyb_QuatFromAxisAndAngle(&quat, 0.0f, 0.0f, 1.0f, 30.0f);
     Cyb_QuatToMatrix(&bone, &quat);
     Cyb_UpdateBone(pyramidPose, 1, &bone);
-    Cyb_UpdateBone(pyramidPose, 0, &bone);
+    Cyb_UpdateBone(pyramidPose, 0, &bone); */
+    Cyb_ApplyAnimation(pyramidWiggleAnim, pyramidPose, animTime);
     
     //Enable depth testing and face culling
     glEnable(GL_DEPTH_TEST);
@@ -904,8 +906,9 @@ int main(int argc, char **argv)
         Cyb_StrafeCamera(cam, playerVelocity.x);
         Cyb_RotateCamera(cam, playerRotVelocity.x, playerRotVelocity.y, 0.0f);
         
-        //Update angle
+        //Update angle and animation time
         angle += 1.0f;
+        animTime += ((double)Cyb_GetDeltaTime() / 1000.0) * 24.0;
         
         //Render content
         switch(renderMode)

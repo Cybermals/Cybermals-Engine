@@ -2,6 +2,8 @@
 CybRender - Quaternion API
 */
 
+#include <string.h>
+
 #include "CybQuat.h"
 
 
@@ -33,6 +35,74 @@ void Cyb_NormalizeQuat(Cyb_Vec4 *quat)
     quat->y /= magnitude;
     quat->z /= magnitude;
     quat->w /= magnitude;
+}
+
+
+void Cyb_Slerp(Cyb_Vec4 *c, const Cyb_Vec4 *a, const Cyb_Vec4 *b,
+    double progress)
+{
+    //Calculate angle between a and b
+    double cosHalfTheta = a->x * b->x + a->y * b->y + a->z * b->z + a->w * b->w;
+    
+    if(fabs(cosHalfTheta) >= 1.0)
+    {
+        memcpy(c, a, sizeof(Cyb_Vec4));
+        return;
+    }
+    
+    //Follow shortest path
+    int reverseB = FALSE;
+    
+    if(cosHalfTheta < 0)
+    {
+        reverseB = TRUE;
+        cosHalfTheta = -cosHalfTheta;
+    }
+    
+    //Calculate temp values
+    const double halfTheta = acos(cosHalfTheta);
+    const double sinHalfTheta = sqrt(1.0 - (cosHalfTheta * cosHalfTheta));
+    
+    //If theta is 180 degrees, then the result is not fully defined since we could
+    //rotate either direction to get there
+    if(fabs(sinHalfTheta) < .001)
+    {
+        if(!reverseB)
+        {
+            c->x = (1.0 - progress) * a->x + progress * b->x;
+            c->y = (1.0 - progress) * a->y + progress * b->y;
+            c->z = (1.0 - progress) * a->z + progress * b->z;
+            c->w = (1.0 - progress) * a->w + progress * b->w;
+        }
+        else
+        {
+            c->x = (1.0 - progress) * a->x - progress * b->x;
+            c->y = (1.0 - progress) * a->y - progress * b->y;
+            c->z = (1.0 - progress) * a->z - progress * b->z;
+            c->w = (1.0 - progress) * a->w - progress * b->w;
+        }
+        
+        return;
+    }
+    
+    //All other cases
+    const double tmp1 = sin((1.0 - progress) * halfTheta) / sinHalfTheta;
+    const double tmp2 = sin(progress * halfTheta) / sinHalfTheta;
+    
+    if(!reverseB)
+    {
+        c->x = tmp1 * a->x + tmp2 * b->x;
+        c->y = tmp1 * a->y + tmp2 * b->y;
+        c->z = tmp1 * a->z + tmp2 * b->z;
+        c->w = tmp1 * a->w + tmp2 * b->w;
+    }
+    else
+    {
+        c->x = tmp1 * a->x - tmp2 * b->x;
+        c->y = tmp1 * a->y - tmp2 * b->y;
+        c->z = tmp1 * a->z - tmp2 * b->z;
+        c->w = tmp1 * a->w - tmp2 * b->w;
+    }
 }
 
 
