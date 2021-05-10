@@ -36,6 +36,7 @@ if(WIN32)
     target_link_directories(
         CybRender
         PUBLIC
+        ../deps/windows/i386/angle/lib
         ../deps/windows/i386/SDL2_image/bin
         ../deps/windows/i386/SDL2_image/lib
         ../deps/windows/i386/sqlite3/lib
@@ -71,6 +72,7 @@ target_sources(
 )
 
 #Libraries to link against
+set(CybRender_Use_GLES ON CACHE BOOL "Use OpenGL ES (requires ANGLE on Windows).")
 set(LIBS
     SDL2
     SDL2_image
@@ -80,10 +82,16 @@ set(LIBS
 )
 
 if(WIN32)
+    set(GL_LIB opengl32)
+    
+    if(CybRender_Use_GLES)
+        set(GL_LIB libGLESv2)
+    endif(CybRender_Use_GLES)
+    
     target_link_libraries(
         CybRender
         ${LIBS}
-        opengl32
+        ${GL_LIB}
     )
 endif(WIN32)
 
@@ -106,11 +114,20 @@ target_compile_options(
     -DDLL_EXPORTS
 )
 
+if(CybRender_Use_GLES)
+    target_compile_options(
+        CybRender
+        PUBLIC
+        -DUSE_GLES
+    )
+endif(CybRender_Use_GLES)
+
 #Copy deps
 if(WIN32)
     file(
         GLOB DEPS
         ../deps/windows/i386/SDL2_image/bin/*
+        ../deps/windows/i386/angle/bin/*
     )
     file(COPY ${DEPS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif(WIN32)

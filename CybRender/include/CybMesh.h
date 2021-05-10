@@ -18,6 +18,21 @@ extern "C" {
  * @brief Cybermals Engine - Renderer Subsystem
  * @{
  */
+ 
+//Enums
+//=================================================================================
+/** @brief Vertex attribute indices.
+ */
+enum Cyb_VertexAttribs
+{
+    CYB_ATTRIB_POS,   /**< Vertex position attrib. */
+    CYB_ATTRIB_NORM,  /**< Vertex normal attrib. */
+    CYB_ATTRIB_COLOR, /**< Vertex color attrib. */
+    CYB_ATTRIB_UV,    /**< Vertex uv attrib. */
+    CYB_ATTRIB_GROUP, /**< Vertex group attrib. */
+    CYB_ATTRIB_WEIGHT /**< Vertex weight attrib. */
+};
+
 
 //Types
 //=================================================================================

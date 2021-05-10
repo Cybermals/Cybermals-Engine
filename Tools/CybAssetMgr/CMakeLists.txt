@@ -80,6 +80,8 @@ if(UNIX)
     target_link_libraries(
         CybAssetMgr
         ${LIBS}
+        dl
+        pthread
     )
 endif(UNIX)
 

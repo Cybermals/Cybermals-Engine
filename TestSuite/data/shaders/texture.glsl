@@ -1,11 +1,11 @@
 //Vertex Shader
 //==================================================================================
-#version 330 core
+#version 120
 
 //Vertex Attributes
-layout (location = 0) in vec3 pos;
-layout (location = 1) in vec3 norm;
-layout (location = 2) in vec2 uv;
+attribute vec3 pos;
+attribute vec3 norm;
+attribute vec2 uv;
 
 //Matrices
 uniform mat4 m;
@@ -14,10 +14,10 @@ uniform mat4 p;
 uniform mat4 n;
 
 //Shader Outputs
-out vec2 texCoord0;
-out vec2 texCoord1;
-out vec3 fragPos;
-out vec3 normal;
+varying vec2 texCoord0;
+varying vec2 texCoord1;
+varying vec3 fragPos;
+varying vec3 normal;
 
 
 //Entry Point
@@ -35,7 +35,7 @@ void main()
 
 //Fragment Shader
 //==================================================================================
-#version 330 core
+#version 120
 
 //Structures
 struct Light
@@ -57,10 +57,10 @@ struct Material
 
 
 //Shader Inputs
-in vec2 texCoord0;
-in vec2 texCoord1;
-in vec3 fragPos;
-in vec3 normal;
+varying vec2 texCoord0;
+varying vec2 texCoord1;
+varying vec3 fragPos;
+varying vec3 normal;
 
 //Shader Uniforms
 uniform vec3 camPos;
@@ -69,16 +69,13 @@ uniform Material mat;
 uniform sampler2D tex0;
 uniform sampler2D tex1;
 
-//Shader Outputs
-out vec4 fragColor;
-
 
 //Entry Point
 void main()
 {
     //Fetch texture colors
-    vec4 color0 = texture(tex0, texCoord0);
-    vec4 color1 = texture(tex1, texCoord1);
+    vec4 color0 = texture2D(tex0, texCoord0);
+    vec4 color1 = texture2D(tex1, texCoord1);
     
     //Discard transparent fragments
     if(color0.w < .1 || color1.w < .1)
@@ -102,7 +99,7 @@ void main()
     vec3 specular = light.specular * (spec * mat.specular);
     
     //Calculate fragment color
-    fragColor = (color0 * color1) * vec4(ambient + diffuse + specular, 1.0);
+    gl_FragColor = (color0 * color1) * vec4(ambient + diffuse + specular, 1.0);
 }
 //==================================================================================
 //End Fragment Shader
@@ -110,12 +107,14 @@ void main()
 
 //ES Vertex Shader
 //==================================================================================
-#version 300 es
+#version 100
+
+precision mediump float;
 
 //Vertex Attributes
-layout (location = 0) in vec3 pos;
-layout (location = 1) in vec3 norm;
-layout (location = 2) in vec2 uv;
+attribute vec3 pos;
+attribute vec3 norm;
+attribute vec2 uv;
 
 //Matrices
 uniform mat4 m;
@@ -124,10 +123,10 @@ uniform mat4 p;
 uniform mat4 n;
 
 //Shader Outputs
-out vec2 texCoord0;
-out vec2 texCoord1;
-out vec3 fragPos;
-out vec3 normal;
+varying vec2 texCoord0;
+varying vec2 texCoord1;
+varying vec3 fragPos;
+varying vec3 normal;
 
 
 //Entry Point
@@ -145,7 +144,9 @@ void main()
 
 //ES Fragment Shader
 //==================================================================================
-#version 300 es
+#version 100
+
+precision mediump float;
 
 //Structures
 struct Light
@@ -167,10 +168,10 @@ struct Material
 
 
 //Shader Inputs
-in vec2 texCoord0;
-in vec2 texCoord1;
-in vec3 fragPos;
-in vec3 normal;
+varying vec2 texCoord0;
+varying vec2 texCoord1;
+varying vec3 fragPos;
+varying vec3 normal;
 
 //Shader Uniforms
 uniform vec3 camPos;
@@ -179,16 +180,13 @@ uniform Material mat;
 uniform sampler2D tex0;
 uniform sampler2D tex1;
 
-//Shader Outputs
-out vec4 fragColor;
-
 
 //Entry Point
 void main()
 {
     //Fetch texture colors
-    vec4 color0 = texture(tex0, texCoord0);
-    vec4 color1 = texture(tex1, texCoord1);
+    vec4 color0 = texture2D(tex0, texCoord0);
+    vec4 color1 = texture2D(tex1, texCoord1);
     
     //Discard transparent fragments
     if(color0.w < .1 || color1.w < .1)
@@ -212,7 +210,7 @@ void main()
     vec3 specular = light.specular * (spec * mat.specular);
     
     //Calculate fragment color
-    fragColor = (color0 * color1) * vec4(ambient + diffuse + specular, 1.0);
+    gl_FragColor = (color0 * color1) * vec4(ambient + diffuse + specular, 1.0);
 }
 //==================================================================================
 //End ES Fragment Shader

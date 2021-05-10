@@ -72,7 +72,9 @@ A lightweight high-performance game engine and application framework.
     * supports collision detection with points and other spheres
     
 ## CybRender
-* manages one or more OpenGL 3.3 contexts
+* manages one or more OpenGL contexts
+* supports OpenGL 2.0+ and OpenGL ES 2.0+
+* supports OpenGL ES 2.0 and 3.0 on Windows via ANGLE
 * uses resource caching to prevent repeated loading of the same resource
 * shaders
     * shader code for a single program is stored in a single self-contained file
@@ -103,6 +105,7 @@ A lightweight high-performance game engine and application framework.
     
 ## Supported Platforms
 * Windows
+* Linux
 * Android
 
 

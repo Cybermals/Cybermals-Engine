@@ -229,8 +229,15 @@ int Init(void)
     } */
     
     //Create a window
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3); //major version 3
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0); //minor version 0
+    #ifdef USE_GLES
+    SDL_SetHint(SDL_HINT_OPENGL_ES_DRIVER, "1");          //use OpenGL ES driver
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_EGL, TRUE);        //use EGL
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,      //use OpenGL ES
+        SDL_GL_CONTEXT_PROFILE_ES);
+    #endif
+    
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2); //major version 2
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1); //minor version 1
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, TRUE);       //double-buffered
     SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);              //8-bits for red
     SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);            //8-bits for green
@@ -702,14 +709,14 @@ void DrawPyramid(void)
     Cyb_Invert(&n, &tmp);
     
     //Update pose
-    /* Cyb_Mat4 bone;
+    Cyb_Mat4 bone;
     Cyb_Vec4 quat;
     //Cyb_Identity(&bone);
     Cyb_QuatFromAxisAndAngle(&quat, 0.0f, 0.0f, 1.0f, 30.0f);
     Cyb_QuatToMatrix(&bone, &quat);
     Cyb_UpdateBone(pyramidPose, 1, &bone);
-    Cyb_UpdateBone(pyramidPose, 0, &bone); */
-    Cyb_ApplyAnimation(pyramidWiggleAnim, pyramidPose, animTime);
+    Cyb_UpdateBone(pyramidPose, 0, &bone);
+    //Cyb_ApplyAnimation(pyramidWiggleAnim, pyramidPose, animTime);
     
     //Enable depth testing and face culling
     glEnable(GL_DEPTH_TEST);

@@ -5,6 +5,7 @@ CybRender - Armature API
 #include <string.h>
 
 #include "CybArmature.h"
+#include "CybMesh.h"
 
 
 //Structures
@@ -102,33 +103,33 @@ void Cyb_UpdateArmature(Cyb_Renderer *renderer, Cyb_Armature *armature,
     //Select the renderer
     Cyb_SelectRenderer(renderer);
     
-    //Update VBO
-    Cyb_GLExtAPI *glExtAPI = Cyb_GetGLExtAPI(renderer);
-    glExtAPI->BindBuffer(GL_ARRAY_BUFFER, armature->vbo);
-    glExtAPI->BufferData(GL_ARRAY_BUFFER, sizeof(Cyb_VertexGW) * vertCount, NULL,
-        GL_STATIC_DRAW);
-    Cyb_VertexGW *vertices = (Cyb_VertexGW*)glExtAPI->MapBufferRange(
-        GL_ARRAY_BUFFER, 0, sizeof(Cyb_VertexGW) * vertCount, GL_MAP_WRITE_BIT);
-        
-    if(!vertices)
+    //Assemble geometry data
+    Cyb_VertexGW *buf = (Cyb_VertexGW*)SDL_malloc(sizeof(Cyb_VertexGW) * vertCount);
+    
+    if(!buf)
     {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", 
-            "[CybRender] Failed to map VBO.");
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s",
+            "[CybRender] Out of Memory");
         return;
     }
     
     for(int i = 0; i < vertCount; i++)
     {
-        memcpy(&vertices[i].group, &vgroups[i], sizeof(Cyb_Vec4));
-        memcpy(&vertices[i].weight, &vweights[i], sizeof(Cyb_Vec4));
+        memcpy(&buf[i].group, &vgroups[i], sizeof(vgroups[i]));
+        memcpy(&buf[i].weight, &vweights[i], sizeof(vweights[i]));
     }
     
-    glExtAPI->UnmapBuffer(GL_ARRAY_BUFFER);
+    //Bind VBO, upload geometry data, and free temp buffer
+    Cyb_GLExtAPI *glExtAPI = Cyb_GetGLExtAPI(renderer);
+    glExtAPI->BindBuffer(GL_ARRAY_BUFFER, armature->vbo);
+    glExtAPI->BufferData(GL_ARRAY_BUFFER, sizeof(Cyb_VertexGW) * vertCount, buf,
+        GL_STATIC_DRAW);
+    SDL_free(buf);
     
     //Copy the bones
     if(armature->bones)
     {
-        free(armature->bones);
+        SDL_free(armature->bones);
     }
     
     armature->boneCount = boneCount;
@@ -277,12 +278,12 @@ void Cyb_SelectPose(Cyb_Renderer *renderer, Cyb_Shader *shader, Cyb_Pose *pose)
     glExtAPI->BindBuffer(GL_ARRAY_BUFFER, armature->vbo);
     
     //Setup vertex attrib pointers
-    glExtAPI->EnableVertexAttribArray(4);
-    glExtAPI->EnableVertexAttribArray(5);
-    glExtAPI->VertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(Cyb_VertexGW),
-        (void*)offsetof(Cyb_VertexGW, group));
-    glExtAPI->VertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(Cyb_VertexGW),
-        (void*)offsetof(Cyb_VertexGW, weight));
+    glExtAPI->EnableVertexAttribArray(CYB_ATTRIB_GROUP);
+    glExtAPI->EnableVertexAttribArray(CYB_ATTRIB_WEIGHT);
+    glExtAPI->VertexAttribPointer(CYB_ATTRIB_GROUP, 4, GL_FLOAT, GL_FALSE, 
+        sizeof(Cyb_VertexGW), (void*)offsetof(Cyb_VertexGW, group));
+    glExtAPI->VertexAttribPointer(CYB_ATTRIB_WEIGHT, 4, GL_FLOAT, GL_FALSE, 
+        sizeof(Cyb_VertexGW), (void*)offsetof(Cyb_VertexGW, weight));
         
     //Setup bone matrices
     Cyb_SetMatrices(renderer, shader, "bones", pose->boneCount, pose->bones);

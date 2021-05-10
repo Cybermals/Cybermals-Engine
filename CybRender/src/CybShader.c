@@ -4,10 +4,11 @@ CybRender - Shader API
 
 #include <stdlib.h>
 
+#include "CybMesh.h"
 #include "CybObjects.h"
 #include "CybShader.h"
 
-#ifdef __ANDROID__
+#if defined(__ANDROID__) || defined(USE_GLES)
     #define VERTEX_SHADER_HEADER "//ES Vertex Shader"
     #define VERTEX_SHADER_FOOTER "//End ES Vertex Shader"
     #define GEOMETRY_SHADER_HEADER "//ES Geometry Shader"
@@ -45,7 +46,7 @@ typedef struct
 //Globals
 //=================================================================================
 static Cyb_List *shaderCache = NULL;
-char infoLog[512];
+char infoLog[1024];
 
 
 //Functions
@@ -165,23 +166,27 @@ Cyb_Shader *Cyb_LoadShaderRW(Cyb_Renderer *renderer, SDL_RWops *file,
     }
     
     //Compile vertex shader
+    //Note: We temporarily NULL-terminate the end of each section because there are
+    //some OpenGL implementations that don't properly handle passing the length of
+    //the shader source.
     char *source = strstr(data, VERTEX_SHADER_HEADER);
     char *end = strstr(data, VERTEX_SHADER_FOOTER);
     GLuint vShader = 0;
     
     if(source && end)
     {
-        int len = (GLsizei)(end - source);
+        *end = 0;
         vShader = glExtAPI->CreateShader(GL_VERTEX_SHADER);
     
         if(!vShader)
         {
             glExtAPI->DeleteProgram(prog);
+            SDL_free(data);
             Cyb_FreeObject((Cyb_Object**)&shader);
             return NULL;
         }
     
-        glExtAPI->ShaderSource(vShader, 1, (const char * const*)&source, &len);
+        glExtAPI->ShaderSource(vShader, 1, (const char * const*)&source, NULL);
         glExtAPI->CompileShader(vShader);
         int isCompiled;
         glExtAPI->GetShaderiv(vShader, GL_COMPILE_STATUS, &isCompiled);
@@ -195,11 +200,13 @@ Cyb_Shader *Cyb_LoadShaderRW(Cyb_Renderer *renderer, SDL_RWops *file,
             
             glExtAPI->DeleteShader(vShader);
             glExtAPI->DeleteProgram(prog);
+            SDL_free(data);
             Cyb_FreeObject((Cyb_Object**)&shader);
             return NULL;
         }
         
         glExtAPI->AttachShader(prog, vShader);
+        *end = '/';
     }
     
     //Compile geometry shader
@@ -209,7 +216,7 @@ Cyb_Shader *Cyb_LoadShaderRW(Cyb_Renderer *renderer, SDL_RWops *file,
     
     if(source && end)
     {
-        int len = (GLsizei)(end - source);
+        *end = 0;
         gShader = glExtAPI->CreateShader(GL_GEOMETRY_SHADER);
     
         if(!gShader)
@@ -220,11 +227,12 @@ Cyb_Shader *Cyb_LoadShaderRW(Cyb_Renderer *renderer, SDL_RWops *file,
             }
         
             glExtAPI->DeleteProgram(prog);
+            SDL_free(data);
             Cyb_FreeObject((Cyb_Object**)&shader);
             return NULL;
         }
     
-        glExtAPI->ShaderSource(gShader, 1, (const char * const*)&source, &len);
+        glExtAPI->ShaderSource(gShader, 1, (const char * const*)&source, NULL);
         glExtAPI->CompileShader(gShader);
         int isCompiled;
         glExtAPI->GetShaderiv(gShader, GL_COMPILE_STATUS, &isCompiled);
@@ -243,11 +251,13 @@ Cyb_Shader *Cyb_LoadShaderRW(Cyb_Renderer *renderer, SDL_RWops *file,
                 
             glExtAPI->DeleteShader(gShader);
             glExtAPI->DeleteProgram(prog);
+            SDL_free(data);
             Cyb_FreeObject((Cyb_Object**)&shader);
             return NULL;
         }
         
         glExtAPI->AttachShader(prog, gShader);
+        *end = '/';
     }
     
     //Compile fragment shader
@@ -257,7 +267,7 @@ Cyb_Shader *Cyb_LoadShaderRW(Cyb_Renderer *renderer, SDL_RWops *file,
     
     if(source && end)
     {
-        int len = (GLsizei)(end - source);
+        *end = 0;
         fShader = glExtAPI->CreateShader(GL_FRAGMENT_SHADER);
     
         if(!vShader)
@@ -273,11 +283,12 @@ Cyb_Shader *Cyb_LoadShaderRW(Cyb_Renderer *renderer, SDL_RWops *file,
             }
             
             glExtAPI->DeleteProgram(prog);
+            SDL_free(data);
             Cyb_FreeObject((Cyb_Object**)&shader);
             return NULL;
         }
     
-        glExtAPI->ShaderSource(fShader, 1, (const char * const*)&source, &len);
+        glExtAPI->ShaderSource(fShader, 1, (const char * const*)&source, NULL);
         glExtAPI->CompileShader(fShader);
         int isCompiled;
         glExtAPI->GetShaderiv(fShader, GL_COMPILE_STATUS, &isCompiled);
@@ -301,15 +312,23 @@ Cyb_Shader *Cyb_LoadShaderRW(Cyb_Renderer *renderer, SDL_RWops *file,
             
             glExtAPI->DeleteShader(fShader);
             glExtAPI->DeleteProgram(prog);
+            SDL_free(data);
             Cyb_FreeObject((Cyb_Object**)&shader);
             return NULL;
         }
         
         glExtAPI->AttachShader(prog, fShader);
+        *end = '/';
     }
     
     //Link shader program
     SDL_free(data);
+    glExtAPI->BindAttribLocation(prog, CYB_ATTRIB_POS, "pos");
+    glExtAPI->BindAttribLocation(prog, CYB_ATTRIB_NORM, "norm");
+    glExtAPI->BindAttribLocation(prog, CYB_ATTRIB_COLOR, "color");
+    glExtAPI->BindAttribLocation(prog, CYB_ATTRIB_UV, "uv");
+    glExtAPI->BindAttribLocation(prog, CYB_ATTRIB_GROUP, "group");
+    glExtAPI->BindAttribLocation(prog, CYB_ATTRIB_WEIGHT, "weight");
     glExtAPI->LinkProgram(prog);
     int isLinked;
     glExtAPI->GetProgramiv(prog, GL_LINK_STATUS, &isLinked);
@@ -338,6 +357,7 @@ Cyb_Shader *Cyb_LoadShaderRW(Cyb_Renderer *renderer, SDL_RWops *file,
         
         glExtAPI->DeleteProgram(prog);
         Cyb_FreeObject((Cyb_Object**)&shader);
+        return NULL;
     }
 
     //Complete shader

@@ -107,6 +107,11 @@ static int Cyb_InitGLExtAPI(Cyb_GLExtAPI *glExtAPI)
         "glAttachShader"
     );
     IMPORT_GL_FUNC(
+        glExtAPI->BindAttribLocation,
+        PFNGLBINDATTRIBLOCATIONPROC,
+        "glBindAttribLocation"
+    );
+    IMPORT_GL_FUNC(
         glExtAPI->LinkProgram, 
         PFNGLLINKPROGRAMPROC,
         "glLinkProgram"
@@ -177,16 +182,6 @@ static int Cyb_InitGLExtAPI(Cyb_GLExtAPI *glExtAPI)
         glExtAPI->BufferData, 
         PFNGLBUFFERDATAPROC,
         "glBufferData"
-    );
-    IMPORT_GL_FUNC(
-        glExtAPI->MapBufferRange, 
-        PFNGLMAPBUFFERRANGEPROC,
-        "glMapBufferRange"
-    );
-    IMPORT_GL_FUNC(
-        glExtAPI->UnmapBuffer, 
-        PFNGLUNMAPBUFFERPROC,
-        "glUnmapBuffer"
     );
     
     //Import vertex array functions
