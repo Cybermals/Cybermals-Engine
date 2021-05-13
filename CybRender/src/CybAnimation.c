@@ -115,12 +115,17 @@ Cyb_AnimChannel *Cyb_GetAnimChannel(Cyb_Animation *anim, int channel)
 }
 
 
-void Cyb_ApplyAnimation(Cyb_Animation *anim, Cyb_Pose *pose, double time)
+int Cyb_ApplyAnimation(Cyb_Animation *anim, Cyb_Pose *pose, double time)
 {
     //Apply each animation channel
+    int animOver = FALSE;
+    
     for(Cyb_AnimChannelNode *node = (Cyb_AnimChannelNode*)anim->channels->first;
         node; node = (Cyb_AnimChannelNode*)node->base.next)
     {
-        Cyb_ApplyAnimChannel(node->channel, pose, time * anim->ticksPerSecond);
+        animOver |= Cyb_ApplyAnimChannel(node->channel, pose, 
+            time * anim->ticksPerSecond);
     }
+    
+    return animOver;
 }

@@ -2,7 +2,7 @@
 #define CYBQUAT_H
 
 /** @file
- * @brief CybRender - Quaternion API
+ * @brief CybMath - Quaternion API
  */
  
 #include "CybCommon.h"
@@ -14,8 +14,8 @@
 extern "C" {
 #endif
 
-/** @addtogroup CybRender
- * @brief Cybermals Engine - Quaternion API
+/** @addtogroup CybMath
+ * @brief Cybermals Engine - 3D Math API
  * @{
  */
 

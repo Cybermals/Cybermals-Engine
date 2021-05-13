@@ -11,15 +11,26 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/** @addtogroup CybRender
+ * @brief Cybermals Engine - Renderer Subsystem
+ * @{
+ */
  
 //Structures
 //=================================================================================
+/** @brief Armature bone.
+ */
 typedef struct
 {
-    char name[32];
-    int parent;
-    Cyb_Mat4 matrix;
+    char name[32];   /**< Bone name. */
+    int parent;      /**< Parent bone index. */
+    Cyb_Mat4 matrix; /**< Bone matrix. */
 } Cyb_Bone;
+
+/**
+ * @}
+ */
 
 
 #ifdef __cplusplus

@@ -690,18 +690,9 @@ void DrawCube(void)
 void DrawPyramid(void)
 {
     //Update model matrix
-    Cyb_Mat4 r;
-    Cyb_Mat4 s;
-    //Cyb_Rotate(&r, 90.0f, angle, 0.0f, CYB_ROT_XYZ);
-    Cyb_Vec4 rotX;
     Cyb_Vec4 rotY;
-    Cyb_Vec4 total;
-    Cyb_QuatFromAxisAndAngle(&rotX, 1.0f, 0.0f, 0.0f, 90.0f);
-    Cyb_QuatFromAxisAndAngle(&rotY, 0.0f, 1.0f, 0.0f, angle);
-    Cyb_MulQuat(&total, &rotY, &rotX);
-    Cyb_QuatToMatrix(&r, &total);
-    Cyb_Scale(&s, 1.0f, -1.0f, -1.0f);
-    Cyb_MulMat4(&m, &r, &s);
+    Cyb_QuatFromAxisAndAngle(&rotY, 0.0f, 1.0f, 0.0f, 0.0f); //angle);
+    Cyb_QuatToMatrix(&m, &rotY);
     
     //Update normal matrix
     Cyb_Mat4 tmp;
@@ -709,14 +700,18 @@ void DrawPyramid(void)
     Cyb_Invert(&n, &tmp);
     
     //Update pose
-    Cyb_Mat4 bone;
+    /* Cyb_Mat4 bone;
     Cyb_Vec4 quat;
     //Cyb_Identity(&bone);
     Cyb_QuatFromAxisAndAngle(&quat, 0.0f, 0.0f, 1.0f, 30.0f);
     Cyb_QuatToMatrix(&bone, &quat);
     Cyb_UpdateBone(pyramidPose, 1, &bone);
-    Cyb_UpdateBone(pyramidPose, 0, &bone);
-    //Cyb_ApplyAnimation(pyramidWiggleAnim, pyramidPose, animTime);
+    Cyb_UpdateBone(pyramidPose, 0, &bone); */
+    
+    if(Cyb_ApplyAnimation(pyramidWiggleAnim, pyramidPose, animTime))
+    {
+        animTime = 0.0;
+    }
     
     //Enable depth testing and face culling
     glEnable(GL_DEPTH_TEST);
@@ -915,7 +910,7 @@ int main(int argc, char **argv)
         
         //Update angle and animation time
         angle += 1.0f;
-        animTime += ((double)Cyb_GetDeltaTime() / 1000.0) * 24.0;
+        animTime += ((double)Cyb_GetDeltaTime() / 1000.0) * 16.0;
         
         //Render content
         switch(renderMode)

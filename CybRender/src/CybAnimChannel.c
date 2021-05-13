@@ -162,7 +162,7 @@ void Cyb_UpdateAnimChannel(Cyb_AnimChannel *animChannel, const char *name,
 }
 
 
-void Cyb_ApplyAnimChannel(Cyb_AnimChannel *animChannel, Cyb_Pose *pose,
+int Cyb_ApplyAnimChannel(Cyb_AnimChannel *animChannel, Cyb_Pose *pose,
     double time)
 {
     //Get the ID of the bone to update
@@ -170,10 +170,11 @@ void Cyb_ApplyAnimChannel(Cyb_AnimChannel *animChannel, Cyb_Pose *pose,
     
     if(boneID == -1)
     {
-        return;
+        return FALSE;
     }
     
     //Calculate the current position
+    int animOver = TRUE;
     Cyb_Vec3 pos = {0.0f, 0.0f, 0.0f};
     
     for(int i = 0; i < animChannel->posKeyCount - 1; i++)
@@ -187,6 +188,7 @@ void Cyb_ApplyAnimChannel(Cyb_AnimChannel *animChannel, Cyb_Pose *pose,
             //Calculate progression between keys and interpolate
             double progress =  (time - a->time) / (b->time - a->time);
             Cyb_Lerp(&pos, &a->value, &b->value, progress);
+            animOver = FALSE;
         }
     }
     
@@ -202,10 +204,9 @@ void Cyb_ApplyAnimChannel(Cyb_AnimChannel *animChannel, Cyb_Pose *pose,
         if(time >= a->time && time <= b->time)
         {
             //Calculate progression between keys and interpolate
-            SDL_Log("rot = {%f, %f, %f, %f}\n", a->value.x, a->value.y, a->value.z, 
-                a->value.w);
             double progress =  (time - a->time) / (b->time - a->time);
             Cyb_Slerp(&rot, &a->value, &b->value, progress);
+            animOver = FALSE;
         }
     }
     
@@ -223,6 +224,7 @@ void Cyb_ApplyAnimChannel(Cyb_AnimChannel *animChannel, Cyb_Pose *pose,
             //Calculate progression between keys and interpolate
             double progress =  (time - a->time) / (b->time - a->time);
             Cyb_Lerp(&scale, &a->value, &b->value, progress);
+            animOver = FALSE;
         }
     }
     
@@ -240,4 +242,5 @@ void Cyb_ApplyAnimChannel(Cyb_AnimChannel *animChannel, Cyb_Pose *pose,
     
     //Update the bone that is controlled by this channel
     Cyb_UpdateBone(pose, boneID, &m);
+    return animOver;
 }
