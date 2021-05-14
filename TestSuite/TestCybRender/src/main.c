@@ -900,9 +900,6 @@ int main(int argc, char **argv)
         //Clear the window
         Cyb_RenderClear(renderer);
         
-        //Draw the UI
-        //Cyb_DrawUI(root, uiRenderer);
-        
         //Update camera
         Cyb_MoveCamera(cam, playerVelocity.z);
         Cyb_StrafeCamera(cam, playerVelocity.x);
