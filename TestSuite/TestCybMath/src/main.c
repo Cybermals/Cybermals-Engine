@@ -193,6 +193,21 @@ int TestCybVectors(void)
         }
     }
     
+    //Test lerp
+    {
+        puts("Testing lerp...");
+        Cyb_Vec3 a = {0, 0, 0};
+        Cyb_Vec3 b = {8, 8, 8};
+        Cyb_Vec3 c;
+        Cyb_Lerp(&c, &a, &b, .25);
+        
+        if(c.x != 2 || c.y != 2 || c.z != 2)
+        {
+            puts("failed");
+            return 1;
+        }
+    }
+    
     return 0;
 }
 
@@ -224,7 +239,7 @@ int TestCybMatrices(void)
     //Test rotation matrix
     puts("Testing rotation matrix...");
     Cyb_Mat4 r;
-    Cyb_Rotate(&r, 0, 0, 90);
+    Cyb_Rotate(&r, 0, 0, 90, CYB_ROT_XYZ);
     
     //Test scaling matrix
     puts("Testing scaling matrix...");
@@ -267,6 +282,19 @@ int TestCybMatrices(void)
     v.z = -v.z;
     Cyb_Transform(&v2, &p, &v);
     printf("Projected point (1, 1, 1) = (%f, %f, %f)\n", v2.x, v2.y, v2.z);
+    
+    //Test matrix inversion
+    Cyb_Mat4 invT;
+    Cyb_Invert(&invT, &t);
+    Cyb_MulMat4(&i, &t, &invT);
+    
+    puts("Inverse Matrix should be identity:");
+    printf("[%f, %f, %f, %f]\n[%f, %f, %f, %f]\n[%f, %f, %f, %f]\n[%f, %f, %f, %f]\n",
+        i.a, i.b, i.c, i.d,
+        i.e, i.f, i.g, i.h,
+        i.i, i.j, i.k, i.l,
+        i.m, i.n, i.o, i.p);
+
     return 0;
 }
 
@@ -292,7 +320,7 @@ int TestCybBoxes(void)
         //Test bounding box rotation
         puts("Testing bounding box rotation...");
         Cyb_Box d;
-        Cyb_RotateBox(&d, &a, 0, 0, 45);
+        Cyb_RotateBox(&d, &a, 0, 0, 45, CYB_ROT_XYZ);
         printf("center = (%f, %f, %f)\nsize = (%f, %f, %f)\n", d.center.x, 
             d.center.y, d.center.z, d.size.x, d.size.y, d.size.z);
     }

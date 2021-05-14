@@ -8,9 +8,9 @@
 #include <math.h>
  
 #include "CybCommon.h"
-#include "CybVector.h"
+#include "CybVec.h"
 
-#define radians(n) (n * (M_PI / 180.0f))
+#define radians(n) ((n) * (M_PI / 180.0f))
 
  
 #ifdef __cplusplus
@@ -21,6 +21,17 @@ extern "C" {
  * @brief Cybermals Engine - 3D Math Library
  * @{
  */
+ 
+//Enums
+//=================================================================================
+/** @brief Order to apply rotations.
+ */
+enum Cyb_RotationOrder
+{
+    CYB_ROT_XYZ, /**< X, Y, Z rotation order. */
+    CYB_ROT_ZYX, /**< Z, Y, X rotation order. */
+    CYB_ROT_ZXY  /**< Z, X, Y rotation order. */
+};
 
 //Structures
 //=================================================================================
@@ -44,6 +55,28 @@ typedef struct
  * @param b Pointer to the second operand.
  */
 CYBAPI void Cyb_MulMat4(Cyb_Mat4 *c, const Cyb_Mat4 *a, const Cyb_Mat4 *b);
+
+/** @brief Transpose a 4 x 4 matrix.
+ *
+ * @param out Pointer to the resulting matrix.
+ * @param in Pointer to the original matix.
+ */
+CYBAPI void Cyb_Transpose(Cyb_Mat4 *out, const Cyb_Mat4 *in);
+
+/** @brief Calculate the determinant of a 4 x 4 matrix.
+ *
+ * @param m Pointer to the matrix.
+ *
+ * @return The determinant.
+ */
+CYBAPI float Cyb_Determinant(const Cyb_Mat4 *m);
+
+/** @brief Invert a 4 x 4 matrix.
+ *
+ * @param out Pointer to the resulting matrix.
+ * @param in Pointer to the original matrix.
+ */
+CYBAPI void Cyb_Invert(Cyb_Mat4 *out, const Cyb_Mat4 *in);
 
 /** @brief Transform a 3D vector.
  *
@@ -74,8 +107,9 @@ CYBAPI void Cyb_Translate(Cyb_Mat4 *m, float x, float y, float z);
  * @param x The X axis angle.
  * @param y The Y axis angle.
  * @param z The Z axis angle.
+ * @param rotOrder The order used to apply rotations.
  */
-CYBAPI void Cyb_Rotate(Cyb_Mat4 *m, float x, float y, float z);
+CYBAPI void Cyb_Rotate(Cyb_Mat4 *m, float x, float y, float z, int rotOrder);
 
 /** @brief Generate a scaling matrix.
  *
@@ -85,6 +119,17 @@ CYBAPI void Cyb_Rotate(Cyb_Mat4 *m, float x, float y, float z);
  * @param z The Z scale.
  */
 CYBAPI void Cyb_Scale(Cyb_Mat4 *m, float x, float y, float z);
+
+/** @brief Generate a look at matrix.
+ *
+ * @param m Pointer to the resulting matrix.
+ * @param pos Pointer to the object position (usually a camera object).
+ * @param right Pointer to the right vector.
+ * @param up Pointer to the up vector.
+ * @param dir Pointer to the direction vector.
+ */
+CYBAPI void Cyb_LookAt(Cyb_Mat4 *m, Cyb_Vec3 *pos, Cyb_Vec3 *right, Cyb_Vec3 *up, 
+    Cyb_Vec3 *dir);
 
 /** @brief Generate an orthographic projection matrix.
  *

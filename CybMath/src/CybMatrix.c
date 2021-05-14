@@ -35,6 +35,99 @@ void Cyb_MulMat4(Cyb_Mat4 *c, const Cyb_Mat4 *a, const Cyb_Mat4 *b)
 }
 
 
+void Cyb_Transpose(Cyb_Mat4 *out, const Cyb_Mat4 *in)
+{
+    out->a = in->a;
+    out->b = in->e;
+    out->c = in->i;
+    out->d = in->m;
+    
+    out->e = in->b;
+    out->f = in->f;
+    out->g = in->j;
+    out->h = in->n;
+    
+    out->i = in->c;
+    out->j = in->g;
+    out->k = in->k;
+    out->l = in->o;
+    
+    out->m = in->d;
+    out->n = in->h;
+    out->o = in->l;
+    out->p = in->p;
+}
+
+
+//Based on the matrix determinant code in Assimp. Adapted to work with the
+//Cybermals column-major matrices.
+float Cyb_Determinant(const Cyb_Mat4 *m)
+{
+    return m->a * m->f * m->k * m->p -
+        m->a * m->f * m->l * m->o +
+        m->a * m->g * m->l * m->n -
+        m->a * m->g * m->j * m->p +
+        m->a * m->h * m->j * m->o -
+        m->a * m->h * m->k * m->n -
+        m->b * m->g * m->l * m->m +
+        m->b * m->g * m->i * m->p -
+        m->b * m->h * m->i * m->o +
+        m->b * m->h * m->k * m->m -
+        m->b * m->e * m->k * m->p +
+        m->b * m->e * m->l * m->o +
+        m->c * m->h * m->i * m->n -
+        m->c * m->h * m->j * m->m +
+        m->c * m->e * m->j * m->p -
+        m->c * m->e * m->l * m->n +
+        m->c * m->f * m->l * m->m -
+        m->c * m->f * m->i * m->p -
+        m->d * m->e * m->j * m->o +
+        m->d * m->e * m->k * m->n -
+        m->d * m->f * m->k * m->m +
+        m->d * m->f * m->i * m->o -
+        m->d * m->g * m->i * m->n +
+        m->d * m->g * m->j * m->m;
+}
+
+
+//Based on the matrix inversion code in Assimp. Adapted to work with the
+//Cybermals column-major matrices.
+void Cyb_Invert(Cyb_Mat4 *out, const Cyb_Mat4 *in)
+{
+    //Calculate the determinant
+    const float det = Cyb_Determinant(in);
+    
+    if(det == 0.0f)
+    {
+        return;
+    }
+    
+    //Calculate the inverse determinant
+    const float invdet = 1.0f / det;
+    
+    //Calculate the inverse matrix
+    out->a = invdet * (in->f * (in->k * in->p - in->l * in->o) + in->g * (in->l * in->n - in->j * in->p) + in->h * (in->j * in->o - in->k * in->n));
+    out->b = -invdet * (in->b * (in->k *in->p - in->l * in->o) + in->c * (in->l * in->n - in->j * in->p) + in->d * (in->j * in->o - in->k * in->n));
+    out->c = invdet * (in->b * (in->g * in->p - in->h * in->o) + in->c * (in->h * in->n - in->f * in->p) + in->d * (in->f * in->o - in->g * in->n));
+    out->d = -invdet * (in->b * (in->g * in->l -in->h * in->k) + in->c * (in->h * in->j - in->f * in->l) + in->d * (in->f * in->k - in->g * in->j));
+    
+    out->e = -invdet * (in->e * (in->k * in->p - in->l * in->o) + in->g * (in->l * in->m - in->i * in->p) + in->h * (in->i * in->o - in->k * in->m));
+    out->f = invdet * (in->a * (in->k * in->p - in->l * in->o) + in->c * (in->l * in->m - in->i * in->p) + in->d * (in->i * in->o - in->k * in->m));
+    out->g = -invdet * (in->a * (in->g * in->p - in->h * in->o) + in->c * (in->h * in->m - in->e * in->p) + in->d *(in->e * in->o - in->g * in->m));
+    out->h = invdet * (in->a * (in->g * in->l - in->h * in->k) + in->c * (in->h * in->i - in->e * in->l) + in->d * (in->e * in->k - in->g * in->i));
+    
+    out->i = invdet * (in->e * (in->j * in->p - in->l * in->n) + in->f * (in->l * in->m - in->i * in->p) + in->h * (in->i * in->n - in->j * in->m));
+    out->j = -invdet * (in->a * (in->j * in->p - in->l * in->n) + in->b * (in->l * in->m - in->i * in->p) + in->d * (in->i * in->n - in->j * in->m));
+    out->k = invdet * (in->a * (in->f * in->p - in->h * in->n) + in->b * (in->h * in->m - in->e * in->p) + in->d * (in->e * in->n - in->f * in->m));
+    out->l = -invdet * (in->a * (in->f * in->l - in->h * in->j) + in->b * (in->h * in->i - in->e * in->l) + in->d * (in->e * in->j - in->f * in->i));
+    
+    out->m = -invdet * (in->e * (in->j * in->o - in->k * in->n) + in->f * (in->k * in->m - in->i * in->o) + in->g * (in->i * in->n - in->j * in->m));
+    out->n = invdet * (in->a * (in->j * in->o - in->k * in->n) + in->b * (in->k * in->m - in->i * in->o) + in->c * (in->i * in->n - in->j * in->m));
+    out->o = -invdet * (in->a * (in->f * in->o - in->g * in->n) + in->b * (in->g * in->m - in->e * in->o) + in->c * (in->e * in->n - in->f * in->m));
+    out->p = invdet * (in->a * (in->f * in->k - in->g * in->j) + in->b * (in->g * in->i - in->e * in->k) + in->c * (in->e * in->j - in->f * in->i));
+}
+
+
 void Cyb_Transform(Cyb_Vec3 *c, const Cyb_Mat4 *a, const Cyb_Vec3 *b)
 {
     c->x = a->a * b->x + a->b * b->y + a->c * b->z + 1.0f * a->d;
@@ -83,7 +176,7 @@ void Cyb_Translate(Cyb_Mat4 *m, float x, float y, float z)
 }
 
 
-void Cyb_Rotate(Cyb_Mat4 *m, float x, float y, float z)
+void Cyb_Rotate(Cyb_Mat4 *m, float x, float y, float z, int rotOrder)
 {
     //Generate X rotation matrix
     Cyb_Mat4 matX;
@@ -114,8 +207,27 @@ void Cyb_Rotate(Cyb_Mat4 *m, float x, float y, float z)
     
     //Multiply rotation matrices
     Cyb_Mat4 tmp;
-    Cyb_MulMat4(&tmp, &matX, &matY);
-    Cyb_MulMat4(m, &tmp, &matZ);
+    
+    switch(rotOrder)
+    {
+        //XYZ?
+    case CYB_ROT_XYZ:
+        Cyb_MulMat4(&tmp, &matZ, &matY);
+        Cyb_MulMat4(m, &tmp, &matX);
+        break;
+        
+        //ZYX?
+    case CYB_ROT_ZYX:
+        Cyb_MulMat4(&tmp, &matX, &matY);
+        Cyb_MulMat4(m, &tmp, &matZ);
+        break;
+        
+        //ZXY?
+    case CYB_ROT_ZXY:
+        Cyb_MulMat4(&tmp, &matY, &matX);
+        Cyb_MulMat4(m, &tmp, &matZ);
+        break;
+    }
 }
 
 
@@ -128,6 +240,31 @@ void Cyb_Scale(Cyb_Mat4 *m, float x, float y, float z)
     m->a = x;
     m->f = y;
     m->k = z;
+}
+
+
+void Cyb_LookAt(Cyb_Mat4 *m, Cyb_Vec3 *pos, Cyb_Vec3 *right, Cyb_Vec3 *up, 
+    Cyb_Vec3 *dir)
+{
+    //Generate position matrix
+    Cyb_Mat4 posMat;
+    Cyb_Translate(&posMat, -pos->x, -pos->y, -pos->z);
+    
+    //Generate vector matrix
+    Cyb_Mat4 vecMat;
+    Cyb_Identity(&vecMat);
+    vecMat.a = right->x;
+    vecMat.b = right->y;
+    vecMat.c = right->z;
+    vecMat.e = up->x;
+    vecMat.f = up->y;
+    vecMat.g = up->z;
+    vecMat.i = dir->x;
+    vecMat.j = dir->y;
+    vecMat.k = dir->z;
+    
+    //Multiply position and vector matrices
+    Cyb_MulMat4(m, &posMat, &vecMat);
 }
 
 
@@ -168,4 +305,5 @@ void Cyb_Perspective(Cyb_Mat4 *m, float fov, float aspect, float near,
     
     //Modify column 4
     m->l = (2.0f * far * near) / (near - far);
+    m->p = 0.0f;
 }

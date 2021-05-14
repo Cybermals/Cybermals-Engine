@@ -1,0 +1,1 @@
+* use the NDK to build ARM and x86_64 versions of the native libraries

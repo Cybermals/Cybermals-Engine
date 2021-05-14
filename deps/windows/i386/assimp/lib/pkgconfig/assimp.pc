@@ -1,0 +1,9 @@
+libdir=C:/Users/Dylan/Documents/Code/C++/assimp/src/assimp-i386-windows-mingw/lib
+includedir=C:/Users/Dylan/Documents/Code/C++/assimp/src/assimp-i386-windows-mingw/include
+
+Name: Assimp
+Description: Import various well-known 3D model formats in an uniform manner.
+Version: 5.0.1
+Libs: -L${libdir} -lassimp
+Libs.private:  
+Cflags: -I${includedir}

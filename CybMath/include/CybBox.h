@@ -6,7 +6,8 @@
  */
  
 #include "CybCommon.h"
-#include "CybVector.h"
+#include "CybMatrix.h"
+#include "CybVec.h"
 
 #ifndef min
 #define min(a, b) (a < b ? a : b)
@@ -76,9 +77,12 @@ CYBAPI void Cyb_GenerateBoxGeometry(Cyb_Vec3 *verts, int *indices,
  *
  * @param out Pointer to the resulting box.
  * @param in Pointer to the original box.
+ * @param x The X axis angle.
+ * @param y The Y axis angle.
+ * @param z The Z axis angle.
  */
 CYBAPI void Cyb_RotateBox(Cyb_Box *out, const Cyb_Box *in, 
-    float x, float y, float z);
+    float x, float y, float z, int rotOrder);
     
 /**
  * @}

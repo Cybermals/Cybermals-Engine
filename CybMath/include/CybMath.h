@@ -7,7 +7,8 @@
 
 #include "CybBox.h"
 #include "CybMatrix.h"
+#include "CybQuat.h"
 #include "CybSphere.h"
-#include "CybVector.h"
+#include "CybVec.h"
 
 #endif

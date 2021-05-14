@@ -9,8 +9,8 @@ CybUI - Timer API
 
 //Globals
 //=================================================================================
-static int startTime = 0;
-static int endTime = 0;
+static unsigned int startTime = 0;
+static unsigned int endTime = 0;
 
 
 //Functions
@@ -20,10 +20,10 @@ void Cyb_NextFrame(int fps)
     //Update frame times
     startTime = endTime;
     endTime = SDL_GetTicks();
-    int frameTime = endTime - startTime;
+    unsigned int frameTime = endTime - startTime;
     
     //Limit framerate
-    int targetTime = 1000 / fps;
+    unsigned int targetTime = 1000 / fps;
     
     if(frameTime < targetTime)
     {

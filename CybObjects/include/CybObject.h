@@ -35,7 +35,20 @@ enum Cyb_ObjectTypes
     CYB_BUTTON,      /**< Button object. */
     CYB_TEXTBOX,     /**< Textbox object. */
     CYB_LISTBOX,     /**< Listbox object. */
-    CYB_PROGRESSBAR  /**< Progress bar object. */
+    CYB_PROGRESSBAR, /**< Progress bar object. */
+    
+    //Renderer objects
+    CYB_RENDERER,    /**< Renderer object. */
+    CYB_SHADER,      /**< Shader object. */
+    CYB_MESH,        /**< Mesh object. */
+    CYB_CAMERA,      /**< Camera object. */
+    CYB_TEXTURE,     /**< Texture object. */
+    CYB_LIGHT,       /**< Light object. */
+    CYB_MATERIAL,    /**< Material object. */
+    CYB_ARMATURE,    /**< Armature object. */
+    CYB_POSE,        /**< Pose object. */
+    CYB_ANIMCHANNEL, /**< Animation channel object. */
+    CYB_ANIMATION    /**< Animation object. */
 };
 
 

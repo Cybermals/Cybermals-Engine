@@ -48,8 +48,9 @@ target_sources(
     PRIVATE
     src/CybBox.c
     src/CybMatrix.c
+    src/CybQuat.c
     src/CybSphere.c
-    src/CybVector.c
+    src/CybVec.c
 )
 
 #Libraries to link against
@@ -104,4 +105,6 @@ endif(UNIX)
 install(TARGETS CybMath DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 # install(FILES ${DEPS} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 # install(DIRECTORY data DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-install(DIRECTORY include DESTINATION ${CMAKE_INSTALL_PREFIX})
+
+file(GLOB CYBMATH_HEADERS include/*)
+install(FILES ${CYBMATH_HEADERS} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/CybMath)

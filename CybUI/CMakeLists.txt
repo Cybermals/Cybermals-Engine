@@ -112,8 +112,6 @@ target_compile_options(
 if(WIN32)
     file(
         GLOB DEPS
-        ../deps/windows/i386/SDL2/lib/*.a
-        ../deps/windows/i386/SDL2/lib/*.lib
         ../deps/windows/i386/SDL2_image/bin/*
         ../deps/windows/i386/SDL2_ttf/bin/*
         ../deps/windows/i386/libexpat/bin/*.dll

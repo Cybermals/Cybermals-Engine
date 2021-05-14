@@ -6,7 +6,7 @@
  */
  
 #include "CybCommon.h"
-#include "CybVector.h"
+#include "CybVec.h"
 
  
 #ifdef __cplusplus

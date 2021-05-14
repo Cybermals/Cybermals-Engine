@@ -3,65 +3,103 @@ cmake_minimum_required(VERSION 3.10)
 cmake_policy(SET CMP0076 NEW)
 
 #Project Name
-project(Library)
+project(CybRender)
 
 #Add library
-add_library(Library SHARED)
+add_library(CybRender SHARED)
 
 #Add include dirs
 if(WIN32)
     target_include_directories(
-        Library
+        CybRender
         PUBLIC
         include
+        ../deps/windows/i386/SDL2/include/SDL2
+        ../deps/windows/i386/SDL2_image/include
+        ../deps/windows/i386/sqlite3/include
     )
 endif(WIN32)
 
 if(UNIX)
     target_include_directories(
-        Library
+        CybRender
         PUBLIC
         include
+        ../deps/linux/amd64/SDL2/include/SDL2
+        ../deps/linux/amd64/SDL2_image/include
+        ../deps/linux/amd64/sqlite3/include
     )
 endif(UNIX)
 
 #Add link dirs
 if(WIN32)
     target_link_directories(
-        Library
+        CybRender
         PUBLIC
+        ../deps/windows/i386/angle/lib
+        ../deps/windows/i386/SDL2_image/bin
+        ../deps/windows/i386/SDL2_image/lib
+        ../deps/windows/i386/sqlite3/lib
     )
 endif(WIN32)
 
 if(UNIX)
     target_link_directories(
-        Library
+        CybRender
         PUBLIC
+        ../deps/linux/amd64/SDL2_image/bin
+        ../deps/linux/amd64/SDL2_image/lib
+        ../deps/linux/amd64/sqlite3/lib
     )
 endif(UNIX)
 
 #Add source code
 target_sources(
-    Library
+    CybRender
     PRIVATE
-    src/main.c
+    src/CybAnimation.c
+    src/CybAnimChannel.c
+    src/CybArmature.c
+    src/CybAssetLoader.c
+    src/CybCamera.c
+    src/CybLight.c
+    src/CybMaterial.c
+    src/CybMesh.c
+    src/CybRenderer.c
+    src/CybShader.c
+    src/CybTexture.c
+    src/CybTimer.c
 )
 
 #Libraries to link against
+set(CybRender_Use_GLES ON CACHE BOOL "Use OpenGL ES (requires ANGLE on Windows).")
 set(LIBS
+    SDL2
+    SDL2_image
+    sqlite3
+    CybObjects
+    CybMath
 )
 
 if(WIN32)
+    set(GL_LIB opengl32)
+    
+    if(CybRender_Use_GLES)
+        set(GL_LIB libGLESv2)
+    endif(CybRender_Use_GLES)
+    
     target_link_libraries(
-        Library
+        CybRender
         ${LIBS}
+        ${GL_LIB}
     )
 endif(WIN32)
 
 if(UNIX)
     target_link_libraries(
-        Library
+        CybRender
         ${LIBS}
+        GL
     )
 endif(UNIX)
 
@@ -71,15 +109,25 @@ if(MSVC10)
 endif(MSVC10)
 
 target_compile_options(
-    Library
+    CybRender
     PUBLIC
     -DDLL_EXPORTS
 )
+
+if(CybRender_Use_GLES)
+    target_compile_options(
+        CybRender
+        PUBLIC
+        -DUSE_GLES
+    )
+endif(CybRender_Use_GLES)
 
 #Copy deps
 if(WIN32)
     file(
         GLOB DEPS
+        ../deps/windows/i386/SDL2_image/bin/*
+        ../deps/windows/i386/angle/bin/*
     )
     file(COPY ${DEPS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif(WIN32)
@@ -87,15 +135,29 @@ endif(WIN32)
 if(UNIX)
     file(
         GLOB DEPS
+        ../deps/linux/amd64/SDL2_image/bin/*.txt
+        ../deps/linux/amd64/SDL2_image/lib/*.so*
     )
     file(COPY ${DEPS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif(UNIX)
 
 #Copy data files
-file(COPY data DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+# file(COPY data DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 #Install
-install(TARGETS Library DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+install(TARGETS CybRender DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 install(FILES ${DEPS} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-install(DIRECTORY data DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-install(DIRECTORY include DESTINATION ${CMAKE_INSTALL_PREFIX})
+# install(DIRECTORY data DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+
+file(GLOB CYBRENDER_HEADERS include/*)
+
+if(WIN32)
+    file(GLOB SQLITE3_HEADERS ../deps/windows/i386/sqlite3/include/*)
+endif(WIN32)
+
+if(UNIX)
+    file(GLOB SQLITE3_HEADERS ../deps/linux/amd64/sqlite3/include/*)
+endif(UNIX)
+
+install(FILES ${SQLITE3_HEADERS} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/sqlite3)
+install(FILES ${CYBRENDER_HEADERS} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/CybRender)

@@ -1,11 +1,11 @@
 @echo off
 
-rem Build UI library
+rem Build CybUI
 cd ../../CybUI
 call build-apk
-cd ../TestSuite/TestCybUI
 
 rem Build main library
+cd ../TestSuite/TestCybUI
 set NDK_PROJECT_PATH=.
 call ndk-build NDK_APPLICATION_MK=./Application.mk
 

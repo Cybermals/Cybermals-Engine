@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-/** @addtogroup Cyb_UI
+/** @addtogroup CybUI
  * @brief Cybermals Engine - UI Subsystem
  * @{
  */
