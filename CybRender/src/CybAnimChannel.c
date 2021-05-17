@@ -177,7 +177,7 @@ int Cyb_ApplyAnimChannel(Cyb_AnimChannel *animChannel, Cyb_Pose *pose,
     int animOver = TRUE;
     Cyb_Vec3 pos = {0.0f, 0.0f, 0.0f};
     
-    for(int i = 0; i < animChannel->posKeyCount - 1; i++)
+    for(int i = 0; i < animChannel->posKeyCount - 2; i++)
     {
         //Is the current time between this key and the next?
         Cyb_VecKey *a = &animChannel->posKeys[i];
@@ -195,7 +195,7 @@ int Cyb_ApplyAnimChannel(Cyb_AnimChannel *animChannel, Cyb_Pose *pose,
     //Calculate the current rotation
     Cyb_Vec4 rot = {0.0f, 0.0f, 0.0f, 1.0f};
     
-    for(int i = 0; i < animChannel->rotKeyCount - 1; i++)
+    for(int i = 0; i < animChannel->rotKeyCount - 2; i++)
     {
         //Is the current time between this key and the next?
         Cyb_QuatKey *a = &animChannel->rotKeys[i];
@@ -213,7 +213,7 @@ int Cyb_ApplyAnimChannel(Cyb_AnimChannel *animChannel, Cyb_Pose *pose,
     //Calculate the current scale
     Cyb_Vec3 scale = {1.0f, 1.0f, 1.0f};
     
-    for(int i = 0; i < animChannel->sclKeyCount - 1; i++)
+    for(int i = 0; i < animChannel->sclKeyCount - 2; i++)
     {
         //Is the current time between this key and the next?
         Cyb_VecKey *a = &animChannel->sclKeys[i];

@@ -34,5 +34,12 @@ void Cyb_NextFrame(int fps)
 
 unsigned int Cyb_GetDeltaTime(void)
 {
+    #ifdef __ANDROID__
+    //Note: On Android, the usual delta time calulations fail for unknown reasons.
+    //Therefore, we will instead return a constant value that is equal to the delta
+    //time of a perfect 30 FPS frame.
+    return 1000 / 30;
+    #else
     return SDL_GetTicks() - startTime;
+    #endif
 }

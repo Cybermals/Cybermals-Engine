@@ -22,6 +22,7 @@ cp ../../CybObjects/libs/armeabi-v7a/*.* android/tmp/lib/armeabi-v7a
 cp ../../CybMath/libs/armeabi-v7a/*.* android/tmp/lib/armeabi-v7a
 cp ../../CybRender/libs/armeabi-v7a/*.* android/tmp/lib/armeabi-v7a
 cp ../../CybUI/libs/armeabi-v7a/*.* android/tmp/lib/armeabi-v7a
+cp libs/armeabi-v7a/*.* android/tmp/lib/armeabi-v7a
 
 #Copy data files
 cp -r ../data android/assets

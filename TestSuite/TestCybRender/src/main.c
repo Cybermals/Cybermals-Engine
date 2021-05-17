@@ -74,6 +74,8 @@ Cyb_Material *pyramidMat = NULL;
 Cyb_Texture *gridTexture = NULL;
 Cyb_Texture *smilyTexture = NULL;
 Cyb_Texture *uvGridTexture = NULL;
+Cyb_Texture *sandstoneBricksTexture = NULL;
+Cyb_Texture *pyramidNormMapTexture = NULL;
 
 Cyb_Mesh *rainbowTriangle = NULL;
 Cyb_Mesh *texturedTriangle = NULL;
@@ -344,8 +346,13 @@ int Init(void)
     smilyTexture = Cyb_LoadTexture(renderer, "data/textures/smily.png");
     uvGridTexture = (Cyb_Texture*)Cyb_LoadAsset(renderer, assetDBPath,
         "UV_grid", CYB_TEXTURE_ASSET);
+    sandstoneBricksTexture = (Cyb_Texture*)Cyb_LoadAsset(renderer, assetDBPath,
+        "SandstoneBricks", CYB_TEXTURE_ASSET);
+    pyramidNormMapTexture = (Cyb_Texture*)Cyb_LoadAsset(renderer, assetDBPath,
+        "PyramidNormMap", CYB_TEXTURE_ASSET);
     
-    if(!gridTexture || !smilyTexture || !uvGridTexture)
+    if(!gridTexture || !smilyTexture || !uvGridTexture || 
+       !sandstoneBricksTexture || !pyramidNormMapTexture)
     {
         return 1;
     }
@@ -740,7 +747,7 @@ void DrawPyramid(void)
     Cyb_SetFloat(renderer, bumpMapShader, "mat.shininess", pyramidMat->shininess);
     
     //Set textures
-    Cyb_SelectTexture(renderer, uvGridTexture, 0);
+    Cyb_SelectTexture(renderer, sandstoneBricksTexture, 0);
     Cyb_SetTexture(renderer, bumpMapShader, "tex0", 0);
     
     //Select pose
