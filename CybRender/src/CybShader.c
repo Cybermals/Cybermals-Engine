@@ -325,6 +325,7 @@ Cyb_Shader *Cyb_LoadShaderRW(Cyb_Renderer *renderer, SDL_RWops *file,
     SDL_free(data);
     glExtAPI->BindAttribLocation(prog, CYB_ATTRIB_POS, "pos");
     glExtAPI->BindAttribLocation(prog, CYB_ATTRIB_NORM, "norm");
+    glExtAPI->BindAttribLocation(prog, CYB_ATTRIB_TANGENT, "tangent");
     glExtAPI->BindAttribLocation(prog, CYB_ATTRIB_COLOR, "color");
     glExtAPI->BindAttribLocation(prog, CYB_ATTRIB_UV, "uv");
     glExtAPI->BindAttribLocation(prog, CYB_ATTRIB_GROUP, "group");

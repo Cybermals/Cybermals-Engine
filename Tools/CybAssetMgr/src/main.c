@@ -45,6 +45,7 @@ const char *initSQL = "PRAGMA foreign_keys=ON;\n"
 "        vert_count INT,\n"
 "        vertices BLOB,\n"
 "        normals BLOB,\n"
+"        tangents BLOB,\n"
 "        colors BLOB,\n"
 "        uvs BLOB,\n"
 "        index_count INT,\n"
@@ -106,7 +107,7 @@ const char *listTexturesSQL = "SELECT name, width, height, format FROM textures 
 const char *listMaterialsSQL = "SELECT name, ambient, diffuse, specular, shininess FROM materials ORDER BY name;";
 const char *listArmaturesSQL = "SELECT name, vert_count, bone_count FROM armatures ORDER BY name;";
 const char *listAnimationsSQL = "SELECT name, channel_count, ticks_per_sec FROM animations ORDER BY name;";
-const char *addMeshSQL = "INSERT OR REPLACE INTO meshes(name, vert_count, vertices, normals, colors, uvs, index_count, indices) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+const char *addMeshSQL = "INSERT OR REPLACE INTO meshes(name, vert_count, vertices, normals, tangents, colors, uvs, index_count, indices) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
 const char *addTextureSQL = "INSERT OR REPLACE INTO textures(name, width, height, format, data) VALUES (?, ?, ?, ?, ?);";
 const char *addMaterialSQL = "INSERT OR REPLACE INTO materials(name, ambient, diffuse, specular, shininess) VALUES (?, ?, ?, ?, ?);";
 const char *addArmatureSQL = "INSERT OR REPLACE INTO armatures(name, vert_count, vgroups, vweights, bone_count, bones) VALUES (?, ?, ?, ?, ?, ?);";
@@ -329,7 +330,7 @@ int ListAssets(void)
     {
         printf("Name: %s\n", sqlite3_column_text(listAnimationsStmt, 0));
         printf("Channel Count: %i\n", sqlite3_column_int(listAnimationsStmt, 1));
-        printf("Ticks Per Second: %d\n\n", 
+        printf("Ticks Per Second: %f\n\n", 
             sqlite3_column_double(listAnimationsStmt, 2));
     }
     
@@ -493,28 +494,38 @@ int AddMeshes(const char *filename)
             sqlite3_bind_null(addMeshStmt, 4);
         }
         
-        if(mesh->mColors[0])
+        if(mesh->mTangents)
         {
-            sqlite3_bind_blob(addMeshStmt, 5, mesh->mColors[0],
-                sizeof(Cyb_Vec4) * mesh->mNumVertices, NULL);
+            sqlite3_bind_blob(addMeshStmt, 5, mesh->mTangents,
+                sizeof(Cyb_Vec3) * mesh->mNumVertices, NULL);
         }
         else
         {
             sqlite3_bind_null(addMeshStmt, 5);
         }
         
-        if(uvs)
+        if(mesh->mColors[0])
         {
-            sqlite3_bind_blob(addMeshStmt, 6, uvs,
-                sizeof(Cyb_Vec2) * mesh->mNumVertices, NULL);
+            sqlite3_bind_blob(addMeshStmt, 6, mesh->mColors[0],
+                sizeof(Cyb_Vec4) * mesh->mNumVertices, NULL);
         }
         else
         {
             sqlite3_bind_null(addMeshStmt, 6);
         }
         
-        sqlite3_bind_int(addMeshStmt, 7, mesh->mNumFaces * 3);
-        sqlite3_bind_blob(addMeshStmt, 8, indices, 
+        if(uvs)
+        {
+            sqlite3_bind_blob(addMeshStmt, 7, uvs,
+                sizeof(Cyb_Vec2) * mesh->mNumVertices, NULL);
+        }
+        else
+        {
+            sqlite3_bind_null(addMeshStmt, 7);
+        }
+        
+        sqlite3_bind_int(addMeshStmt, 8, mesh->mNumFaces * 3);
+        sqlite3_bind_blob(addMeshStmt, 9, indices, 
             sizeof(int) * 3 * mesh->mNumFaces, NULL);
         
         if(sqlite3_step(addMeshStmt) != SQLITE_DONE)

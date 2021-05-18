@@ -25,12 +25,13 @@ extern "C" {
  */
 enum Cyb_VertexAttribs
 {
-    CYB_ATTRIB_POS,   /**< Vertex position attrib. */
-    CYB_ATTRIB_NORM,  /**< Vertex normal attrib. */
-    CYB_ATTRIB_COLOR, /**< Vertex color attrib. */
-    CYB_ATTRIB_UV,    /**< Vertex uv attrib. */
-    CYB_ATTRIB_GROUP, /**< Vertex group attrib. */
-    CYB_ATTRIB_WEIGHT /**< Vertex weight attrib. */
+    CYB_ATTRIB_POS,     /**< Vertex position attrib. */
+    CYB_ATTRIB_NORM,    /**< Vertex normal attrib. */
+    CYB_ATTRIB_TANGENT, /**< Tangent vector attrib. */
+    CYB_ATTRIB_COLOR,   /**< Vertex color attrib. */
+    CYB_ATTRIB_UV,      /**< Vertex uv attrib. */
+    CYB_ATTRIB_GROUP,   /**< Vertex group attrib. */
+    CYB_ATTRIB_WEIGHT   /**< Vertex weight attrib. */
 };
 
 
@@ -55,8 +56,9 @@ typedef struct
  */
 typedef struct
 {
-    Cyb_Vec3 pos;  /**< Vertex position. */
-    Cyb_Vec3 norm; /**< Vertex normal. */
+    Cyb_Vec3 pos;     /**< Vertex position. */
+    Cyb_Vec3 norm;    /**< Vertex normal. */
+    Cyb_Vec3 tangent; /**< Tangent vector. */
 } Cyb_VertexVN;
 
 
@@ -64,9 +66,10 @@ typedef struct
  */
 typedef struct
 {
-    Cyb_Vec3 pos;   /**< Vertex position. */
-    Cyb_Vec3 norm;  /**< Vertex normal. */
-    Cyb_Vec4 color; /**< Vertex color. */
+    Cyb_Vec3 pos;     /**< Vertex position. */
+    Cyb_Vec3 norm;    /**< Vertex normal. */
+    Cyb_Vec3 tangent; /**< Tangent vector. */
+    Cyb_Vec4 color;   /**< Vertex color. */
 } Cyb_VertexVNC;
 
 
@@ -74,9 +77,10 @@ typedef struct
  */
 typedef struct
 {
-    Cyb_Vec3 pos;  /**< Vertex position. */
-    Cyb_Vec3 norm; /**< Vertex normal. */
-    Cyb_Vec2 uv;   /**< Vertex texture coordinate. */
+    Cyb_Vec3 pos;     /**< Vertex position. */
+    Cyb_Vec3 norm;    /**< Vertex normal. */
+    Cyb_Vec3 tangent; /**< Tangent vector. */
+    Cyb_Vec2 uv;      /**< Vertex texture coordinate. */
 } Cyb_VertexVNT;
 
 
@@ -84,10 +88,11 @@ typedef struct
  */
 typedef struct
 {
-    Cyb_Vec3 pos;   /**< Vertex position. */
-    Cyb_Vec3 norm;  /**< Vertex normal. */
-    Cyb_Vec4 color; /**< Vertex color. */
-    Cyb_Vec2 uv;    /**< Vertex texture coordinate. */
+    Cyb_Vec3 pos;     /**< Vertex position. */
+    Cyb_Vec3 norm;    /**< Vertex normal. */
+    Cyb_Vec3 tangent; /**< Tangent vector. */
+    Cyb_Vec4 color;   /**< Vertex color. */
+    Cyb_Vec2 uv;      /**< Vertex texture coordinate. */
 } Cyb_VertexVNCT;
 
 
@@ -123,6 +128,7 @@ CYBAPI Cyb_Mesh *Cyb_CreateMesh(Cyb_Renderer *renderer);
  * @param vertCount The number of vertices.
  * @param verts The vertex positions (required).
  * @param norms The vertex normals (optional; required if colors or uvs are given).
+ * @param tangents The tangent vectors (optional).
  * @param colors The vertex colors (optional).
  * @param uvs The vertex texture coordinates (optional).
  * @param indexCount The number of indices.
@@ -131,8 +137,9 @@ CYBAPI Cyb_Mesh *Cyb_CreateMesh(Cyb_Renderer *renderer);
  * @return CYB_NO_ERROR on success.
  */
 CYBAPI int Cyb_UpdateMesh(Cyb_Renderer *renderer, Cyb_Mesh *mesh, int vertCount, 
-    const Cyb_Vec3 *verts, const Cyb_Vec3 *norms, const Cyb_Vec4 *colors, 
-    const Cyb_Vec2 *uvs, int indexCount, const unsigned int *indices);
+    const Cyb_Vec3 *verts, const Cyb_Vec3 *norms, const Cyb_Vec3 *tangents, 
+    const Cyb_Vec4 *colors, const Cyb_Vec2 *uvs, int indexCount, 
+    const unsigned int *indices);
     
 /** @brief Draw a mesh.
  *

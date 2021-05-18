@@ -15,7 +15,7 @@ CybRender - Asset Loader API
 
 //Constants
 //=================================================================================
-const char *loadMeshSQL = "SELECT vert_count, vertices, normals, colors, uvs, index_count, indices FROM meshes WHERE name = ?;";
+const char *loadMeshSQL = "SELECT vert_count, vertices, normals, tangents, colors, uvs, index_count, indices FROM meshes WHERE name = ?;";
 const char *loadMaterialSQL = "SELECT ambient, diffuse, specular, shininess FROM materials WHERE name = ?;";
 const char *loadTextureSQL = "SELECT width, height, format, data FROM textures WHERE name = ?;";
 const char *loadArmatureSQL = "SELECT vert_count, vgroups, vweights, bone_count, bones FROM armatures WHERE name = ?;";
@@ -94,8 +94,9 @@ Cyb_Object *Cyb_LoadAsset_DB(Cyb_Renderer *renderer, sqlite3 *db,
             sqlite3_column_blob(loadMeshStmt, 2),
             sqlite3_column_blob(loadMeshStmt, 3),
             sqlite3_column_blob(loadMeshStmt, 4),
-            sqlite3_column_int(loadMeshStmt, 5),
-            sqlite3_column_blob(loadMeshStmt, 6)
+            sqlite3_column_blob(loadMeshStmt, 5),
+            sqlite3_column_int(loadMeshStmt, 6),
+            sqlite3_column_blob(loadMeshStmt, 7)
         );
         
         //Finalize SQL statements

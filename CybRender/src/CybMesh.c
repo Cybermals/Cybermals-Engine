@@ -86,8 +86,9 @@ Cyb_Mesh *Cyb_CreateMesh(Cyb_Renderer *renderer)
 
 
 int Cyb_UpdateMesh(Cyb_Renderer *renderer, Cyb_Mesh *mesh, int vertCount, 
-    const Cyb_Vec3 *verts, const Cyb_Vec3 *norms, const Cyb_Vec4 *colors, 
-    const Cyb_Vec2 *uvs, int indexCount, const unsigned int *indices)
+    const Cyb_Vec3 *verts, const Cyb_Vec3 *norms, const Cyb_Vec3 *tangents, 
+    const Cyb_Vec4 *colors, const Cyb_Vec2 *uvs, int indexCount, 
+    const unsigned int *indices)
 {
     //Ensure that vertices and indices were given
     if(!verts || !indices)
@@ -121,6 +122,11 @@ int Cyb_UpdateMesh(Cyb_Renderer *renderer, Cyb_Mesh *mesh, int vertCount,
             {
                 memcpy(&buf[i].pos, &verts[i], sizeof(verts[i]));
                 memcpy(&buf[i].norm, &norms[i], sizeof(norms[i]));
+                
+                if(tangents)
+                {
+                    memcpy(&buf[i].tangent, &tangents[i], sizeof(tangents[i]));
+                }
             }
         
             //Bind VBO, upload geometry data, and free temp buffer
@@ -149,6 +155,12 @@ int Cyb_UpdateMesh(Cyb_Renderer *renderer, Cyb_Mesh *mesh, int vertCount,
             {
                 memcpy(&buf[i].pos, &verts[i], sizeof(verts[i]));
                 memcpy(&buf[i].norm, &norms[i], sizeof(norms[i]));
+                
+                if(tangents)
+                {
+                    memcpy(&buf[i].tangent, &tangents[i], sizeof(tangents[i]));
+                }
+                
                 memcpy(&buf[i].color, &colors[i], sizeof(colors[i]));
             }
         
@@ -178,6 +190,12 @@ int Cyb_UpdateMesh(Cyb_Renderer *renderer, Cyb_Mesh *mesh, int vertCount,
             {
                 memcpy(&buf[i].pos, &verts[i], sizeof(verts[i]));
                 memcpy(&buf[i].norm, &norms[i], sizeof(norms[i]));
+                
+                if(tangents)
+                {
+                    memcpy(&buf[i].tangent, &tangents[i], sizeof(tangents[i]));
+                }
+                
                 memcpy(&buf[i].uv, &uvs[i], sizeof(uvs[i]));
             }
         
@@ -207,6 +225,12 @@ int Cyb_UpdateMesh(Cyb_Renderer *renderer, Cyb_Mesh *mesh, int vertCount,
             {
                 memcpy(&buf[i].pos, &verts[i], sizeof(verts[i]));
                 memcpy(&buf[i].norm, &norms[i], sizeof(norms[i]));
+                
+                if(tangents)
+                {
+                    memcpy(&buf[i].tangent, &tangents[i], sizeof(tangents[i]));
+                }
+                
                 memcpy(&buf[i].color, &colors[i], sizeof(colors[i]));
                 memcpy(&buf[i].uv, &uvs[i], sizeof(uvs[i]));
             }
@@ -277,6 +301,7 @@ void Cyb_DrawMesh(Cyb_Renderer *renderer, Cyb_Mesh *mesh)
     case CYB_VERTEX_V:
         glExtAPI->EnableVertexAttribArray(CYB_ATTRIB_POS);
         glExtAPI->DisableVertexAttribArray(CYB_ATTRIB_NORM);
+        glExtAPI->DisableVertexAttribArray(CYB_ATTRIB_TANGENT);
         glExtAPI->DisableVertexAttribArray(CYB_ATTRIB_COLOR);
         glExtAPI->DisableVertexAttribArray(CYB_ATTRIB_UV);
         glExtAPI->VertexAttribPointer(CYB_ATTRIB_POS, 3, GL_FLOAT, GL_FALSE, 
@@ -287,24 +312,30 @@ void Cyb_DrawMesh(Cyb_Renderer *renderer, Cyb_Mesh *mesh)
     case CYB_VERTEX_VN:
         glExtAPI->EnableVertexAttribArray(CYB_ATTRIB_POS);
         glExtAPI->EnableVertexAttribArray(CYB_ATTRIB_NORM);
+        glExtAPI->EnableVertexAttribArray(CYB_ATTRIB_TANGENT);
         glExtAPI->DisableVertexAttribArray(CYB_ATTRIB_COLOR);
         glExtAPI->DisableVertexAttribArray(CYB_ATTRIB_UV);
         glExtAPI->VertexAttribPointer(CYB_ATTRIB_POS, 3, GL_FLOAT, GL_FALSE, 
             sizeof(Cyb_VertexVN), (void*)offsetof(Cyb_VertexVN, pos));
         glExtAPI->VertexAttribPointer(CYB_ATTRIB_NORM, 3, GL_FLOAT, GL_FALSE,
             sizeof(Cyb_VertexVN), (void*)offsetof(Cyb_VertexVN, norm));
+        glExtAPI->VertexAttribPointer(CYB_ATTRIB_TANGENT, 3, GL_FLOAT, GL_FALSE,
+            sizeof(Cyb_VertexVN), (void*)offsetof(Cyb_VertexVN, tangent));
         break;
         
         //Position, normal, and color
     case CYB_VERTEX_VNC:
         glExtAPI->EnableVertexAttribArray(CYB_ATTRIB_POS);
         glExtAPI->EnableVertexAttribArray(CYB_ATTRIB_NORM);
+        glExtAPI->EnableVertexAttribArray(CYB_ATTRIB_TANGENT);
         glExtAPI->EnableVertexAttribArray(CYB_ATTRIB_COLOR);
         glExtAPI->DisableVertexAttribArray(CYB_ATTRIB_UV);
         glExtAPI->VertexAttribPointer(CYB_ATTRIB_POS, 3, GL_FLOAT, GL_FALSE, 
             sizeof(Cyb_VertexVNC), (void*)offsetof(Cyb_VertexVNC, pos));
         glExtAPI->VertexAttribPointer(CYB_ATTRIB_NORM, 3, GL_FLOAT, GL_FALSE,
             sizeof(Cyb_VertexVNC), (void*)offsetof(Cyb_VertexVNC, norm));
+        glExtAPI->VertexAttribPointer(CYB_ATTRIB_TANGENT, 3, GL_FLOAT, GL_FALSE,
+            sizeof(Cyb_VertexVNC), (void*)offsetof(Cyb_VertexVNC, tangent));
         glExtAPI->VertexAttribPointer(CYB_ATTRIB_COLOR, 4, GL_FLOAT, GL_FALSE,
             sizeof(Cyb_VertexVNC), (void*)offsetof(Cyb_VertexVNC, color));
         break;
@@ -313,12 +344,15 @@ void Cyb_DrawMesh(Cyb_Renderer *renderer, Cyb_Mesh *mesh)
     case CYB_VERTEX_VNT:
         glExtAPI->EnableVertexAttribArray(CYB_ATTRIB_POS);
         glExtAPI->EnableVertexAttribArray(CYB_ATTRIB_NORM);
+        glExtAPI->EnableVertexAttribArray(CYB_ATTRIB_TANGENT);
         glExtAPI->DisableVertexAttribArray(CYB_ATTRIB_COLOR);
         glExtAPI->EnableVertexAttribArray(CYB_ATTRIB_UV);
         glExtAPI->VertexAttribPointer(CYB_ATTRIB_POS, 3, GL_FLOAT, GL_FALSE, 
             sizeof(Cyb_VertexVNT), (void*)offsetof(Cyb_VertexVNT, pos));
         glExtAPI->VertexAttribPointer(CYB_ATTRIB_NORM, 3, GL_FLOAT, GL_FALSE,
             sizeof(Cyb_VertexVNT), (void*)offsetof(Cyb_VertexVNT, norm));
+        glExtAPI->VertexAttribPointer(CYB_ATTRIB_TANGENT, 3, GL_FLOAT, GL_FALSE,
+            sizeof(Cyb_VertexVNT), (void*)offsetof(Cyb_VertexVNT, tangent));
         glExtAPI->VertexAttribPointer(CYB_ATTRIB_UV, 2, GL_FLOAT, GL_FALSE,
             sizeof(Cyb_VertexVNT), (void*)offsetof(Cyb_VertexVNT, uv));
         break;
@@ -327,12 +361,15 @@ void Cyb_DrawMesh(Cyb_Renderer *renderer, Cyb_Mesh *mesh)
     case CYB_VERTEX_VNCT:
         glExtAPI->EnableVertexAttribArray(CYB_ATTRIB_POS);
         glExtAPI->EnableVertexAttribArray(CYB_ATTRIB_NORM);
+        glExtAPI->EnableVertexAttribArray(CYB_ATTRIB_TANGENT);
         glExtAPI->EnableVertexAttribArray(CYB_ATTRIB_COLOR);
         glExtAPI->EnableVertexAttribArray(CYB_ATTRIB_UV);
         glExtAPI->VertexAttribPointer(CYB_ATTRIB_POS, 3, GL_FLOAT, GL_FALSE, 
             sizeof(Cyb_VertexVNCT), (void*)offsetof(Cyb_VertexVNCT, pos));
         glExtAPI->VertexAttribPointer(CYB_ATTRIB_NORM, 3, GL_FLOAT, GL_FALSE,
             sizeof(Cyb_VertexVNCT), (void*)offsetof(Cyb_VertexVNCT, norm));
+        glExtAPI->VertexAttribPointer(CYB_ATTRIB_TANGENT, 3, GL_FLOAT, GL_FALSE,
+            sizeof(Cyb_VertexVNCT), (void*)offsetof(Cyb_VertexVNCT, tangent));
         glExtAPI->VertexAttribPointer(CYB_ATTRIB_COLOR, 4, GL_FLOAT, GL_FALSE,
             sizeof(Cyb_VertexVNCT), (void*)offsetof(Cyb_VertexVNCT, color));
         glExtAPI->VertexAttribPointer(CYB_ATTRIB_UV, 2, GL_FLOAT, GL_FALSE,

@@ -64,7 +64,7 @@ Cyb_Camera *cam = NULL;
 
 Cyb_Shader *rainbowShader = NULL;
 Cyb_Shader *textureShader = NULL;
-Cyb_Shader *bumpMapShader = NULL;
+Cyb_Shader *normMapShader = NULL;
 
 Cyb_Light *light = NULL;
 
@@ -312,9 +312,9 @@ int Init(void)
     //Load shaders
     rainbowShader = Cyb_LoadShader(renderer, "data/shaders/rainbow.glsl");
     textureShader = Cyb_LoadShader(renderer, "data/shaders/texture.glsl");
-    bumpMapShader = Cyb_LoadShader(renderer, "data/shaders/bump_map.glsl");
+    normMapShader = Cyb_LoadShader(renderer, "data/shaders/norm_map.glsl");
     
-    if(!rainbowShader || !textureShader || !bumpMapShader)
+    if(!rainbowShader || !textureShader || !normMapShader)
     {
         return 1;
     }
@@ -401,10 +401,10 @@ int Init(void)
         int vertCount = sizeof(verts) / sizeof(verts[0]);
         int indexCount = sizeof(indices) / sizeof(indices[0]);
         
-        Cyb_UpdateMesh(renderer, rainbowTriangle, vertCount, verts, norms, colors, 
-            NULL, indexCount, indices);
-        Cyb_UpdateMesh(renderer, texturedTriangle, vertCount, verts, norms, NULL,
-            uvs, indexCount, indices);
+        Cyb_UpdateMesh(renderer, rainbowTriangle, vertCount, verts, norms, NULL, 
+            colors, NULL, indexCount, indices);
+        Cyb_UpdateMesh(renderer, texturedTriangle, vertCount, verts, norms, NULL, 
+            NULL, uvs, indexCount, indices);
     }
     
     rainbowCube = Cyb_CreateMesh(renderer);
@@ -478,10 +478,10 @@ int Init(void)
         int vertCount = sizeof(verts) / sizeof(verts[0]);
         int indexCount = sizeof(indices) / sizeof(indices[0]);
         
-        Cyb_UpdateMesh(renderer, rainbowCube, vertCount, verts, norms, colors, NULL,
-            indexCount, indices);
-        Cyb_UpdateMesh(renderer, texturedCube, vertCount, verts, norms, NULL, uvs,
-            indexCount, indices);
+        Cyb_UpdateMesh(renderer, rainbowCube, vertCount, verts, norms, NULL, 
+            colors, NULL, indexCount, indices);
+        Cyb_UpdateMesh(renderer, texturedCube, vertCount, verts, norms, NULL, 
+            NULL, uvs, indexCount, indices);
     }
     
     pyramid = (Cyb_Mesh*)Cyb_LoadAsset(renderer, assetDBPath, "pyramid", 
@@ -725,33 +725,35 @@ void DrawPyramid(void)
     glEnable(GL_CULL_FACE);
     
     //Select shader
-    Cyb_SelectShader(renderer, bumpMapShader);
+    Cyb_SelectShader(renderer, normMapShader);
     
     //Set matrices
-    Cyb_SetMatrix(renderer, bumpMapShader, "m", &m);
-    Cyb_SetMatrix(renderer, bumpMapShader, "v", Cyb_GetViewMatrix(cam));
-    Cyb_SetMatrix(renderer, bumpMapShader, "p", &p);
-    Cyb_SetMatrix(renderer, bumpMapShader, "n", &n);
+    Cyb_SetMatrix(renderer, normMapShader, "m", &m);
+    Cyb_SetMatrix(renderer, normMapShader, "v", Cyb_GetViewMatrix(cam));
+    Cyb_SetMatrix(renderer, normMapShader, "p", &p);
+    Cyb_SetMatrix(renderer, normMapShader, "n", &n);
     
     //Set lights
-    Cyb_SetVec3(renderer, bumpMapShader, "camPos", Cyb_GetCameraPos(cam));
-    Cyb_SetVec3(renderer, bumpMapShader, "light.pos", &light->pos);
-    Cyb_SetVec3(renderer, bumpMapShader, "light.ambient", &light->ambient);
-    Cyb_SetVec3(renderer, bumpMapShader, "light.diffuse", &light->diffuse);
-    Cyb_SetVec3(renderer, bumpMapShader, "light.specular", &light->specular);
+    Cyb_SetVec3(renderer, normMapShader, "camPos", Cyb_GetCameraPos(cam));
+    Cyb_SetVec3(renderer, normMapShader, "light.pos", &light->pos);
+    Cyb_SetVec3(renderer, normMapShader, "light.ambient", &light->ambient);
+    Cyb_SetVec3(renderer, normMapShader, "light.diffuse", &light->diffuse);
+    Cyb_SetVec3(renderer, normMapShader, "light.specular", &light->specular);
     
     //Set material
-    Cyb_SetVec3(renderer, bumpMapShader, "mat.ambient", &pyramidMat->ambient);
-    Cyb_SetVec3(renderer, bumpMapShader, "mat.diffuse", &pyramidMat->diffuse);
-    Cyb_SetVec3(renderer, bumpMapShader, "mat.specular", &pyramidMat->specular);
-    Cyb_SetFloat(renderer, bumpMapShader, "mat.shininess", pyramidMat->shininess);
+    Cyb_SetVec3(renderer, normMapShader, "mat.ambient", &pyramidMat->ambient);
+    Cyb_SetVec3(renderer, normMapShader, "mat.diffuse", &pyramidMat->diffuse);
+    Cyb_SetVec3(renderer, normMapShader, "mat.specular", &pyramidMat->specular);
+    Cyb_SetFloat(renderer, normMapShader, "mat.shininess", pyramidMat->shininess);
     
     //Set textures
     Cyb_SelectTexture(renderer, sandstoneBricksTexture, 0);
-    Cyb_SetTexture(renderer, bumpMapShader, "tex0", 0);
+    Cyb_SetTexture(renderer, normMapShader, "tex0", 0);
+    Cyb_SelectTexture(renderer, pyramidNormMapTexture, 1);
+    Cyb_SetTexture(renderer, normMapShader, "tex1", 1);
     
     //Select pose
-    Cyb_SelectPose(renderer, bumpMapShader, pyramidPose);
+    Cyb_SelectPose(renderer, normMapShader, pyramidPose);
     
     //Draw the pyramid
     Cyb_DrawMesh(renderer, pyramid);
@@ -886,6 +888,7 @@ int main(int argc, char **argv)
                     //D key (strafe right)?
                 case SDLK_d:
                     playerVelocity.x = 0.0f;
+                    break;
                     
                     //Left arrow key (turn left)?
                 case SDLK_LEFT:
