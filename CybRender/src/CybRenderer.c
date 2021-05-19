@@ -184,23 +184,6 @@ static int Cyb_InitGLExtAPI(Cyb_GLExtAPI *glExtAPI)
         "glBufferData"
     );
     
-    //Import vertex array functions
-    IMPORT_GL_FUNC(
-        glExtAPI->GenVertexArrays, 
-        PFNGLGENVERTEXARRAYSPROC,
-        "glGenVertexArrays"
-    );
-    IMPORT_GL_FUNC(
-        glExtAPI->DeleteVertexArrays, 
-        PFNGLDELETEVERTEXARRAYSPROC,
-        "glDeleteVertexArrays"
-    );
-    IMPORT_GL_FUNC(
-        glExtAPI->BindVertexArray, 
-        PFNGLBINDVERTEXARRAYPROC,
-        "glBindVertexArray"
-    );
-    
     //Import vertex attrib functions
     IMPORT_GL_FUNC(
         glExtAPI->EnableVertexAttribArray, 
@@ -224,6 +207,18 @@ static int Cyb_InitGLExtAPI(Cyb_GLExtAPI *glExtAPI)
         PFNGLACTIVETEXTUREPROC,
         "glActiveTexture"
     );
+    
+    /* //Import instanced drawing functions
+    IMPORT_GL_FUNC(
+        glExtAPI->DrawElementsInstanced,
+        PFNGLDRAWELEMENTSINSTANCEDPROC,
+        "glDrawElementsInstanced"
+    );
+    IMPORT_GL_FUNC(
+        glExtAPI->VertexAttribDivisor,
+        PFNGLVERTEXATTRIBDIVISORPROC,
+        "glVertexAttribDivisor"
+    ); */
     
     return CYB_NO_ERROR;
 }

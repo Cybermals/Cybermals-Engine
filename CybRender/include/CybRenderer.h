@@ -63,11 +63,6 @@ typedef struct
     PFNGLBINDBUFFERPROC BindBuffer;
     PFNGLBUFFERDATAPROC BufferData;
     
-    //Vertex Array Functions
-    PFNGLGENVERTEXARRAYSPROC GenVertexArrays;
-    PFNGLDELETEVERTEXARRAYSPROC DeleteVertexArrays;
-    PFNGLBINDVERTEXARRAYPROC BindVertexArray;
-    
     //Vertex Attrib Functions
     PFNGLENABLEVERTEXATTRIBARRAYPROC EnableVertexAttribArray;
     PFNGLDISABLEVERTEXATTRIBARRAYPROC DisableVertexAttribArray;
@@ -75,6 +70,10 @@ typedef struct
     
     //Texture Functions
     PFNGLACTIVETEXTUREPROC ActiveTexture;
+    
+    /* //Instanced Drawing Functions
+    PFNGLDRAWELEMENTSINSTANCEDPROC DrawElementsInstanced;
+    PFNGLVERTEXATTRIBDIVISORPROC VertexAttribDivisor; */
 } Cyb_GLExtAPI;
 
 

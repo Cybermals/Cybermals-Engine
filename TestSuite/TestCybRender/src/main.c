@@ -37,7 +37,8 @@ enum RenderMode
     TRIANGLE_MESH,
     CUBE_MESH,
     TRIANGLE_IN_CUBE_MESH,
-    PYRAMID_MESH
+    PYRAMID_MESH,
+    INSTANCED_PYRAMID_MESH
 };
 
 
@@ -89,9 +90,9 @@ Cyb_Pose *pyramidPose = NULL;
 
 Cyb_Animation *pyramidWiggleAnim = NULL;
 
-Cyb_Mat4 m;
+Cyb_Mat4 m[100];
 Cyb_Mat4 p;
-Cyb_Mat4 n;
+Cyb_Mat4 n[100];
 
 int renderMode = PYRAMID_MESH; //TRIANGLE_MESH;
 int useTextures = FALSE;
@@ -535,12 +536,12 @@ void DrawTriangle(void)
     Cyb_Vec4 quat;
     Cyb_QuatFromAxisAndAngle(&quat, 0.0f, 1.0f, 0.0f, angle);
     Cyb_NormalizeQuat(&quat);
-    Cyb_QuatToMatrix(&m, &quat);
+    Cyb_QuatToMatrix(&m[0], &quat);
     
     //Update normal matrix
     Cyb_Mat4 tmp;
-    Cyb_Transpose(&tmp, &m);
-    Cyb_Invert(&n, &tmp);
+    Cyb_Transpose(&tmp, &m[0]);
+    Cyb_Invert(&n[0], &tmp);
     
     //Enable depth testing and disable face culling
     glEnable(GL_DEPTH_TEST);
@@ -553,10 +554,10 @@ void DrawTriangle(void)
         Cyb_SelectShader(renderer, textureShader);
     
         //Set matrices
-        Cyb_SetMatrix(renderer, textureShader, "m", &m);
+        Cyb_SetMatrix(renderer, textureShader, "m", &m[0]);
         Cyb_SetMatrix(renderer, textureShader, "v", Cyb_GetViewMatrix(cam));
         Cyb_SetMatrix(renderer, textureShader, "p", &p);
-        Cyb_SetMatrix(renderer, textureShader, "n", &n);
+        Cyb_SetMatrix(renderer, textureShader, "n", &n[0]);
         
         //Set lights
         Cyb_SetVec3(renderer, textureShader, "camPos", Cyb_GetCameraPos(cam));
@@ -587,10 +588,10 @@ void DrawTriangle(void)
         Cyb_SelectShader(renderer, rainbowShader);
     
         //Set matrices
-        Cyb_SetMatrix(renderer, rainbowShader, "m", &m);
+        Cyb_SetMatrix(renderer, rainbowShader, "m", &m[0]);
         Cyb_SetMatrix(renderer, rainbowShader, "v", Cyb_GetViewMatrix(cam));
         Cyb_SetMatrix(renderer, rainbowShader, "p", &p);
-        Cyb_SetMatrix(renderer, rainbowShader, "n", &n);
+        Cyb_SetMatrix(renderer, rainbowShader, "n", &n[0]);
         
         //Set lights
         Cyb_SetVec3(renderer, rainbowShader, "camPos", Cyb_GetCameraPos(cam));
@@ -618,12 +619,12 @@ void DrawCube(void)
     Cyb_Vec4 quat;
     Cyb_QuatFromAxisAndAngle(&quat, 0.0f, 1.0f, 0.0f, -angle);
     Cyb_NormalizeQuat(&quat);
-    Cyb_QuatToMatrix(&m, &quat);
+    Cyb_QuatToMatrix(&m[0], &quat);
     
     //Update normal matrix
     Cyb_Mat4 tmp;
-    Cyb_Transpose(&tmp, &m);
-    Cyb_Invert(&n, &tmp);
+    Cyb_Transpose(&tmp, &m[0]);
+    Cyb_Invert(&n[0], &tmp);
     
     //Enable depth testing and disable face culling
     glEnable(GL_DEPTH_TEST);
@@ -636,10 +637,10 @@ void DrawCube(void)
         Cyb_SelectShader(renderer, textureShader);
     
         //Set matrices
-        Cyb_SetMatrix(renderer, textureShader, "m", &m);
+        Cyb_SetMatrix(renderer, textureShader, "m", &m[0]);
         Cyb_SetMatrix(renderer, textureShader, "v", Cyb_GetViewMatrix(cam));
         Cyb_SetMatrix(renderer, textureShader, "p", &p);
-        Cyb_SetMatrix(renderer, textureShader, "n", &n);
+        Cyb_SetMatrix(renderer, textureShader, "n", &n[0]);
         
         //Set lights
         Cyb_SetVec3(renderer, textureShader, "camPos", Cyb_GetCameraPos(cam));
@@ -670,10 +671,10 @@ void DrawCube(void)
         Cyb_SelectShader(renderer, rainbowShader);
     
         //Set matrices
-        Cyb_SetMatrix(renderer, rainbowShader, "m", &m);
+        Cyb_SetMatrix(renderer, rainbowShader, "m", &m[0]);
         Cyb_SetMatrix(renderer, rainbowShader, "v", Cyb_GetViewMatrix(cam));
         Cyb_SetMatrix(renderer, rainbowShader, "p", &p);
-        Cyb_SetMatrix(renderer, rainbowShader, "n", &n);
+        Cyb_SetMatrix(renderer, rainbowShader, "n", &n[0]);
         
         //Set lights
         Cyb_SetVec3(renderer, rainbowShader, "camPos", Cyb_GetCameraPos(cam));
@@ -694,17 +695,25 @@ void DrawCube(void)
 }
 
 
-void DrawPyramid(void)
+void DrawPyramids(int count)
 {
-    //Update model matrix
-    Cyb_Vec4 rotY;
-    Cyb_QuatFromAxisAndAngle(&rotY, 0.0f, 1.0f, 0.0f, 0.0f); //angle);
-    Cyb_QuatToMatrix(&m, &rotY);
+    //Update matrices
+    for(int i = 0; i < count; i++)
+    {
+        //Update model matrix
+        Cyb_Mat4 t;
+        Cyb_Mat4 r;
+        Cyb_Vec4 rotY;
+        Cyb_Translate(&t, 0.0f, 0.0f, (float)i * -2.0f);
+        Cyb_QuatFromAxisAndAngle(&rotY, 0.0f, 1.0f, 0.0f, 0.0f); //angle);
+        Cyb_QuatToMatrix(&r, &rotY);
+        Cyb_MulMat4(&m[i], &t, &r);
     
-    //Update normal matrix
-    Cyb_Mat4 tmp;
-    Cyb_Transpose(&tmp, &m);
-    Cyb_Invert(&n, &tmp);
+        //Update normal matrix
+        Cyb_Mat4 tmp;
+        Cyb_Transpose(&tmp, &m[i]);
+        Cyb_Invert(&n[i], &tmp);
+    }
     
     //Update pose
     /* Cyb_Mat4 bone;
@@ -728,10 +737,10 @@ void DrawPyramid(void)
     Cyb_SelectShader(renderer, normMapShader);
     
     //Set matrices
-    Cyb_SetMatrix(renderer, normMapShader, "m", &m);
+    //Cyb_SetMatrix(renderer, normMapShader, "m", &m[0]);
     Cyb_SetMatrix(renderer, normMapShader, "v", Cyb_GetViewMatrix(cam));
     Cyb_SetMatrix(renderer, normMapShader, "p", &p);
-    Cyb_SetMatrix(renderer, normMapShader, "n", &n);
+    //Cyb_SetMatrix(renderer, normMapShader, "n", &n[0]);
     
     //Set lights
     Cyb_SetVec3(renderer, normMapShader, "camPos", Cyb_GetCameraPos(cam));
@@ -755,8 +764,13 @@ void DrawPyramid(void)
     //Select pose
     Cyb_SelectPose(renderer, normMapShader, pyramidPose);
     
-    //Draw the pyramid
-    Cyb_DrawMesh(renderer, pyramid);
+    //Draw the pyramid(s)
+    for(int i = 0; i < count; i++)
+    {
+        Cyb_SetMatrix(renderer, normMapShader, "m", &m[i]);
+        Cyb_SetMatrix(renderer, normMapShader, "n", &n[i]);
+        Cyb_DrawMesh(renderer, pyramid);
+    }
 }
 
 
@@ -857,7 +871,7 @@ int main(int argc, char **argv)
                 case SDLK_m:
                     renderMode++;
                     
-                    if(renderMode > PYRAMID_MESH)
+                    if(renderMode > INSTANCED_PYRAMID_MESH)
                     {
                         renderMode = TRIANGLE_MESH;
                     }
@@ -940,7 +954,12 @@ int main(int argc, char **argv)
             
             //Pyramid?
         case PYRAMID_MESH:
-            DrawPyramid();
+            DrawPyramids(1);
+            break;
+            
+            //Instanced pyramids?
+        case INSTANCED_PYRAMID_MESH:
+            DrawPyramids(100);
             break;
         }
         

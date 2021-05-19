@@ -99,6 +99,8 @@ A lightweight high-performance game engine and application framework.
     * supports the common material attribs: ambient, diffuse, specular, and shininess
 * armatures
     * uses GPU skinning for optimum performance
+* animations
+    * supports location, rotation, and scale keys
 * asset management
     * supports saving and loading of meshes, textures, materials, and armatures
     * assets can be stored in a single compact file with optional encryption

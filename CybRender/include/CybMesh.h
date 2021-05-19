@@ -9,6 +9,8 @@
 #include "CybMath.h"
 #include "CybRenderer.h"
 
+#define Cyb_DrawMesh(renderer, mesh) Cyb_DrawMeshes(renderer, mesh, 1)
+
  
 #ifdef __cplusplus
 extern "C" {
@@ -25,13 +27,15 @@ extern "C" {
  */
 enum Cyb_VertexAttribs
 {
-    CYB_ATTRIB_POS,     /**< Vertex position attrib. */
-    CYB_ATTRIB_NORM,    /**< Vertex normal attrib. */
-    CYB_ATTRIB_TANGENT, /**< Tangent vector attrib. */
-    CYB_ATTRIB_COLOR,   /**< Vertex color attrib. */
-    CYB_ATTRIB_UV,      /**< Vertex uv attrib. */
-    CYB_ATTRIB_GROUP,   /**< Vertex group attrib. */
-    CYB_ATTRIB_WEIGHT   /**< Vertex weight attrib. */
+    CYB_ATTRIB_POS,                /**< Vertex position attrib. */
+    CYB_ATTRIB_NORM,               /**< Vertex normal attrib. */
+    CYB_ATTRIB_TANGENT,            /**< Tangent vector attrib. */
+    CYB_ATTRIB_COLOR,              /**< Vertex color attrib. */
+    CYB_ATTRIB_UV,                 /**< Vertex uv attrib. */
+    CYB_ATTRIB_GROUP,              /**< Vertex group attrib. */
+    CYB_ATTRIB_WEIGHT,             /**< Vertex weight attrib. */
+    CYB_ATTRIB_INSTANCE_MAT_MODEL, /**< Instance model matrix. */
+    CYB_ATTRIB_INSTANCE_MAT_NORM   /**< Instance normal matrix. */
 };
 
 
@@ -141,12 +145,13 @@ CYBAPI int Cyb_UpdateMesh(Cyb_Renderer *renderer, Cyb_Mesh *mesh, int vertCount,
     const Cyb_Vec4 *colors, const Cyb_Vec2 *uvs, int indexCount, 
     const unsigned int *indices);
     
-/** @brief Draw a mesh.
+/** @brief Draw multiple instances of the same mesh.
  *
  * @param renderer Pointer to the renderer.
  * @param mesh Pointer to the mesh.
+ * @param count The number of instances to draw.
  */
-CYBAPI void Cyb_DrawMesh(Cyb_Renderer *renderer, Cyb_Mesh *mesh);
+CYBAPI void Cyb_DrawMeshes(Cyb_Renderer *renderer, Cyb_Mesh *mesh, int count);
 
 /**
  * @}

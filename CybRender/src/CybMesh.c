@@ -284,7 +284,7 @@ int Cyb_UpdateMesh(Cyb_Renderer *renderer, Cyb_Mesh *mesh, int vertCount,
 }
 
 
-void Cyb_DrawMesh(Cyb_Renderer *renderer, Cyb_Mesh *mesh)
+void Cyb_DrawMeshes(Cyb_Renderer *renderer, Cyb_Mesh *mesh, int count)
 {
     //Select renderer
     Cyb_SelectRenderer(renderer);
@@ -378,5 +378,16 @@ void Cyb_DrawMesh(Cyb_Renderer *renderer, Cyb_Mesh *mesh)
     }
     
     //Draw the mesh
-    glDrawElements(GL_TRIANGLES, mesh->indexCount, GL_UNSIGNED_INT, NULL);
+    if(count == 1)
+    {
+        glDrawElements(GL_TRIANGLES, mesh->indexCount, GL_UNSIGNED_INT, NULL);
+    }
+    //Draw multiple mesh instances
+    else
+    {
+        /* glExtAPI->DrawElementsInstanced(GL_TRIANGLES, mesh->indexCount,
+            GL_UNSIGNED_INT, NULL, count); */
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s",
+            "[CybRender] Hardware instancing not supported at this time!");
+    }
 }
