@@ -37,13 +37,6 @@ int Cyb_InitUI(void)
             return CYB_ERROR;
         }
         
-        //Register UI events
-        if(Cyb_InitUIEvents())
-        {
-            refCnt = 0;
-            return CYB_ERROR;
-        }
-        
         //Initialize SDL2 video subsystem
         SDL_Log("%s", "[CybUI] Initializing...");
         
@@ -71,6 +64,13 @@ int Cyb_InitUI(void)
         {
             SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "[CybUI] %s",
                 SDL_GetError());
+            refCnt = 0;
+            return CYB_ERROR;
+        }
+        
+        //Register UI events
+        if(Cyb_InitUIEvents())
+        {
             refCnt = 0;
             return CYB_ERROR;
         }

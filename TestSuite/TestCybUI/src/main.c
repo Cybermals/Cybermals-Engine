@@ -229,7 +229,7 @@ int main(int argc, char **argv)
         
         //Swap buffers and limit framerate
         SDL_RenderPresent(renderer);
-        Cyb_NextFrame(FPS);
+        SDL_Delay(1000 / FPS);
     }
     
     return 0;

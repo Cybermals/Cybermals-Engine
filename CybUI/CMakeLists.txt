@@ -68,7 +68,6 @@ target_sources(
     src/CybListBox.c
     src/CybProgressBar.c
     src/CybTextBox.c
-    src/CybTimer.c
     src/CybUI.c
     src/CybUIEvents.c
     src/CybUILoader.c

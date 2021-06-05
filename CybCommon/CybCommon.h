@@ -13,11 +13,11 @@
 //Version Info
 /** @brief Cybermals Engine version float.
  */
-#define CYB_VERSION        0.3f
+#define CYB_VERSION        0.4f
 
 /** @brief Cybermals Engine version string.
  */
-#define CYB_VERSION_STRING "0.3.0a"
+#define CYB_VERSION_STRING "0.4.0a"
 
 //Library Exports
 #ifdef _MSC_VER
